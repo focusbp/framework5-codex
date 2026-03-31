@@ -13,6 +13,8 @@ nbproject/private/
 *.log
 *.tmp
 *.bak
+NetBeansProjects.md
+**/NetBeansProjects.md
 
 .env
 .env.*
