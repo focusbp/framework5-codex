@@ -1,52 +1,161 @@
-# Focus Business Platform Ver.5
+# FBP (Focus Business Platform Ver.5)
 
-Focus Business Platform Ver.5` is a framework designed **specifically for AI coding (agent-driven development)**.  
-It prioritizes safe implementation, verification, and operation by coding agents over manual workflows.
+> Build business systems with AI — safely, fast, and real.
 
-## Must Read First
+## AI builds your business system.
 
-Before starting development, always read:
+FBP is not a framework for developers.  
+It is a framework for AI to build business applications.
 
-- `docs/AGENTS.md`
+---
 
-This file defines requirement classification, UI/Ajax rules, completion criteria, and skill selection.  
-When assigning work to an AI agent, **loading `docs/AGENTS.md` first is mandatory**.
+## Why FBP
 
-## Framework Characteristics
+Traditional frameworks scale humans.  
+FBP scales AI.
 
-- Structure optimized for AI-agent implementation and maintenance
-- Standardized workflow by feature-based skills (`screen_fields`, `db_additionals`, `cron`, `webhook`, `embed_app`, `public_pages`, etc.)
-- CLI-friendly verification flow
-- Explicit implementation rules to reduce quality variance
+- Developers write code → slow, complex
+- AI writes code → unstable, unsafe
 
-## Recommended Workflow (with AI)
+FBP solves this.
 
-1. Classify the requirement (`screen_fields` / `post_action_class` / `db_additionals` / `cron` / `webhook` / `embed_app` / `public_pages`).
-2. Select the corresponding skill according to `docs/AGENTS.md`.
-3. Implement.
-4. Verify until minimum completion criteria are satisfied.
+It gives AI a **structure to build safely and consistently**.
 
-## Minimum Completion Criteria
+---
 
-- `app_call` succeeds
-- For update flows, verify reflection with `data_get` or `data_list`
-- For public routes, verify major scenarios with `app_check`
+## Concept
 
-## Implementation Rules (Key Points)
+AI (engine)
+   ↓
+FBP (body & steering)
+   ↓
+Business Application (ready to use)
 
-- Follow the allowlist in `_buttons_prompt_form.tpl`
-- Generate URLs with `$ctl->get_APP_URL()` instead of string concatenation
-- On validation errors, return `res_error_message()` and `return` immediately
-- On errors, do not re-run `show_multi_dialog()` or redraw via `reload_area()`
-- Prefer helpers for forms/views (`fields_form_direct`, `fields_form_original`, `fields_view_direct`)
+AI alone is powerful but hard to control.  
+FBP makes AI usable for real business.
 
-## Notes
+---
 
-- Keep environment-specific procedures (local paths, deployment/sync steps) out of common rules; move them into the relevant skill.
-- If you update specs or operational rules, update `docs/AGENTS.md` and related skills together.
+## What makes FBP different
+
+### 1. AI-first architecture
+Designed for AI from the ground up.
+
+- Small, isolated components
+- Predictable structure
+- Easy for AI to generate and modify
+
+---
+
+### 2. Built for business (not demos)
+
+- CRUD systems
+- Dashboards
+- LINE Bots
+- Internal tools
+
+Real-world use, not prototypes.
+
+---
+
+### 3. Safe AI generation
+
+- Strict structure
+- Controlled execution
+- Reduced prompt injection risk
+
+---
+
+## Demo (3 minutes)
+
+Create a business app in minutes:
+
+1. Start wizard
+2. Answer simple questions
+3. AI generates:
+   - Database
+   - UI
+   - Logic
+
+→ Ready to use
+
+---
+
+## Quick Start
+
+git clone https://github.com/focusbp/framework5.git  
+cd framework5  
+
+Setup your environment (PHP 7.3+ recommended)
+
+Then start building with AI.
+
+---
+
+## Example Use Cases
+
+- Customer management system
+- Sales tracking dashboard
+- Internal workflow tools
+- LINE Bot automation
+
+---
+
+## Philosophy
+
+AI is not a replacement for humans.  
+AI is a tool.
+
+But tools need structure.
+
+FBP provides that structure.
+
+---
+
+## Positioning
+
+FBP is not:
+
+- a no-code tool
+- a low-code platform
+- a developer framework
+
+FBP is:
+
+A framework where AI becomes the builder.
+
+---
+
+## Roadmap
+
+- Wizard-based app generation
+- Dashboard widget system
+- AI-native development tools
+- Public page generation
+- Embed apps
+
+---
+
+## Who is this for
+
+- Business owners who want fast systems
+- Developers working with AI
+- Teams building internal tools
+
+---
 
 ## License
 
-- See `fbp/LICENSE` for the framework's own license.
-- See `THIRD_PARTY_LICENSES.md` for bundled third-party license inventory.
-- For exact obligations, follow each bundled component's original license file.
+The MIT License (MIT)
+
+---
+
+## Final Message
+
+Morning: You explain your business.  
+Evening: Your system is ready.
+
+This is not the future.
+
+This is now.
+
