@@ -461,7 +461,7 @@ class db_exe {
 		
 		// Post Action Class
 				$this->invoke_post_action_class($ctl, $data, "delete");
-	}
+	} 
 	
 	
 	function rows_child(Controller $ctl){
