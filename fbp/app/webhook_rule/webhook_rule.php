@@ -25,9 +25,17 @@ class webhook_rule {
 
 	function __construct(Controller $ctl) {
 		$this->fmt_rule = $ctl->db("webhook_rule", "webhook_rule");
-		$ctl->assign("match_type_opt", $this->match_type_opt);
+		$ctl->assign("match_type_opt", [
+			"exact" => $ctl->t("webhook_rule.match_type.exact"),
+			"contains" => $ctl->t("webhook_rule.match_type.contains"),
+			"regex" => $ctl->t("webhook_rule.match_type.regex"),
+			"data_type" => $ctl->t("webhook_rule.match_type.data_type"),
+		]);
 		$ctl->assign("channel_opt", $this->channel_opt);
-		$ctl->assign("enabled_opt", $this->enabled_opt);
+		$ctl->assign("enabled_opt", [
+			0 => $ctl->t("common.disabled"),
+			1 => $ctl->t("common.enabled"),
+		]);
 	}
 
 	function page(Controller $ctl) {
@@ -48,7 +56,7 @@ class webhook_rule {
 			$post["enabled"] = 1;
 		}
 		$ctl->assign("post", $post);
-		$ctl->show_multi_dialog("webhook_rule_add", "add.tpl", "Add Webhook Rule", 900, true, true);
+		$ctl->show_multi_dialog("webhook_rule_add", "add.tpl", $ctl->t("webhook_rule.dialog.add"), 900, true, true);
 	}
 
 	function add_exe(Controller $ctl) {
@@ -76,7 +84,7 @@ class webhook_rule {
 		$id = (int) $ctl->POST("id");
 		$data = $this->fmt_rule->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("webhook_rule_edit_" . $id, "edit.tpl", "Edit Webhook Rule", 900, true, true);
+		$ctl->show_multi_dialog("webhook_rule_edit_" . $id, "edit.tpl", $ctl->t("webhook_rule.dialog.edit"), 900, true, true);
 	}
 
 	function edit_exe(Controller $ctl) {
@@ -110,7 +118,7 @@ class webhook_rule {
 		$id = (int) $ctl->POST("id");
 		$data = $this->fmt_rule->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("webhook_rule_delete_" . $id, "delete.tpl", "Delete Webhook Rule", 500, true, true);
+		$ctl->show_multi_dialog("webhook_rule_delete_" . $id, "delete.tpl", $ctl->t("webhook_rule.dialog.delete"), 500, true, true);
 	}
 
 	function delete_exe(Controller $ctl) {
@@ -149,22 +157,22 @@ class webhook_rule {
 		$action_class = trim((string) ($post["action_class"] ?? ""));
 
 		if (!array_key_exists((int) $channel, $this->channel_opt)) {
-			$errors["channel"] = "Invalid channel.";
+			$errors["channel"] = $ctl->t("webhook_rule.validation.channel_invalid");
 		}
 		if ($keyword === "") {
-			$errors["keyword"] = "Keyword is required.";
+			$errors["keyword"] = $ctl->t("webhook_rule.validation.keyword_required");
 		}
 		if (!isset($this->match_type_opt[$match_type])) {
-			$errors["match_type"] = "Invalid match type.";
+			$errors["match_type"] = $ctl->t("webhook_rule.validation.match_type_invalid");
 		}
 		if ($match_type === "data_type" && !$this->is_valid_data_type_keyword($keyword)) {
-			$errors["keyword"] = "Use one of [image], [sticker], [follow], [getting_member].";
+			$errors["keyword"] = $ctl->t("webhook_rule.validation.data_type_keyword");
 		}
 		if ($action_class === "") {
-			$errors["action_class"] = "Action class is required.";
+			$errors["action_class"] = $ctl->t("webhook_rule.validation.action_class_required");
 		}
 		if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $action_class)) {
-			$errors["action_class"] = "Use letters, numbers, and underscore. Start with a letter.";
+			$errors["action_class"] = $ctl->t("webhook_rule.validation.action_class_format");
 		}
 
 		$key = $channel . "||" . $keyword;
@@ -176,7 +184,7 @@ class webhook_rule {
 			"webhook_rule"
 		);
 		if (!$is_unique) {
-			$errors["keyword"] = "Duplicate rule for the same channel and keyword.";
+			$errors["keyword"] = $ctl->t("webhook_rule.validation.duplicate");
 		}
 
 		return $errors;
@@ -220,4 +228,5 @@ class webhook_rule {
 		}
 		return (int) ($list[0]["sort"] ?? 0) + 1;
 	}
+
 }

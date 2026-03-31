@@ -10,7 +10,10 @@ class embed_app {
 
 	function __construct(Controller $ctl) {
 		$this->fmt_embed_app = $ctl->db("embed_app", "embed_app");
-		$ctl->assign("enabled_opt", $this->enabled_opt);
+		$ctl->assign("enabled_opt", [
+			0 => $ctl->t("common.disabled"),
+			1 => $ctl->t("common.enabled"),
+		]);
 	}
 
 	function page(Controller $ctl) {
@@ -32,7 +35,7 @@ class embed_app {
 			$post["enabled"] = 1;
 		}
 		$ctl->assign("post", $post);
-		$ctl->show_multi_dialog("embed_app_add", "add.tpl", "Add Embed App", 900, true, true);
+		$ctl->show_multi_dialog("embed_app_add", "add.tpl", $ctl->t("embed_app.dialog.add"), 900, true, true);
 	}
 
 	function add_exe(Controller $ctl) {
@@ -58,7 +61,7 @@ class embed_app {
 		$id = (int) $ctl->POST("id");
 		$data = $this->fmt_embed_app->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("embed_app_edit_" . $id, "edit.tpl", "Edit Embed App", 900, true, true);
+		$ctl->show_multi_dialog("embed_app_edit_" . $id, "edit.tpl", $ctl->t("embed_app.dialog.edit"), 900, true, true);
 	}
 
 	function edit_exe(Controller $ctl) {
@@ -89,7 +92,7 @@ class embed_app {
 		$id = (int) $ctl->POST("id");
 		$data = $this->fmt_embed_app->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("embed_app_delete_" . $id, "delete.tpl", "Delete Embed App", 500, true, true);
+		$ctl->show_multi_dialog("embed_app_delete_" . $id, "delete.tpl", $ctl->t("embed_app.dialog.delete"), 500, true, true);
 	}
 
 	function delete_exe(Controller $ctl) {
@@ -126,7 +129,7 @@ class embed_app {
 			return;
 		}
 		$this->assign_snippet_vars($ctl, $data);
-		$ctl->show_multi_dialog("embed_app_snippet_" . $id, "snippet.tpl", "Embed Snippet", 980, true, true);
+		$ctl->show_multi_dialog("embed_app_snippet_" . $id, "snippet.tpl", $ctl->t("embed_app.dialog.snippet"), 980, true, true);
 	}
 
 	private function validate_embed_app(Controller $ctl, array $post, string $mode): array {
@@ -137,9 +140,9 @@ class embed_app {
 		$class_name = trim((string) ($post["class_name"] ?? ""));
 
 		if ($embed_key === "") {
-			$errors["embed_key"] = "Embed key is required.";
+			$errors["embed_key"] = $ctl->t("embed_app.validation.embed_key_required");
 		} elseif (!preg_match('/^[a-zA-Z0-9_-]+$/', $embed_key)) {
-			$errors["embed_key"] = "Use letters, numbers, underscore, and hyphen only.";
+			$errors["embed_key"] = $ctl->t("embed_app.validation.embed_key_format");
 		}
 
 		$is_unique = $ctl->validate_duplicate(
@@ -150,16 +153,16 @@ class embed_app {
 			"embed_app"
 		);
 		if (!$is_unique) {
-			$errors["embed_key"] = "Embed key already exists.";
+			$errors["embed_key"] = $ctl->t("embed_app.validation.embed_key_exists");
 		}
 
 		if ($title === "") {
-			$errors["title"] = "Title is required.";
+			$errors["title"] = $ctl->t("embed_app.validation.title_required");
 		}
 		if ($class_name === "") {
-			$errors["class_name"] = "Class name is required.";
+			$errors["class_name"] = $ctl->t("embed_app.validation.class_name_required");
 		} elseif (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $class_name)) {
-			$errors["class_name"] = "Use letters, numbers, and underscore. Start with a letter.";
+			$errors["class_name"] = $ctl->t("embed_app.validation.class_name_format");
 		}
 		return $errors;
 	}
@@ -202,4 +205,5 @@ class embed_app {
 			$this->build_snippet_tag($loader_url, $route_url, $data["embed_key"])
 		);
 	}
+
 }

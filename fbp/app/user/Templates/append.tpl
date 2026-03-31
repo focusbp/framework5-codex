@@ -2,25 +2,25 @@
 
     <table>
         <tr>
-            <td class="lang">Name</td>
+            <td>{t key="user.name"}</td>
             <td><input type="text" name="name" value="{$data.name}" style="width:400px;"></td>
         </tr>
 
         <tr>
-            <td class="lang">Login ID</td>
+            <td>{t key="user.login_id"}</td>
             <td><input type="text" name="login_id" value="{$data.login_id}" style="width:400px;">
                 <p class="error">{$err_login_id}</p>
             </td>
         </tr>
         <tr>
-            <td class="lang">Password Setup</td>
+            <td>{t key="user.password_setup"}</td>
             <td>
-                <p class="lang" style="margin:0;">A password setup link will be sent by email.</p>
+                <p style="margin:0;">{t key="user.password_setup_help"}</p>
             </td>
         </tr>
 
 		<tr>
-			<td class="lang">Email</td>
+			<td>{t key="user.email"}</td>
 			<td><input type="text" name="email" value="{$data.email}" style="width:400px;">
 				<p class="error">{$err_email}</p>
 			</td>
@@ -28,7 +28,7 @@
 
 
 		<tr>
-			<td class="lang">Type</td>
+			<td>{t key="user.type"}</td>
 			<td>
 				{html_options
             name="type"
@@ -40,7 +40,7 @@
 		</tr>
 
 		<tr class="permission-row">
-			<td class="lang">Developer</td>
+			<td>{t key="user.developer"}</td>
 			<td>
 				{html_options
             name="developer_permission"
@@ -51,7 +51,7 @@
 		</tr>
 
 		<tr class="permission-row">
-			<td class="lang">Release / Backup</td>
+			<td>{t key="user.release_backup"}</td>
 			<td>
 				{html_options
             name="data_manager_permission"
@@ -66,7 +66,7 @@
 
 </form>
 
-<button class="ajax-link lang" data-class="user" data-function="append_exe" data-form="input_form">Submit</button>
+<button class="ajax-link" data-class="user" data-function="append_exe" data-form="input_form">{t key="common.save"}</button>
 
 <script>
 // type によって権限行の表示/非表示を切り替え

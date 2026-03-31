@@ -23,13 +23,12 @@ class setting {
 	];
 	private $arr_display_errors = [0 => "On Console", 1 => "Display to Window"];
 	private $arr_smtp_secure = [0 => "false", 1 => "tls", 2 => "ssl"];
-	private $arr_lang_priority = [0 => "Browser", 1 => "Default Language"];
-	private $arr_lang = ["en" => "English", "jp" => "Japanese"];
 	private $arr_force_testmode = ["0" => "Production Mode", "1" => "Developer mode"];
 	private $arr_show_menu = [0=>"No",1=>"Yes"];
 	private $arr_ssl = [0=>"http and https","https only"];
 	private $arr_flg_show_lang_on_chat = [0=>"Show",1=>"Hide"];
 	private $arr_show_developer_panel = [0=>"Hide",1=>"Show"];
+	private $arr_framework_language_code = [];
 	private $currency_list = [];
 
 	function __construct(Controller $ctl) {
@@ -38,8 +37,8 @@ class setting {
 		$ctl->assign("arr_onoff", [0 => "On", 1 => "Off"]);
 		$ctl->assign("arr_display_errors", $this->arr_display_errors);
 		$ctl->assign("arr_smtp_secure", $this->arr_smtp_secure);
-		$ctl->assign("arr_lang_priority", $this->arr_lang_priority);
-		$ctl->assign("arr_lang", $this->arr_lang);
+		$this->arr_framework_language_code = I18nSimple::get_language_options();
+		$ctl->assign("arr_framework_language_code", $this->arr_framework_language_code);
 		$ctl->assign("arr_force_testmode", $this->arr_force_testmode);
 		$ctl->assign("arr_show_menu", $this->arr_show_menu);
 		$ctl->assign("arr_ssl",$this->arr_ssl);
@@ -81,9 +80,16 @@ class setting {
 		if (empty($setting["timezone"])){
 			$setting["timezone"] = 'Asia/Tokyo';
 		}
+		$setting["framework_language_code"] = $this->normalize_framework_language_code((string) ($setting["framework_language_code"] ?? "en"));
+		$setting["lang_priority"] = 1;
+		$setting["lang_default"] = I18nSimple::get_legacy_lang_code_from_setting($setting);
+		if (!isset($setting["flg_show_lang_on_chat"])) {
+			$setting["flg_show_lang_on_chat"] = 0;
+		}
 		
 		
 		$this->ffm->update($setting);
+		$ctl->set_session("setting", $setting);
 
 		// Replace .htaccess
 		$path_server = $_SERVER['REQUEST_URI'];
@@ -145,12 +151,18 @@ class setting {
 		if (empty($setting["timezone"])){
 			$setting["timezone"] = 'Asia/Tokyo';
 		}
+		$setting["framework_language_code"] = $this->normalize_framework_language_code((string) ($setting["framework_language_code"] ?? "en"));
+		$setting["lang_priority"] = 1;
+		$setting["lang_default"] = I18nSimple::get_legacy_lang_code_from_setting($setting);
+		if (!isset($setting["flg_show_lang_on_chat"])) {
+			$setting["flg_show_lang_on_chat"] = 0;
+		}
 
 		$ctl->assign("setting", $setting);
 		$ctl->assign("masked_setting", $this->mask_sensitive_setting($setting));
 		$ctl->assign("line_webhook_url", $ctl->get_APP_URL("webhook_line", "receive"));
 
-		$ctl->show_multi_dialog("setting", "index.tpl", "Setting", 800, "_edit_button.tpl");
+		$ctl->show_multi_dialog("setting", "index.tpl", $ctl->t("setting.dialog.index"), 800, "_edit_button.tpl");
 	}
 
 	function json_upload(Controller $ctl) {
@@ -167,12 +179,12 @@ class setting {
 
 	function delete_login_logo(Controller $ctl) {
 		$ctl->delete_saved_file("login_logo");
-		$ctl->show_notification_text("Login Logo has been deleted.");
+		$ctl->show_notification_text($ctl->t("setting.notification.login_logo_deleted"));
 	}
 	
 	function delete_favicon(Controller $ctl) {
 		$ctl->delete_saved_file("favicon");
-		$ctl->show_notification_text("Favicon has been deleted.");
+		$ctl->show_notification_text($ctl->t("setting.notification.favicon_deleted"));
 	}
 
 	function square(Controller $ctl) {
@@ -212,11 +224,11 @@ class setting {
 			if ($result) {
 				$ctl->close_square_dialog();
 				$ctl->assign("msg", "SUCCESS");
-				$ctl->show_multi_dialog("square_dialog", "square_result.tpl", "Square Result");
+				$ctl->show_multi_dialog("square_dialog", "square_result.tpl", $ctl->t("setting.square_result"));
 			} else {
 				$ctl->close_square_dialog();
 				$ctl->assign("msg", "FAIL");
-				$ctl->show_multi_dialog("square_dialog", "square_result.tpl", "Square Result");
+				$ctl->show_multi_dialog("square_dialog", "square_result.tpl", $ctl->t("setting.square_result"));
 			}
 		} catch (Exception $e) {
 			$ctl->show_square_dialog("square_sample", "pay", $param, $e->getMessage());
@@ -240,6 +252,14 @@ class setting {
 			return "";
 		}
 		return "Configured";
+	}
+
+	private function normalize_framework_language_code(string $code): string {
+		$code = strtolower(trim($code));
+		if (!preg_match('/^[a-z]{2}$/', $code)) {
+			return "en";
+		}
+		return $code;
 	}
 
 }

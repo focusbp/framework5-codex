@@ -32,7 +32,7 @@ class panel_constants {
 	function add(Controller $ctl) {
 		$post = $ctl->POST();
 		$ctl->assign("post", $post);
-		$ctl->show_multi_dialog("panel_constants_add", "add.tpl", "Add Constant Array", 700, true, true);
+		$ctl->show_multi_dialog("panel_constants_add", "add.tpl", $ctl->t("panel_constants.dialog.add"), 700, true, true);
 	}
 
 	function add_exe(Controller $ctl) {
@@ -64,7 +64,7 @@ class panel_constants {
 		$ctl->assign("post", $post);
 		$ctl->assign("data", $data);
 		$ctl->assign("values", $values);
-		$ctl->show_multi_dialog("panel_constants_edit_" . $id, "edit.tpl", "Edit Constant Array", 1000, "_edit_button.tpl", true);
+		$ctl->show_multi_dialog("panel_constants_edit_" . $id, "edit.tpl", $ctl->t("panel_constants.dialog.edit"), 1000, "_edit_button.tpl", true);
 	}
 
 	function edit_exe(Controller $ctl) {
@@ -135,7 +135,7 @@ class panel_constants {
 		$id = (int) $ctl->POST("id");
 		$data = $this->fmt_constant_array->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("panel_constants_delete_" . $id, "delete.tpl", "Delete Constant Array", 500, true, true);
+		$ctl->show_multi_dialog("panel_constants_delete_" . $id, "delete.tpl", $ctl->t("panel_constants.dialog.delete"), 500, true, true);
 	}
 
 	function delete_exe(Controller $ctl) {
@@ -155,21 +155,21 @@ class panel_constants {
 		$id = (int) ($post["id"] ?? 0);
 
 		if ($array_name === "") {
-			$errors["array_name"] = "Array name is required.";
+			$errors["array_name"] = $ctl->t("panel_constants.validation.array_name_required");
 			return $errors;
 		}
 		if (substr($array_name, -4) !== "_opt") {
-			$errors["array_name"] = "Array name must end with _opt.";
+			$errors["array_name"] = $ctl->t("panel_constants.validation.array_name_suffix");
 			return $errors;
 		}
 		if (strpos($array_name, "table_") === 0) {
-			$errors["array_name"] = "Array name starting with table_ is not allowed.";
+			$errors["array_name"] = $ctl->t("panel_constants.validation.array_name_prefix");
 			return $errors;
 		}
 
 		$is_unique = $ctl->validate_duplicate("constant_array", "array_name", $array_name, $mode === "edit" ? $id : null, "constant_array");
 		if (!$is_unique) {
-			$errors["array_name"] = $array_name . " already exists.";
+			$errors["array_name"] = $ctl->t("panel_constants.validation.array_name_exists", ["name" => $array_name]);
 		}
 
 		return $errors;
@@ -212,19 +212,19 @@ class panel_constants {
 			$value = $row["value"];
 
 			if ($key === "") {
-				$errors["rows"] = "Each row needs a value.";
+				$errors["rows"] = $ctl->t("panel_constants.validation.row_value_required");
 				continue;
 			}
 			if (!preg_match('/^\d+$/', $key)) {
-				$errors["rows"] = "Each value must be numeric.";
+				$errors["rows"] = $ctl->t("panel_constants.validation.row_value_numeric");
 				continue;
 			}
 			if ($value === "") {
-				$errors["rows"] = "Each row needs a label.";
+				$errors["rows"] = $ctl->t("panel_constants.validation.row_label_required");
 				continue;
 			}
 			if (isset($seen[$key])) {
-				$errors["rows"] = "Duplicate value " . $key . " is not allowed.";
+				$errors["rows"] = $ctl->t("panel_constants.validation.row_value_duplicate", ["value" => $key]);
 				continue;
 			}
 			$seen[$key] = true;

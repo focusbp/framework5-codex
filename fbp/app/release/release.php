@@ -40,14 +40,14 @@ class release {
 		$setting = $ctl->get_setting();
 		$ctl->assign("setting", $setting);
 		if (empty($setting["project_release_code"])) {
-			$ctl->assign("message", "Please set the Project Release Code on the settings screen first.");
+			$ctl->assign("message", $ctl->t("release.validation.project_release_code_required"));
 			$ctl->assign("flg", false);
 		} else {
-			$ctl->assign("message", "Download Project :" . $setting["project_release_code"]);
+			$ctl->assign("message", $ctl->t("release.download_project_message", ["code" => $setting["project_release_code"]]));
 			$ctl->assign("flg", true);
 		}
 
-		$ctl->show_multi_dialog("download", "download.tpl", "Download Release Package");
+		$ctl->show_multi_dialog("download", "download.tpl", $ctl->t("release.dialog.download_package"));
 	}
 
 	function download_zip_exe(Controller $ctl) {
@@ -121,13 +121,13 @@ class release {
 		$setting = $ctl->get_setting();
 		$ctl->assign("setting", $setting);
 		if (empty($setting["project_release_code"])) {
-			$ctl->assign("message", "Please set the Project Release Code on the settings screen first.");
+			$ctl->assign("message", $ctl->t("release.validation.project_release_code_required"));
 			$ctl->assign("flg", false);
 		} else {
-			$ctl->assign("message", "Release Project :" . $setting["project_release_code"]);
+			$ctl->assign("message", $ctl->t("release.release_project_message", ["code" => $setting["project_release_code"]]));
 			$ctl->assign("flg", true);
 		}
-		$ctl->show_multi_dialog("upgrade", "release.tpl", "Release", 600, true, true);
+		$ctl->show_multi_dialog("upgrade", "release.tpl", $ctl->t("release.dialog.release"), 600, true, true);
 	}
 
 	function release_confirm(Controller $ctl) {
@@ -156,7 +156,7 @@ class release {
 					$ctl->assign("info", $info);
 					$ctl->assign("flg", true);
 				} else {
-					$ctl->assign("message", "This is not a release file for this project.");
+					$ctl->assign("message", $ctl->t("release.validation.invalid_release_file"));
 					$ctl->assign("info", $info);
 					$ctl->assign("flg", false);
 					unlink($zipFile);
@@ -165,15 +165,15 @@ class release {
 				$zip->deleteName('info.json');
 				$zip->close();
 			} else {
-				$ctl->assign("message", "Cannot open the file uploaded.");
+				$ctl->assign("message", $ctl->t("release.validation.cannot_open_uploaded_file"));
 				$ctl->assign("flg", false);
 				unlink($zipFile);
 			}
 		} else {
-			$ctl->assign("message", "Cannot open the file uploaded.");
+			$ctl->assign("message", $ctl->t("release.validation.cannot_open_uploaded_file"));
 			$ctl->assign("flg", false);
 		}
-		$ctl->show_multi_dialog("upgrade2", "release_confirm.tpl", "Upgrade", 600, true, true);
+		$ctl->show_multi_dialog("upgrade2", "release_confirm.tpl", $ctl->t("release.dialog.upgrade"), 600, true, true);
 	}
 
 	function release_exe(Controller $ctl) {
@@ -207,9 +207,9 @@ class release {
 
 			unlink($zipFile);
 
-			$ctl->assign("success", "Successfully Released.");
+			$ctl->assign("success", $ctl->t("release.success"));
 		} else {
-			$ctl->assign("fail", "Cannot open <$saved_release_file>\n");
+			$ctl->assign("fail", $ctl->t("release.validation.cannot_open_file", ["file" => $saved_release_file]));
 		}
 		
 		// fmtファイルの再作成
@@ -218,7 +218,7 @@ class release {
 		// cron再設定
 		$ctl->cron_set();
 		
-		$ctl->show_multi_dialog("upgrade2", "release_done.tpl", "Upgrade", 600, true, true);
+		$ctl->show_multi_dialog("upgrade2", "release_done.tpl", $ctl->t("release.dialog.upgrade"), 600, true, true);
 	}
 
 	function reload(Controller $ctl) {

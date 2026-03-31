@@ -2,7 +2,7 @@
 
 	<input type="hidden" name="id" value="{$data.id}">
 
-	<span class="lang">Are you sure to delete the following record?</span>
+	<span class="lang">{t key="base.record_delete.label"}</span>
 	<p>
 		<b>
 
@@ -11,11 +11,11 @@
 		</b>
 	</p>
 	<br>
-	<p class="lang">If you perform this process, it will not be restored. Do you want to process it?</p>
+	<p class="lang">{t key="base.record_delete.confirm"}</p>
 
 </form>
-<button class="cancel_delete lang">No</button>
-<button class="ajax-link lang" data-form="record_delete_form_{$data.id}" data-class="{$class}" data-function="record_delete_exe">Delete</button>
+<button class="cancel_delete lang">{t key="base.record_delete.no"}</button>
+<button class="ajax-link lang" data-form="record_delete_form_{$data.id}" data-class="{$class}" data-function="record_delete_exe">{t key="common.delete"}</button>
 
 <script>
 	$('.cancel_delete').click(function () {

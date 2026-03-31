@@ -7,17 +7,16 @@
 		<div class="flex-full">
 
 
-			<input type="file" name="release_file" data-text="File Upload" class="fr_image_paste">
+			<input type="file" name="release_file" data-text="{t key='common.file_upload'}" class="fr_image_paste">
 
 		</div>
 
 		</div>
-		<button class="ajax-link lang" data-form="release_upload_file" data-class="{$class}" data-function="release_confirm">Release</button>
+		<button class="ajax-link" data-form="release_upload_file" data-class="{$class}" data-function="release_confirm">{t key="release.release_button"}</button>
 	</form>
 {else}
 	<p class="error">{$message}</p>
 {/if}
-
 
 
 

@@ -1,7 +1,7 @@
 <div id="tabs">
   <ul>
-    <li><a href="#tabs-1">Fields Settings</a></li>
-    <li><a href="#tabs-2">Table Settings</a></li>
+    <li><a href="#tabs-1">{t key="db.fields_settings"}</a></li>
+    <li><a href="#tabs-2">{t key="db.table_settings"}</a></li>
   </ul>
   <div id="tabs-1">
 	  {include file="_edit_field.tpl"}

@@ -7,17 +7,16 @@
 		<div class="flex-full">
 
 
-			<input type="file" name="restore_file" data-text="File Upload" class="fr_image_paste">
+			<input type="file" name="restore_file" data-text="{t key='common.file_upload'}" class="fr_image_paste">
 
 		</div>
 
 		</div>
-		<button class="ajax-link lang" data-form="restore_upload_file" data-class="{$class}" data-function="restore_confirm">Go Next</button>
+		<button class="ajax-link" data-form="restore_upload_file" data-class="{$class}" data-function="restore_confirm">{t key="common.next"}</button>
 	</form>
 {else}
 	<p class="error">{$message}</p>
 {/if}
-
 
 
 

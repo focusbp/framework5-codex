@@ -1,25 +1,25 @@
 <form id="wizard_table_change_delete_preview_form">
 	<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px;">
 		<tr>
-			<th style="width:180px;text-align:left;border:1px solid #d5dbe5;background:#f4f7fb;padding:8px;">変更種別</th>
-			<td style="border:1px solid #d5dbe5;padding:8px;">項目の削除</td>
+			<th style="width:180px;text-align:left;border:1px solid #d5dbe5;background:#f4f7fb;padding:8px;">{t key="wizard.table_change.preview.change_type"}</th>
+			<td style="border:1px solid #d5dbe5;padding:8px;">{t key="wizard.table_change.action.delete_field"}</td>
 		</tr>
 		<tr>
-			<th style="text-align:left;border:1px solid #d5dbe5;background:#f4f7fb;padding:8px;">対象テーブル</th>
+			<th style="text-align:left;border:1px solid #d5dbe5;background:#f4f7fb;padding:8px;">{t key="wizard.table_change.table.label"}</th>
 			<td style="border:1px solid #d5dbe5;padding:8px;">{$row.target_tb_name|escape}</td>
 		</tr>
 		<tr>
-			<th style="text-align:left;border:1px solid #d5dbe5;background:#f4f7fb;padding:8px;">削除項目</th>
+			<th style="text-align:left;border:1px solid #d5dbe5;background:#f4f7fb;padding:8px;">{t key="wizard.table_change.delete_fields.label"}</th>
 			<td style="border:1px solid #d5dbe5;padding:8px;white-space:pre-wrap;line-height:1.7;">{$row.fields_text|escape}</td>
 		</tr>
 	</table>
 
-	<p style="font-weight:bold;margin:0 0 4px 0;">実行計画</p>
+	<p style="font-weight:bold;margin:0 0 4px 0;">{t key="wizard.execution_plan"}</p>
 	<table style="width:100%;border-collapse:collapse;font-size:12px;">
 		<thead>
 			<tr>
 				<th style="width:56px;border:1px solid #d5dbe5;background:#f4f7fb;padding:6px;">No</th>
-				<th style="border:1px solid #d5dbe5;background:#f4f7fb;padding:6px;text-align:left;">内容</th>
+				<th style="border:1px solid #d5dbe5;background:#f4f7fb;padding:6px;text-align:left;">{t key="wizard.content"}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -33,7 +33,7 @@
 	</table>
 
 	<div style="margin-top:12px;overflow:auto;">
-		<button type="button" class="ajax-link" invoke-function="back_to_table_change_delete_fields" style="float:left;">前へ</button>
-		<button type="button" class="ajax-link" invoke-function="open_codex_terminal_with_prompt" style="float:right;">次へ</button>
+		<button type="button" class="ajax-link" invoke-function="back_to_table_change_delete_fields" style="float:left;">{t key="common.back"}</button>
+		<button type="button" class="ajax-link" invoke-function="open_codex_terminal_with_prompt" style="float:right;">{t key="common.next"}</button>
 	</div>
 </form>

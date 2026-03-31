@@ -11,7 +11,10 @@ class public_assets {
 
 	function __construct(Controller $ctl) {
 		$this->fmt_assets = $ctl->db("public_assets", "public_assets");
-		$ctl->assign("enabled_opt", $this->enabled_opt);
+		$ctl->assign("enabled_opt", [
+			0 => $ctl->t("common.hide"),
+			1 => $ctl->t("common.show"),
+		]);
 		$this->asset_dir = dirname(__FILE__) . "/../../../classes/data/public_pages/assets";
 		if (!is_dir($this->asset_dir)) {
 			mkdir($this->asset_dir, 0777, true);
@@ -34,7 +37,7 @@ class public_assets {
 			$post["enabled"] = 1;
 		}
 		$ctl->assign("post", $post);
-		$ctl->show_multi_dialog("public_assets_add", "add.tpl", "Add Public Asset", 860, true, true);
+		$ctl->show_multi_dialog("public_assets_add", "add.tpl", $ctl->t("public_assets.dialog.add"), 860, true, true);
 	}
 
 	function add_exe(Controller $ctl) {
@@ -55,7 +58,7 @@ class public_assets {
 		$id = (int) $ctl->POST("id");
 		$data = $this->fmt_assets->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("public_assets_edit_" . $id, "edit.tpl", "Edit Public Asset", 860, true, true);
+		$ctl->show_multi_dialog("public_assets_edit_" . $id, "edit.tpl", $ctl->t("public_assets.dialog.edit"), 860, true, true);
 	}
 
 	function edit_exe(Controller $ctl) {
@@ -104,7 +107,7 @@ class public_assets {
 			$data["preview_url"] = $ctl->get_APP_URL("public_asset_media", "view", ["key" => (string) ($data["asset_key"] ?? "")]);
 		}
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("public_assets_delete_" . $id, "delete.tpl", "Delete Public Asset", 520, true, true);
+		$ctl->show_multi_dialog("public_assets_delete_" . $id, "delete.tpl", $ctl->t("public_assets.dialog.delete"), 520, true, true);
 	}
 
 	function delete_exe(Controller $ctl) {
@@ -171,7 +174,7 @@ class public_assets {
 			return [
 				"ok" => false,
 				"errors" => [
-					"asset_file" => "画像の保存に失敗しました。"
+					"asset_file" => $ctl->t("public_assets.validation.store_failed")
 				]
 			];
 		}
@@ -182,9 +185,9 @@ class public_assets {
 		$id = (int) ($post["id"] ?? 0);
 		$asset_key = $this->normalize_asset_key((string) ($post["asset_key"] ?? ""));
 		if ($asset_key === "") {
-			$errors["asset_key"] = "Asset key is required.";
+			$errors["asset_key"] = $ctl->t("public_assets.validation.asset_key_required");
 		} elseif (!preg_match('/^[a-z][a-z0-9_]*$/', $asset_key)) {
-			$errors["asset_key"] = "Use lowercase letters, numbers, and underscore. Start with a letter.";
+			$errors["asset_key"] = $ctl->t("public_assets.validation.asset_key_format");
 		}
 		$is_unique = $ctl->validate_duplicate(
 			"public_assets",
@@ -194,15 +197,15 @@ class public_assets {
 			"public_assets"
 		);
 		if (!$is_unique) {
-			$errors["asset_key"] = "Asset key already exists.";
+			$errors["asset_key"] = $ctl->t("public_assets.validation.asset_key_exists");
 		}
 		if ($require_file && !$this->has_uploaded_file("asset_file")) {
-			$errors["asset_file"] = "Image file is required.";
+			$errors["asset_file"] = $ctl->t("public_assets.validation.asset_file_required");
 		}
 		if ($this->has_uploaded_file("asset_file")) {
 			$mime_type = $this->detect_uploaded_mime_type("asset_file");
 			if (!$this->is_allowed_image_mime($mime_type)) {
-				$errors["asset_file"] = "Only image files are allowed.";
+				$errors["asset_file"] = $ctl->t("public_assets.validation.asset_file_image");
 			}
 		}
 		return $errors;
@@ -371,4 +374,5 @@ class public_assets {
 			unlink($path);
 		}
 	}
+
 }

@@ -12,9 +12,9 @@ class codex_terminal {
 				$ctl->assign("codex_terminal_ws_token", $terminal_ws_token);
 				$ctl->assign("codex_terminal_token_ttl", $token_ttl);
 				$ctl->assign("codex_terminal_initial_input", $initial_input);
-				$ctl->show_multi_dialog("codex_terminal", "terminal.tpl", "Codex Terminal", 980, "_fixed_bar.tpl");
+				$ctl->show_multi_dialog("codex_terminal", "terminal.tpl", $ctl->t("codex_terminal.dialog.title"), 980, "_fixed_bar.tpl");
 		} catch (Throwable $e) {
-			$ctl->show_notification_text("この環境ではCodex Terminalは提供されていません。", 3, "#950000", "#FFF", 20, 760);
+			$ctl->show_notification_text($ctl->t("codex_terminal.unavailable"), 3, "#950000", "#FFF", 20, 760);
 		}
 	}
 

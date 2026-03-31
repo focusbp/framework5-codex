@@ -1,6 +1,6 @@
 <div>
 	<div style="float:right;margin-bottom: 8px;">
-		<button class="ajax-link lang" data-class="{$class}" data-function="add">Add Widget</button>
+		<button class="ajax-link lang" data-class="{$class}" data-function="add">{t key="dashboard.add_button"}</button>
 	</div>
 </div>
 <div style="clear:both;"></div>
@@ -9,9 +9,9 @@
 	<thead>
 		<tr class="table-head">
 			<th></th>
-			<th>Class Name</th>
-			<th>Function Name</th>
-			<th>Width</th>
+			<th>{t key="common.class_name"}</th>
+			<th>{t key="common.function_name"}</th>
+			<th>{t key="dashboard.width"}</th>
 			<th></th>
 		</tr>
 	</thead>

@@ -24,7 +24,7 @@ class dashboard {
 		    "column_width" => 1
 		];
 		$ctl->assign("post", $post);
-		$ctl->show_multi_dialog("dashboard_add", "add.tpl", "Add Dashboard Widget", 700, true, true);
+		$ctl->show_multi_dialog("dashboard_add", "add.tpl", $ctl->t("dashboard.dialog.add"), 700, true, true);
 	}
 
 	function add_exe(Controller $ctl) {
@@ -47,7 +47,7 @@ class dashboard {
 		$id = (int)$ctl->POST("id");
 		$data = $ctl->db("dashboard")->get($id);
 		$ctl->assign("post", $data);
-		$ctl->show_multi_dialog("dashboard_edit", "edit.tpl", "Edit Dashboard Widget", 700, true, true);
+		$ctl->show_multi_dialog("dashboard_edit", "edit.tpl", $ctl->t("dashboard.dialog.edit"), 700, true, true);
 	}
 
 	function edit_exe(Controller $ctl) {
@@ -67,7 +67,7 @@ class dashboard {
 		$id = (int)$ctl->POST("id");
 		$data = $ctl->db("dashboard")->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("dashboard_delete", "delete.tpl", "Delete Dashboard Widget", 500, true, true);
+		$ctl->show_multi_dialog("dashboard_delete", "delete.tpl", $ctl->t("dashboard.dialog.delete"), 500, true, true);
 	}
 
 	function delete_exe(Controller $ctl) {
@@ -103,19 +103,19 @@ class dashboard {
 			$column_width = (int)($widget["column_width"] ?? 1);
 
 			if (!preg_match('/^[A-Za-z][A-Za-z0-9_-]*$/', $class_name)) {
-				$ctl->res_error_message("dashboard", "Invalid class_name in dashboard id=" . (int)$widget["id"]);
+				$ctl->res_error_message("dashboard", $ctl->t("dashboard.validation.invalid_class_name", ["id" => (int)$widget["id"]]));
 				return;
 			}
 			if (!preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $function_name)) {
-				$ctl->res_error_message("dashboard", "Invalid function_name in dashboard id=" . (int)$widget["id"]);
+				$ctl->res_error_message("dashboard", $ctl->t("dashboard.validation.invalid_function_name", ["id" => (int)$widget["id"]]));
 				return;
 			}
 			if ($column_width < 1 || $column_width > 3) {
-				$ctl->res_error_message("dashboard", "column_width must be 1-3 in dashboard id=" . (int)$widget["id"]);
+				$ctl->res_error_message("dashboard", $ctl->t("dashboard.validation.invalid_column_width", ["id" => (int)$widget["id"]]));
 				return;
 			}
 			if ($class_name === "dashboard" && $function_name === "page") {
-				$ctl->res_error_message("dashboard", "dashboard/page cannot be used as a widget.");
+				$ctl->res_error_message("dashboard", $ctl->t("dashboard.validation.dashboard_page_forbidden"));
 				return;
 			}
 
@@ -128,7 +128,7 @@ class dashboard {
 		$rows = $this->build_rows($ctl->get_dashbord_items());
 		$ctl->assign("dashboard_rows", $rows);
 		$ctl->assign("dashboard_empty", count($rows) === 0);
-		$ctl->show_main_area("index.tpl", "Dashboard");
+		$ctl->show_main_area("index.tpl", $ctl->t("dashboard.title"));
 	}
 
 	private function validate_and_build(Controller $ctl, array $post, array $current = null): array {
@@ -137,15 +137,15 @@ class dashboard {
 		$column_width = (int)($post["column_width"] ?? 1);
 
 		if (!preg_match('/^[A-Za-z][A-Za-z0-9_-]*$/', $class_name)) {
-			$ctl->res_error_message("class_name", "Use letters, numbers, hyphens (-), or underscores (_). Start with a letter.");
+			$ctl->res_error_message("class_name", $ctl->t("dashboard.validation.class_name_format"));
 			return [];
 		}
 		if (!preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $function_name)) {
-			$ctl->res_error_message("function_name", "Use letters, numbers, or underscores (_). Start with a letter.");
+			$ctl->res_error_message("function_name", $ctl->t("dashboard.validation.function_name_format"));
 			return [];
 		}
 		if ($column_width < 1 || $column_width > 3) {
-			$ctl->res_error_message("column_width", "Select 1 to 3.");
+			$ctl->res_error_message("column_width", $ctl->t("dashboard.validation.column_width"));
 			return [];
 		}
 
@@ -161,11 +161,11 @@ class dashboard {
 	private function invoke_widget(Controller $ctl, string $class_name, string $function_name, int $column_width): void {
 		$widget = $this->get_class_object($ctl, $class_name);
 		if ($widget == null) {
-			$ctl->res_error_message("dashboard", "Widget class not found: " . $class_name);
+			$ctl->res_error_message("dashboard", $ctl->t("dashboard.validation.widget_class_not_found", ["class_name" => $class_name]));
 			return;
 		}
 		if (!method_exists($widget, $function_name)) {
-			$ctl->res_error_message("dashboard", "Widget function not found: " . $class_name . "/" . $function_name);
+			$ctl->res_error_message("dashboard", $ctl->t("dashboard.validation.widget_function_not_found", ["class_name" => $class_name, "function_name" => $function_name]));
 			return;
 		}
 
@@ -181,7 +181,7 @@ class dashboard {
 		}
 
 		if (count($ctl->get_dashbord_items()) === $before_count) {
-			$ctl->res_error_message("dashboard", "Widget did not call show_dashboard_widget(): " . $class_name . "/" . $function_name);
+			$ctl->res_error_message("dashboard", $ctl->t("dashboard.validation.widget_no_output", ["class_name" => $class_name, "function_name" => $function_name]));
 		}
 	}
 

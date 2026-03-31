@@ -35,7 +35,7 @@ class email_format {
 		$ctl->assign("items", $items);
 
 		if($post["window"] == "window"){
-			$ctl->show_multi_dialog("email_format", "index.tpl", "Email Templates",1000);
+			$ctl->show_multi_dialog("email_format", "index.tpl", $ctl->t("email_format.dialog.index"),1000);
 		}else{
 			$ctl->reload_area("#tabs-mail","index.tpl");
 		}
@@ -46,7 +46,7 @@ class email_format {
 	function add(Controller $ctl) {
 		$post = $ctl->POST();
 		$ctl->assign('post', $post);
-		$ctl->show_multi_dialog("add_email_format", "add.tpl", "Add Email Templates", 1000, true, true);
+		$ctl->show_multi_dialog("add_email_format", "add.tpl", $ctl->t("email_format.dialog.add"), 1000, true, true);
 	}
 
 	//save add data
@@ -97,7 +97,7 @@ class email_format {
 		
 
 		$ctl->ajax("email_format","database_field_reference");
-		$ctl->show_multi_dialog("edit_email_format_" . $post['id'], "edit.tpl", "Edit Email Templates", 1000, true, true);
+		$ctl->show_multi_dialog("edit_email_format_" . $post['id'], "edit.tpl", $ctl->t("email_format.dialog.edit"), 1000, true, true);
 	}
 	
 	function database_field_reference(Controller $ctl){
@@ -170,7 +170,7 @@ class email_format {
 		$id = $ctl->POST("id");
 		$data = $this->fmt_email_format->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("delete", "delete.tpl", "Delete Email Templates", 600, true, true);
+		$ctl->show_multi_dialog("delete", "delete.tpl", $ctl->t("email_format.dialog.delete"), 600, true, true);
 	}
 
 	//delete data form database
@@ -198,7 +198,7 @@ class email_format {
 	}
 
 	function json_upload(Controller $ctl) {
-		$ctl->show_multi_dialog("upload", "upload.tpl", "Email Templates JSON Upload", 600, true, true);
+		$ctl->show_multi_dialog("upload", "upload.tpl", $ctl->t("email_format.dialog.upload"), 600, true, true);
 	}
 
 	function json_upload_exe(Controller $ctl) {

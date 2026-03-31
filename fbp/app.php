@@ -29,6 +29,7 @@ $smarty = new Smarty();
 include("lib/fixed_file_manager/fixed_file_manager.php");
 include("interface/Controller.php");
 include("lib/Controller_class.php");
+include("lib/I18nSimple.php");
 include("interface/CodegenActionInterface.php");
 if (version_compare(PHP_VERSION, '8.0.0', '<')) {
 	include('lib_ext/stream_filter/Stream_Filter_Mbstring7.php');
@@ -121,15 +122,6 @@ if(empty($class) || empty($function)){
 $smarty->assign("class",$class);
 $smarty->assign("css_class",$class); // Default
 
-// Lang
-if(!empty($_COOKIE["lang"])){
-	$lang = $_COOKIE["lang"];
-}else{
-	$lang = "en";
-}
-$smarty->assign("lang",$lang);
-$smarty->assign("arr_lang",["en"=>"English","jp"=>"Japanese"]);
-
 // ベースのテンプレートディレクトリ指定
 $base_template_dir = dirname(__FILE__) . "/Templates";
 $smarty->assign("base_template_dir",$base_template_dir);
@@ -184,10 +176,12 @@ if(empty($setting["viewport_base"])){
 
 // Smartyにアサイン
 $smarty->assign("testserver",$testserver);
+$framework_language_code = I18nSimple::get_language_code_from_setting($setting);
+$legacy_lang_default = I18nSimple::get_legacy_lang_code_from_setting($setting);
+$smarty->assign("lang", $framework_language_code);
 $smarty->assign("arr_lang",["en"=>"English","jp"=>"Japanese"]);
-if(!empty($_COOKIE["lang"])){
-	$smarty->assign("lang",$_COOKIE["lang"]);
-}
+$smarty->assign("framework_language_code", $framework_language_code);
+$smarty->assign("legacy_lang_default", $legacy_lang_default);
 $smarty->assign("setting",$setting);
 
 //コントローラーを作成

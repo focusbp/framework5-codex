@@ -3,7 +3,7 @@
 
 	<input type="hidden" name="id" value="{$data.id}">
 
-	<span class="lang">Delete the following data</span>
+	<span class="lang">{t key="db_additionals.delete_label"}</span>
 	<p>
 		<b>
 			{$data.button_title}
@@ -11,9 +11,8 @@
 	</p>
 
 	<br>
-	<p class="lang">If you perform this process, it will not be restored. Do you want to process it?</p>
+	<p class="lang">{t key="db_additionals.delete_confirm"}</p>
 
-	<button class="ajax-link lang" data-class="{$class}" data-function="delete_exe" data-reload_db_id="{$reload_db_id}">Delete</button>
+	<button class="ajax-link lang" data-class="{$class}" data-function="delete_exe" data-reload_db_id="{$reload_db_id}">{t key="common.delete"}</button>
 </form>
-
 

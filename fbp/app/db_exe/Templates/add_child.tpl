@@ -10,7 +10,7 @@
 	{/foreach}
 
 	<div>
-		<button class="ajax-link lang" data-form="form_{$timestamp}" data-class="{$class}" data-function="add_child_exe" data-db_id="{$db_id}" data-parent_id="{$parent_id}">Add</button>
+		<button class="ajax-link" data-form="form_{$timestamp}" data-class="{$class}" data-function="add_child_exe" data-db_id="{$db_id}" data-parent_id="{$parent_id}">{t key="common.add"}</button>
 	</div>
 	
 </form>

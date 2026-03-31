@@ -39,16 +39,15 @@ class cron {
 		$ctl->assign("month_opt",$month);
 
 		$weekday = [
-		    "0" => "Sun",
-		    "1" => "Mon",
-		    "2" => "Tue",
-		    "3" => "Wed",
-		    "4" => "Thu",
-		    "5" => "Fri",
-		    "6" => "Sat",
+		    "0" => $ctl->t("cron.weekday.sun"),
+		    "1" => $ctl->t("cron.weekday.mon"),
+		    "2" => $ctl->t("cron.weekday.tue"),
+		    "3" => $ctl->t("cron.weekday.wed"),
+		    "4" => $ctl->t("cron.weekday.thu"),
+		    "5" => $ctl->t("cron.weekday.fri"),
+		    "6" => $ctl->t("cron.weekday.sat"),
 		];
 		$ctl->assign("weekday_opt",$weekday);
-		
 	}
 	
 	function exec(Controller $ctl){
@@ -120,7 +119,7 @@ class cron {
 		$post = $ctl->POST();
 		$ctl->assign('post', $post);
 
-		$ctl->show_multi_dialog("add_cron", "add.tpl", "Add Cron Task", 600, true, true);
+		$ctl->show_multi_dialog("add_cron", "add.tpl", $ctl->t("cron.dialog.add"), 600, true, true);
 	}
 	
 	function add_exe(Controller $ctl) {
@@ -145,7 +144,7 @@ class cron {
 		$data = $this->ffm_cron->get($id);		
 		$ctl->assign("data", $data);
 		
-		$ctl->show_multi_dialog("edit_cron", "edit.tpl", "Edit Cron Task", 1000, "_edit_button.tpl", true);
+		$ctl->show_multi_dialog("edit_cron", "edit.tpl", $ctl->t("cron.dialog.edit"), 1000, "_edit_button.tpl", true);
 	}
 	
 	//save edited data
@@ -176,7 +175,7 @@ class cron {
 		$id = $ctl->POST("id");
 		$data = $this->ffm_cron->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("delete_additional", "delete.tpl", "Delete Cron Task", 500, true, true);
+		$ctl->show_multi_dialog("delete_additional", "delete.tpl", $ctl->t("cron.dialog.delete"), 500, true, true);
 	}
 
 	//delete data form database
@@ -203,5 +202,5 @@ class cron {
 			$c++;
 		}
 	}
-	
+
 }

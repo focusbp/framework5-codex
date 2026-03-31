@@ -1,7 +1,7 @@
 
 <div style="float:right;margin-bottom: 8px;">
-	<button class="ajax-link lang" data-class="{$class}" data-function="add_fields" data-id="{$data.id}">Add Field</button>
-	<button class="ajax-link lang" data-class="{$class}" data-function="text_fields" data-id="{$data.id}">Text</button>
+	<button class="ajax-link lang" data-class="{$class}" data-function="add_fields" data-id="{$data.id}">{t key="db.add_field"}</button>
+	<button class="ajax-link lang" data-class="{$class}" data-function="text_fields" data-id="{$data.id}">{t key="db.text"}</button>
 	<button class="download-link lang" data-class="{$class}" data-function="pdf_fields" data-id="{$data.id}" data-filename="{$data.tb_name}.pdf" data-open_new_tab="true">PDF</button>
 </div>
 
@@ -10,11 +10,11 @@
 	<thead>
 		<tr class="table-head">
 			<th></th>
-			<th class="lang">Field Name</th>
-			<th class="lang">Field Title</th>
-			<th class="lang">Type</th>
-			<th class="lang">Length</th>
-			<th class="lang">Options</th>
+			<th class="lang">{t key="db.field_name"}</th>
+			<th class="lang">{t key="db.field_title"}</th>
+			<th class="lang">{t key="db.type"}</th>
+			<th class="lang">{t key="db.length"}</th>
+			<th class="lang">{t key="db.options"}</th>
 			<th></th>
 		</tr>
 	</thead>

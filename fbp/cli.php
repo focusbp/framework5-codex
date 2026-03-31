@@ -50,6 +50,7 @@ $smarty = new Smarty();
 
 include("interface/Controller.php");
 include("lib/Controller_class.php");
+include("lib/I18nSimple.php");
 include("interface/CodegenActionInterface.php");
 include("interface/linebot/linebot.php");
 include("lib/linebot/Linebot_class.php");

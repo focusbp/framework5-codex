@@ -19,8 +19,8 @@
 	</div>
 </div>
 
-<div id="lang_priority" style="display:none;">{$setting.lang_priority}</div>
-<div id="lang_default" style="display:none;">{$setting.lang_default}</div>
+<div id="lang_priority" style="display:none;">1</div>
+<div id="lang_default" style="display:none;">{$legacy_lang_default}</div>
 
 {include file="{$base_template_dir}/scripts.tpl"}
 
@@ -78,4 +78,3 @@
 		});
 	})();
 </script>
-

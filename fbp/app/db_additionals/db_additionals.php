@@ -53,7 +53,7 @@ class db_additionals {
 		$ctl->assign("post",$post);
 
 
-		$ctl->show_multi_dialog($this->window . "edit", "add.tpl", "", 1000);
+		$ctl->show_multi_dialog($this->window . "edit", "add.tpl", $ctl->t("db_additionals.dialog.add"), 1000);
 	}
 
 	function add_exe(Controller $ctl) {
@@ -63,21 +63,21 @@ class db_additionals {
 		$function_name = trim((string)($post["function_name"] ?? ""));
 
 		if (!preg_match('/^[A-Za-z][A-Za-z0-9_-]*$/', $class_name)) {
-			$ctl->res_error_message("class_name", "Use letters, numbers, hyphens (-), or underscores (_). Start with a letter.");
+			$ctl->res_error_message("class_name", $ctl->t("db_additionals.validation.class_name_format"));
 		}
 		if (!preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $function_name)) {
-			$ctl->res_error_message("function_name", "Use letters, numbers, or underscores (_). Start with a letter.");
+			$ctl->res_error_message("function_name", $ctl->t("db_additionals.validation.function_name_format"));
 		}
 		if (empty($post["button_title"])) {
-			$ctl->res_error_message("button_title", "Required");
+			$ctl->res_error_message("button_title", $ctl->t("validation.required"));
 		}
 		if (empty($post["tb_name"])) {
-			$ctl->res_error_message("place", "Required");
+			$ctl->res_error_message("place", $ctl->t("validation.required"));
 		}
 
 		$exists = $ctl->db("additionals")->select("class_name", $class_name);
 		if (count($exists) > 0) {
-			$ctl->res_error_message("class_name", "class_name is exists.");
+			$ctl->res_error_message("class_name", $ctl->t("db_additionals.validation.class_name_exists"));
 		}
 		
 
@@ -133,7 +133,7 @@ class db_additionals {
 		}
 		$ctl->assign("database_names", $database_names);
 
-		$ctl->show_multi_dialog($this->window . "edit", "edit.tpl", "", 1000);
+		$ctl->show_multi_dialog($this->window . "edit", "edit.tpl", $ctl->t("db_additionals.dialog.edit"), 1000);
 	}
 
 	function edit_exe(Controller $ctl) {
@@ -144,16 +144,16 @@ class db_additionals {
 		$function_name = trim((string)($post["function_name"] ?? ""));
 
 		if (!preg_match('/^[A-Za-z][A-Za-z0-9_-]*$/', $class_name)) {
-			$ctl->res_error_message("class_name", "Use letters, numbers, hyphens (-), or underscores (_). Start with a letter.");
+			$ctl->res_error_message("class_name", $ctl->t("db_additionals.validation.class_name_format"));
 		}
 		if (!preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $function_name)) {
-			$ctl->res_error_message("function_name", "Use letters, numbers, or underscores (_). Start with a letter.");
+			$ctl->res_error_message("function_name", $ctl->t("db_additionals.validation.function_name_format"));
 		}
 		if (empty($post["button_title"])) {
-			$ctl->res_error_message("button_title", "Required");
+			$ctl->res_error_message("button_title", $ctl->t("validation.required"));
 		}
 		if (empty($post["tb_name"])) {
-			$ctl->res_error_message("place", "Required");
+			$ctl->res_error_message("place", $ctl->t("validation.required"));
 		}
 
 		if ($ctl->count_res_error_message() == 0) {
@@ -182,7 +182,7 @@ class db_additionals {
 			$ctl->reload_side_panel();
 			$ctl->close_multi_dialog($this->window . "edit");
 		} else {
-			$ctl->show_notification_text("There are errors. Please correct them and try again.", 2, "#950000", "#FFF");
+			$ctl->show_notification_text($ctl->t("db_additionals.validation.fix_errors"), 2, "#950000", "#FFF");
 		}
 	}
 
@@ -197,7 +197,7 @@ class db_additionals {
 		
 		$ctl->close_multi_dialog("edit");
 		
-		$ctl->show_multi_dialog($this->window . "delete", "delete.tpl");
+		$ctl->show_multi_dialog($this->window . "delete", "delete.tpl", $ctl->t("db_additionals.dialog.delete"));
 	}
 	
 	function delete_exe(Controller $ctl){
@@ -270,7 +270,7 @@ class db_additionals {
 		$list = $ctl->db("additionals")->select(["tb_name","place"],[$tb_name,$place],true,"AND","sort",SORT_ASC);
 		$ctl->assign("additionals",$list);
 		$ctl->assign("place",$place);
-		$ctl->show_multi_dialog("button_sort", "sort.tpl");
+		$ctl->show_multi_dialog("button_sort", "sort.tpl", $ctl->t("db_additionals.dialog.sort"));
 	}
 	
 	function button_sort_exe(Controller $ctl){

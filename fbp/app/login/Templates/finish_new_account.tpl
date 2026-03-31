@@ -1,4 +1,4 @@
 
-<p>Your account has been created.</p>
+<p>{t key="login.account_created"}</p>
 
-<button class="ajax-link lang" data-class="login" data-function="close" style="float:right;margin-top:18px;">Close this dialog</button>
+<button class="ajax-link" data-class="login" data-function="close" style="float:right;margin-top:18px;">{t key="common.close_dialog"}</button>

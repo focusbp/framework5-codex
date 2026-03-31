@@ -31,9 +31,9 @@
 		<footer>
 			<div id="appcode" style="display: none;">{$appcode}</div>
 			{if $testserver}
-				<button id="show_debug">Debug</button>
+				<button id="show_debug">{$base_i18n.debug}</button>
 			{/if}
-			<div class="copyright">FOCUS Business Platform</div>
+			<div class="copyright">{$base_i18n.app_name}</div>
 		</footer>
 
 
@@ -43,4 +43,3 @@
 	</body>
 
 </html>
-

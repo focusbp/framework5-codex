@@ -14,8 +14,14 @@ class public_pages_registry {
 
 	function __construct(Controller $ctl) {
 		$this->fmt_registry = $ctl->db("public_pages_registry", "public_pages_registry");
-		$ctl->assign("enabled_opt", $this->enabled_opt);
-		$ctl->assign("menu_opt", $this->menu_opt);
+		$ctl->assign("enabled_opt", [
+			0 => $ctl->t("common.hide"),
+			1 => $ctl->t("common.show"),
+		]);
+		$ctl->assign("menu_opt", [
+			0 => $ctl->t("common.hide"),
+			1 => $ctl->t("common.show"),
+		]);
 	}
 
 	function page(Controller $ctl) {
@@ -35,7 +41,7 @@ class public_pages_registry {
 			$post["enabled"] = 1;
 		}
 		$ctl->assign("post", $post);
-		$ctl->show_multi_dialog("public_pages_registry_add", "add.tpl", "Add Public Page", 920, true, true);
+		$ctl->show_multi_dialog("public_pages_registry_add", "add.tpl", $ctl->t("public_pages_registry.dialog.add"), 920, true, true);
 	}
 
 	function add_exe(Controller $ctl) {
@@ -62,7 +68,7 @@ class public_pages_registry {
 		$id = (int) $ctl->POST("id");
 		$data = $this->fmt_registry->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("public_pages_registry_edit_" . $id, "edit.tpl", "Edit Public Page", 920, true, true);
+		$ctl->show_multi_dialog("public_pages_registry_edit_" . $id, "edit.tpl", $ctl->t("public_pages_registry.dialog.edit"), 920, true, true);
 	}
 
 	function edit_exe(Controller $ctl) {
@@ -104,7 +110,7 @@ class public_pages_registry {
 		$id = (int) $ctl->POST("id");
 		$data = $this->fmt_registry->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("public_pages_registry_delete_" . $id, "delete.tpl", "Delete Public Page", 520, true, true);
+		$ctl->show_multi_dialog("public_pages_registry_delete_" . $id, "delete.tpl", $ctl->t("public_pages_registry.dialog.delete"), 520, true, true);
 	}
 
 	function delete_exe(Controller $ctl) {
@@ -141,9 +147,9 @@ class public_pages_registry {
 		$title = trim((string) ($post["title"] ?? ""));
 
 		if ($function_name === "") {
-			$errors["function_name"] = "Function name is required.";
+			$errors["function_name"] = $ctl->t("public_pages_registry.validation.function_name_required");
 		} elseif (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $function_name)) {
-			$errors["function_name"] = "Use letters, numbers, and underscore. Start with a letter.";
+			$errors["function_name"] = $ctl->t("public_pages_registry.validation.function_name_format");
 		}
 		$is_unique = $ctl->validate_duplicate(
 			"public_pages_registry",
@@ -153,14 +159,14 @@ class public_pages_registry {
 			"public_pages_registry"
 		);
 		if (!$is_unique) {
-			$errors["function_name"] = "Function name already exists.";
+			$errors["function_name"] = $ctl->t("public_pages_registry.validation.function_name_exists");
 		}
 		if ($title === "") {
-			$errors["title"] = "Title is required.";
+			$errors["title"] = $ctl->t("public_pages_registry.validation.title_required");
 		}
 		$menu_sort = $this->normalize_menu_sort($post["menu_sort"] ?? null);
 		if ($menu_sort < 0) {
-			$errors["menu_sort"] = "Menu sort must be 0 or greater.";
+			$errors["menu_sort"] = $ctl->t("public_pages_registry.validation.menu_sort");
 		}
 		return $errors;
 	}
@@ -197,4 +203,5 @@ class public_pages_registry {
 		}
 		return max(0, (int) $value);
 	}
+
 }

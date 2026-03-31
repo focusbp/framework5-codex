@@ -1,7 +1,7 @@
 
 
 <div class="edit_100">
-	<h4>Field Settings</h4>
+	<h4>{t key="db.fields_settings"}</h4>
 	<div class="edit_left">
 		<div id="parameters_area">
 			{include file="_fields.tpl"}
@@ -11,7 +11,7 @@
 
 		{if $screen == null}
 			<div class="edit_right">
-			<h6>Select Screen</h6>
+			<h6>{t key="db.select_screen"}</h6>
 			{html_options name="screen_id" options=$screen_opt id="dropdown_screen"}
 		{else}
 			<div class="edit_right" style="border: 3px #4ba3ff solid;">
@@ -36,7 +36,7 @@
 		</script>
 
 		<div id="screen_fields_area"></div>
-		<a id="set_all" class="ajax-link" invoke-class="db" invoke-function="set_all_field" data-id="{$data.id}" style="text-align: right;display: block;color: #1974d2;text-decoration: underline;">set all</a>
+		<a id="set_all" class="ajax-link" invoke-class="db" invoke-function="set_all_field" data-id="{$data.id}" style="text-align: right;display: block;color: #1974d2;text-decoration: underline;">{t key="db.set_all"}</a>
 
 
 	</div>

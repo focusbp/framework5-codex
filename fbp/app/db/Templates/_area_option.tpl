@@ -1,11 +1,11 @@
 		{assign var=option_selected value=$data.constant_array_name|default:$post.constant_array_name}
 		{assign var=display_fields_value value=$data.display_fields_for_dropdown|default:$post.display_fields_for_dropdown}
-		<p class="lang">Options:</p>
+		<p class="lang">{t key="db.options"}:</p>
 		{html_options name="constant_array_name" output=$constant_array_opt values=$constant_array_opt selected=$option_selected}
-		<button class="ajax-link" invoke-function="reload_option" style="display: inline;">Refresh Dropdown</button>&nbsp;<button class="ajax-link" invoke-function="open_options_dialog" style="display: inline;">Edit Dropdown Options</button>
+		<button class="ajax-link" invoke-function="reload_option" style="display: inline;">{t key="db.refresh_dropdown"}</button>&nbsp;<button class="ajax-link" invoke-function="open_options_dialog" style="display: inline;">{t key="db.edit_dropdown_options"}</button>
 
 		<div id="display_fields_for_dropdown_area" style="margin-top:8px; display:none;">
-			<p class="lang">Display Fields for Dropdown:</p>
+			<p class="lang">{t key="db.display_fields_for_dropdown"}:</p>
 			<input type="text" name="display_fields_for_dropdown" value="{$display_fields_value}">
 			<div id="display_fields_for_dropdown_candidates" style="margin-top:6px;line-height:1.8; display:none;">
 				{foreach $dropdown_display_field_candidates as $table_name => $field_candidates}

@@ -4,7 +4,7 @@
 		<meta name="viewport" content="user-scalable=1">
 		{include file="{$base_template_dir}/publicsite_header.tpl"}
 		<link rel="icon" href="app.php?class=base&function=img&file=favicon.ico" type="image/x-icon" id="favicon">
-		<title>Login : Focus Business Platform</title>
+		<title>{t key="login.page_title"} : Focus Business Platform</title>
 	</head>
 	<body>
 		<article class="class_style_{$class}">
@@ -33,4 +33,3 @@
 	</script>
 
 </html>
-

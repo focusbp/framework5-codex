@@ -1,17 +1,17 @@
-<button class="ajax-link lang" data-class="user" data-function="append" style="margin-bottom:20px;">Add User</button>
-<button class="ajax-link lang" data-class="{$class}" data-function="upload_csv">Upload CSV</button>
+<button class="ajax-link" data-class="user" data-function="append" style="margin-bottom:20px;">{t key="user.add_button"}</button>
+<button class="ajax-link" data-class="{$class}" data-function="upload_csv">{t key="user.upload_csv_button"}</button>
 
 <form class="search_form" id="search_form" style="margin-top:20px;">
-	<span class="lang">Name/Login ID：</span><input type="text" name="search_word" value="{$search_word}" style="width:200px;">
-	<button class="ajax-link lang" data-class="user" data-function="page" data-form="search_form" style="margin-top:0px;">Search</button>
+	<span>{t key="user.search_label"}：</span><input type="text" name="search_word" value="{$search_word}" style="width:200px;">
+	<button class="ajax-link" data-class="user" data-function="page" data-form="search_form" style="margin-top:0px;">{t key="common.search"}</button>
 </form>
 
 <table style="margin-top:20px;" class="moredata">
 	<tr>
-		<th class="lang">Type</th>
-		<th class="lang">Name</th>
-		<th class="lang">Login ID</th>
-		<th class="lang"></th>
+		<th>{t key="user.type"}</th>
+		<th>{t key="user.name"}</th>
+		<th>{t key="user.login_id"}</th>
+		<th></th>
 		<th></th>
 	</tr>
 
@@ -22,7 +22,7 @@
 			<td>{$data.login_id}<br />
 			</td>
 			<td>
-				<button class="ajax-link lang" data-class="user" data-function="password_reset" data-id="{$data.id}">Send Reset Link</button>
+				<button class="ajax-link" data-class="user" data-function="password_reset" data-id="{$data.id}">{t key="user.send_reset_link"}</button>
 			</td>
 			
 			<td>

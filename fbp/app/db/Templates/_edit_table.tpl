@@ -6,27 +6,27 @@
 		<input type="hidden" name="tb_name" value="{$data.tb_name}">
 		<input type="hidden" id="has_child_tables" value="{if $has_child_tables}1{else}0{/if}">
 
-		<p class="lang">Menu Name</p>
+		<p class="lang">{t key="db.menu_name"}</p>
 		<input type="text" name="menu_name" value="{$data.menu_name}">
 		{if $flg_change_tb_name}
-		<p class="lang">Table Name</p>
+		<p class="lang">{t key="db.table_name"}</p>
 		<input type="text" name="tb_name" value="{$data.tb_name}">
 		{/if}
-		<p class="lang">Description or Memo</p>
+		<p class="lang">{t key="db.description_or_memo"}</p>
 		<input type="text" name="description" value="{$data.description}">
-		<p class="lang">Parent Table</p>
+		<p class="lang">{t key="db.parent_table"}</p>
 		{html_options name="parent_tb_id" options=$parents_opt selected=$data["parent_tb_id"]}
-		<p class="lang">Cascade Delete (Delete data when the parent is deleted)</p>
+		<p class="lang">{t key="db.cascade_delete"}</p>
 		{html_options name="cascade_delete_flag" options=$cascade_delete_flag_opt selected=$data["cascade_delete_flag"]}
 		<div id="child_table_dropdown_area" style="margin-top:8px; display:none;">
-			<p class="lang">Display Method for child table dropdown</p>
+			<p class="lang">{t key="db.display_method_child_dropdown"}</p>
 			{html_options name="dropdown_item_display_type" options=$dropdown_item_display_type_opt selected=$data["dropdown_item_display_type"]}
 			<div id="dropdown_item_field_area" style="margin-top:8px; display:none;">
-				<p class="lang">Identifier Field for child table</p>
+				<p class="lang">{t key="db.identifier_field_child_table"}</p>
 				{html_options name="dropdown_item" options=$dropdown_item_opt selected=$data["dropdown_item"]}
 			</div>
 			<div id="dropdown_item_template_area" style="margin-top:8px; display:none;">
-				<p class="lang">Display Fields for Dropdown</p>
+				<p class="lang">{t key="db.display_fields_for_dropdown"}</p>
 				<input type="text" name="dropdown_item_template" value="{$data.dropdown_item_template}">
 				<div style="margin-top:6px;line-height:1.8;">
 					{foreach $dropdown_item_opt as $field_name=>$field_label}
@@ -37,27 +37,27 @@
 				</div>
 			</div>
 		</div>
-		<p class="lang">Menu</p>
+		<p class="lang">{t key="db.menu"}</p>
 		{html_options name="show_menu" options=$show_menu_opt selected=$data["show_menu"]}
-		<p class="lang">Sort</p>
+		<p class="lang">{t key="db.sort"}</p>
 		{html_options id="sortkey" name="sortkey" options=$sortkey_opt selected=$data["sortkey"]}
-		<p class="lang">Sort Order</p>
+		<p class="lang">{t key="db.sort_order"}</p>
 		{html_options id="sort_order" name="sort_order" options=$sort_order_opt selected=$data["sort_order"]}
-		<p class="lang">Side Panel Width</p>
+		<p class="lang">{t key="db.side_panel_width"}</p>
 		<input type="text" name="list_width" value="{$data["list_width"]}">
-		<p class="lang">Dialog Width</p>
+		<p class="lang">{t key="db.dialog_width"}</p>
 		<input type="text" name="edit_width" value="{$data["edit_width"]}">
-		<p class="lang">List Type</p>
+		<p class="lang">{t key="db.list_type"}</p>
 		{html_options id="list_type" name="list_type" options=$list_type_opt selected=$data["list_type"]}
-		<p class="lang">Side Panel List Type</p>
+		<p class="lang">{t key="db.side_panel_list_type"}</p>
 		{html_options id="side_list_type" name="side_list_type" options=$side_list_type_opt selected=$data["side_list_type"]}
-		<p class="lang">Show ID on the list</p>
+		<p class="lang">{t key="db.show_id_on_list"}</p>
 		{html_options id="show_id" name="show_id" options=$show_id_opt selected=$data["show_id"]}
-		<p class="lang">Duplicate icon</p>
+		<p class="lang">{t key="db.duplicate_icon"}</p>
 		{html_options id="show_duplicate" name="show_duplicate" options=$show_duplicate_opt selected=$data["show_duplicate"]}
-		<p class="lang">Show icon on parent list</p>
+		<p class="lang">{t key="db.show_icon_on_parent_list"}</p>
 		{html_options id="show_icon_on_parent_list" name="show_icon_on_parent_list" options=$show_icon_on_parent_list_opt selected=$data["show_icon_on_parent_list"]}
-		<p class="lang">Post-Action Hook Class (CodegenActionInterface)</p>
+		<p class="lang">{t key="db.post_action_hook_class"}</p>
 		<input type="text" name="post_action_class" value="{$data.post_action_class}">
 
 
@@ -113,7 +113,7 @@
 
 
 
-		<button class="ajax-link lang" data-form="dbs_db_edit_form_{$data.id}" data-class="{$class}" data-function="edit_exe">Update</button>
+		<button class="ajax-link lang" data-form="dbs_db_edit_form_{$data.id}" data-class="{$class}" data-function="edit_exe">{t key="common.update"}</button>
 
 	</form>
 

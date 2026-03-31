@@ -1,6 +1,6 @@
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
 	<div>
-		<p style="font-size:13px;color:#4b5563;margin:0;">プロンプト入力なしで、要件から実行プロンプトを作成します。</p>
+		<p style="font-size:13px;color:#4b5563;margin:0;">{t key="wizard.home.description"}</p>
 	</div>
 </div>
 

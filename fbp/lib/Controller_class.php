@@ -1811,7 +1811,12 @@ class Controller_class implements Controller {
 	}
 
 	function get_lang() {
-		return $_COOKIE["lang"];
+		return I18nSimple::get_language_code_from_setting($this->get_setting());
+	}
+
+	function t($key, $params = [], $lang = null) {
+		$i18n = new I18nSimple($this);
+		return $i18n->translate((string) $key, is_array($params) ? $params : [], $lang);
 	}
 
 	function set_square($square_application_id = null, $square_access_token = null, $square_location_id = null) {

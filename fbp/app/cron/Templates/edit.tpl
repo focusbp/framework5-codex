@@ -3,34 +3,34 @@
 	<input type="hidden" name="id" value="{$data.id}">
 
 	<div>
-		<p class="lang">Title (Short name for this job)</p>
+		<p class="lang">{t key="cron.title_help"}</p>
 		<input type="text" name="title" value="{$data.title}">
 	</div>
 
 	<div>
-		<p class="lang">Class Name</p>
+		<p class="lang">{t key="common.class_name"}</p>
 		<input type="text" name="class_name" value="{$data.class_name}">
 	</div>
 
 	<div>
-		<p class="lang">Handler Function</p>
+		<p class="lang">{t key="cron.handler_function"}</p>
 		<input type="text" name="function_name" value="{$data.function_name}">
 	</div>
 	
 				<div>
 					
-					<p class="lang">Schedule (Auto Run)</p>
+					<p class="lang">{t key="cron.schedule"}</p>
 					<div class="cron-templates">
-						<span>Sample : </span>
-						<a href="#" class="cron-template" data-template="daily-7" class="lang">Every day at 7:00</a> /
-						<a href="#" class="cron-template" data-template="monthly-1-6" class="lang">On the 1st of every month at 6:00</a> /
-						<a href="#" class="cron-template" data-template="weekly-mon-8" class="lang">Every Monday at 8:00</a>
+						<span>{t key="cron.sample"} : </span>
+						<a href="#" class="cron-template" data-template="daily-7" class="lang">{t key="cron.template_daily"}</a> /
+						<a href="#" class="cron-template" data-template="monthly-1-6" class="lang">{t key="cron.template_monthly"}</a> /
+						<a href="#" class="cron-template" data-template="weekly-mon-8" class="lang">{t key="cron.template_weekly"}</a>
 					</div>
 					
 					<table>
 						<tr>
 							<td class="lang cron_table_title">
-								Min<br>
+								{t key="cron.min"}<br>
 							</td>
 							<td>
 								{html_checkboxes name="min" options=$min_opt selected=$data.min separator=" "}
@@ -38,7 +38,7 @@
 						</tr>
 						<tr>
 							<td class="lang cron_table_title">
-								Hour<br>
+								{t key="cron.hour"}<br>
 							</td>
 							<td>
 								{html_checkboxes name="hour" options=$hour_opt selected=$data.hour separator=" "}
@@ -46,7 +46,7 @@
 						</tr>
 						<tr>
 							<td class="lang cron_table_title">
-								Day<br>
+								{t key="cron.day"}<br>
 							</td>
 							<td>
 								{html_checkboxes name="day" options=$day_opt selected=$data.day separator=" "}
@@ -54,7 +54,7 @@
 						</tr>
 						<tr>
 							<td class="lang cron_table_title">
-								Month<br>
+								{t key="cron.month"}<br>
 							</td>
 							<td>
 								{html_checkboxes name="month" options=$month_opt selected=$data.month separator=" "}
@@ -62,7 +62,7 @@
 						</tr>
 						<tr>
 							<td class="lang cron_table_title">
-								Weekday<br>
+								{t key="cron.weekday"}<br>
 							</td>
 							<td>
 								{html_checkboxes name="weekday" options=$weekday_opt selected=$data.weekday separator=" "}
@@ -74,7 +74,7 @@
 
 
 	<div>
-		<button class="ajax-link lang" data-form="form_{$timestamp}" data-class="{$class}" data-function="edit_exe">Update</button>
+		<button class="ajax-link lang" data-form="form_{$timestamp}" data-class="{$class}" data-function="edit_exe">{t key="common.update"}</button>
 	</div>
 </form>
 

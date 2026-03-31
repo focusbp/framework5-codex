@@ -1,6 +1,6 @@
 <div>
 	<div style="float:right;margin-bottom:8px;">
-		<button class="ajax-link lang" data-class="{$class}" data-function="add">Add Constant</button>
+		<button class="ajax-link lang" data-class="{$class}" data-function="add">{t key="panel_constants.add_button"}</button>
 	</div>
 </div>
 <div style="clear:both;"></div>
@@ -8,8 +8,8 @@
 <table class="moredata" style="margin-top:10px;">
 	<thead>
 		<tr class="table-head">
-			<th class="lang" style="width:35%;">Array Name</th>
-			<th style="width:45%;">Values</th>
+			<th class="lang" style="width:35%;">{t key="panel_constants.array_name"}</th>
+			<th style="width:45%;">{t key="panel_constants.values"}</th>
 			<th style="width:20%;"></th>
 		</tr>
 	</thead>

@@ -3,8 +3,8 @@
 	<table>
 		<tr>
 			<td class="status"></td>
-			<td class="lang">Name</td>
-			<td class="lang">Email</td>
+			<td>{t key="user.name"}</td>
+			<td>{t key="user.email"}</td>
 		</tr>
 		{foreach $list as $row}
 			<tr>
@@ -28,11 +28,10 @@
 
 
 <div>
-	<p class="lang">Password setup links will be sent by email after import.</p>
+	<p>{t key="user.csv.password_setup_after_import"}</p>
 	{if $next_flg}
-	<button class="ajax-link lang" data-class="{$class}" data-function="upload_csv_exe">Add</button>
+	<button class="ajax-link" data-class="{$class}" data-function="upload_csv_exe">{t key="common.add"}</button>
 	{else}
-		<p class="error">There are errors, please fix it first.</p>
+		<p class="error">{t key="user.csv.fix_errors"}</p>
 	{/if}
 </div>
-

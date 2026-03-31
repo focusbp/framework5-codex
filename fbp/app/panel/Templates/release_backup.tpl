@@ -1,6 +1,6 @@
 <div id="setting_panel_tabs">
 	<ul>
-		<li><a href="#tabs-1" invoke-class="panel" invoke-function="release_backup">Release / Backup</a></li>
+		<li><a href="#tabs-1" invoke-class="panel" invoke-function="release_backup">{t key="panel.release_backup.title"}</a></li>
 	</ul>
 	<div id="tabs-1" style="display: block;overflow: hidden;">
 
@@ -11,33 +11,33 @@
 						<button class="ajax-link lang"
 								data-class="release"
 								data-function="release"
-								style="float:inherit;margin-top:0px;">Release</button>
+								style="float:inherit;margin-top:0px;">{t key="release.release_button"}</button>
 					</td>
 					<td>
-						<span class="lang">Deploy the tested version to the live environment.</span>
+						<span>{t key="panel.release_backup.release_help"}</span>
 					</td>
 				</tr>
 			{/if}
 			<tr>
 				<td>
-					<button class="ajax-link lang"
+					<button class="ajax-link"
 							data-class="restore"
 							data-function="download_zip"
-							style="float:inherit;margin-top:0px;">Backup</button>
+							style="float:inherit;margin-top:0px;">{t key="panel.release_backup.backup_button"}</button>
 				</td>
 				<td>
-					<span class="lang">Download a backup archive of the current system.</span>
+					<span>{t key="panel.release_backup.backup_help"}</span>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<button class="ajax-link lang"
+					<button class="ajax-link"
 							data-class="restore"
 							data-function="restore"
-							style="float:inherit;margin-top:0px;">Restore</button>
+							style="float:inherit;margin-top:0px;">{t key="restore.restore_button"}</button>
 				</td>
 				<td>
-					<span class="lang">Restore the system from a selected backup archive.</span>
+					<span>{t key="panel.release_backup.restore_help"}</span>
 				</td>
 			</tr>
 		</table>

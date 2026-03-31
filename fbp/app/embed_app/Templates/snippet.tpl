@@ -3,7 +3,7 @@
 	<table class="custom_events_table">
 		<tbody>
 			<tr>
-				<td style="width:30%;">Snippet</td>
+				<td style="width:30%;">{t key="embed_app.snippet"}</td>
 				<td>
 					<textarea readonly id="snippet_output_{$data.id}" style="width:100%;height:260px;font-size:11px;">{$snippet_code nofilter}</textarea>
 				</td>
@@ -11,7 +11,7 @@
 		</tbody>
 	</table>
 	<div style="margin-top:10px;">
-		<button type="button" class="snippet-copy-btn" data-target="snippet_output_{$data.id}">Copy</button>
+		<button type="button" class="snippet-copy-btn" data-target="snippet_output_{$data.id}">{t key="common.copy"}</button>
 	</div>
 </form>
 
@@ -27,10 +27,10 @@ $(function () {
 		ta.focus();
 		ta.select();
 		document.execCommand('copy');
-		$(this).text('Copied');
+		$(this).text('{/literal}{t key="common.copied"|escape:'javascript'}{literal}');
 		var btn = this;
 		setTimeout(function () {
-			$(btn).text('Copy');
+			$(btn).text('{/literal}{t key="common.copy"|escape:'javascript'}{literal}');
 		}, 1200);
 	});
 });

@@ -173,7 +173,7 @@ class db_exe {
 		$post = $ctl->POST();
 		$parent_id = isset($post["parent_id"]) ? (int)$post["parent_id"] : 0;
 		if($parent_id <= 0){
-			$ctl->res_error_message("parent_id", "Parent ID is missing.");
+			$ctl->res_error_message("parent_id", $ctl->t("db_exe.validation.parent_id_missing"));
 			return;
 		}
 
@@ -277,7 +277,7 @@ class db_exe {
 		}else{
 			$width=$this->db_setting["edit_width"];
 		}
-		$ctl->show_multi_dialog($this->window_name, "add.tpl", "Add",$width,"_add_button.tpl");
+		$ctl->show_multi_dialog($this->window_name, "add.tpl", $ctl->t("common.add"),$width,"_add_button.tpl");
 	}
 	
 	function add_exe(Controller $ctl){
@@ -328,7 +328,7 @@ class db_exe {
 		}else{
 			$width=$this->db_setting["edit_width"];
 		}
-		$ctl->show_multi_dialog($this->window_name . "_" . $this->table_name . "_$id", "edit.tpl", "Edit",$width,"_update_button.tpl");
+		$ctl->show_multi_dialog($this->window_name . "_" . $this->table_name . "_$id", "edit.tpl", $ctl->t("common.edit"),$width,"_update_button.tpl");
 	}
 	
 	function edit_exe(Controller $ctl){
@@ -416,7 +416,7 @@ class db_exe {
 		$ctl->assign_field_settings("group1",$this->table_name, "delete", false,false);
 		$ctl->assign("row",$row);
 		
-		$ctl->show_multi_dialog($this->window_name, "delete.tpl", "Delete",600,"_delete_button.tpl");
+		$ctl->show_multi_dialog($this->window_name, "delete.tpl", $ctl->t("common.delete"),600,"_delete_button.tpl");
 	}
 	
 	private function delete_recurring(Controller $ctl,$tb_name,$id){
@@ -583,7 +583,7 @@ class db_exe {
 		}else{
 			$width=$this->db_setting["edit_width"];
 		}
-		$ctl->show_multi_dialog($this->window_name, "add_child.tpl", "Add",$width,"_add_button_child.tpl");
+		$ctl->show_multi_dialog($this->window_name, "add_child.tpl", $ctl->t("common.add"),$width,"_add_button_child.tpl");
 	}
 	
 	function add_child_exe(Controller $ctl){
@@ -592,7 +592,7 @@ class db_exe {
 		$post = $ctl->POST();
 		$parent_id = isset($post["parent_id"]) ? (int)$post["parent_id"] : 0;
 		if($parent_id <= 0){
-			$ctl->res_error_message("parent_id", "Parent ID is missing.");
+			$ctl->res_error_message("parent_id", $ctl->t("db_exe.validation.parent_id_missing"));
 			return;
 		}
 		$post["parent_id"] = $parent_id;
@@ -637,7 +637,7 @@ class db_exe {
 		}else{
 			$width=$this->db_setting["edit_width"];
 		}
-		$ctl->show_multi_dialog($this->window_name . "_" . $id, "edit_child.tpl", "Edit",$width,"_update_button_child.tpl");
+		$ctl->show_multi_dialog($this->window_name . "_" . $id, "edit_child.tpl", $ctl->t("common.edit"),$width,"_update_button_child.tpl");
 	}
 	
 	function edit_child_exe(Controller $ctl){
@@ -689,7 +689,7 @@ class db_exe {
 		$ctl->assign("row",$row);
 		$ctl->assign("parent_id",$post["parent_id"]);
 		
-		$ctl->show_multi_dialog($this->window_name, "delete_child.tpl", "Delete",600,"_delete_button_child.tpl");
+		$ctl->show_multi_dialog($this->window_name, "delete_child.tpl", $ctl->t("common.delete"),600,"_delete_button_child.tpl");
 	}
 	
 	function delete_child_exe(Controller $ctl){

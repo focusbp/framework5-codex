@@ -1,11 +1,11 @@
-<button class="ajax-link" data-class="{$class}" data-function="add" >Add Button</button>
+<button class="ajax-link" data-class="{$class}" data-function="add" >{t key="db_additionals.add_button"}</button>
 <div style="clear:both;"></div>
 <table style="margin-top:20px;">
 	<tr>
-		<th>Button Title</th>
-		<th>Action Name</th>
-		<th>Function Name</th>
-		<th>Place</th>
+		<th>{t key="db_additionals.button_title"}</th>
+		<th>{t key="db_additionals.action_name"}</th>
+		<th>{t key="db_additionals.function_name"}</th>
+		<th>{t key="db_additionals.place"}</th>
 		<th></th>
 	</tr>
 	{foreach $items as $d}

@@ -1,8 +1,8 @@
 
 <div id="tabs_{$db.tb_name}">
   <ul>
-    <li><a href="#tabs-1">Table</a></li>
-    <li><a href="#tabs-2">Text</a></li>
+    <li><a href="#tabs-1">{t key="db_additionals.field_reference.table"}</a></li>
+    <li><a href="#tabs-2">{t key="db_additionals.field_reference.text"}</a></li>
   </ul>
 
 <div id="tabs-1">

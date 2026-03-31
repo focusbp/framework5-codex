@@ -1,7 +1,7 @@
 <div>
 
 	<div style="float:right;margin-bottom: 8px;">
-		<button class="ajax-link lang" data-class="{$class}" data-function="add">Add Table</button>
+		<button class="ajax-link lang" data-class="{$class}" data-function="add">{t key="db.add_table"}</button>
 	</div>
 </div>
 <div style="clear:both;"></div>
@@ -10,10 +10,10 @@
 	<thead>
 		<tr class="table-head">
 			<th></th>
-			<th class="lang">Table Name</th>
-			<th class="lang">Menu Name</th>
-			<th class="lang">Parent Name</th>
-			<th class="lang">Description</th>
+			<th class="lang">{t key="db.table_name"}</th>
+			<th class="lang">{t key="db.menu_name"}</th>
+			<th class="lang">{t key="db.parent_name"}</th>
+			<th class="lang">{t key="db.description"}</th>
 			<th></th>
 		</tr>
 	</thead>

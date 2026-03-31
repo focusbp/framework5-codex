@@ -23,6 +23,7 @@ display_errors,1,N
 api_key_map,255,T
 lang_priority,1,N
 lang_default,2,T
+framework_language_code,2,T
 force_testmode,1,N
 system_name,255,T
 system_tag_line,255,T

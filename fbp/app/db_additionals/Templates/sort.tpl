@@ -1,5 +1,5 @@
 
-<p style="margin-bottom:20px;">Reorder buttons using drag and drop.</p>
+<p style="margin-bottom:20px;">{t key="db_additionals.sort_help"}</p>
 
 <div id="button_sort">
 	{foreach $additionals as $a}
@@ -28,4 +28,3 @@
 		}
 	});
 </script>
-

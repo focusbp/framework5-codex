@@ -1,8 +1,8 @@
 <div>
 	<div style="float:right;margin-bottom:8px;">
-		<button class="ajax-link" data-class="public_assets" data-function="add">Add Public Asset</button>
+		<button class="ajax-link" data-class="public_assets" data-function="add">{t key="public_assets.add_button"}</button>
 	</div>
-	<p style="margin:0;color:#4b5563;font-size:12px;">public_pages で使う固定画像を管理します。実ファイルは classes/data/public_pages/assets/ に保存され、release に同梱されます。</p>
+	<p style="margin:0;color:#4b5563;font-size:12px;">{t key="public_assets.description"}</p>
 </div>
 <div style="clear:both;"></div>
 
@@ -10,11 +10,11 @@
 	<thead>
 		<tr class="table-head">
 			<th style="width:5%;"></th>
-			<th style="width:12%;">Preview</th>
-			<th style="width:20%;">Asset Key</th>
-			<th style="width:24%;">Original Filename</th>
-			<th style="width:21%;">Stored Filename</th>
-			<th style="width:8%;">Status</th>
+			<th style="width:12%;">{t key="public_assets.preview"}</th>
+			<th style="width:20%;">{t key="public_assets.asset_key"}</th>
+			<th style="width:24%;">{t key="public_assets.original_filename"}</th>
+			<th style="width:21%;">{t key="public_assets.stored_filename"}</th>
+			<th style="width:8%;">{t key="common.status"}</th>
 			<th style="width:10%;"></th>
 		</tr>
 	</thead>
@@ -26,7 +26,7 @@
 				<td><code style="display:inline;background:#111827;color:#fff;padding:4px 6px;border-radius:4px;font-size:10px;">{$item.asset_key|escape}</code></td>
 				<td style="font-size:11px;word-break:break-all;">{$item.original_filename|escape}</td>
 				<td style="font-size:11px;word-break:break-all;">{$item.stored_filename|escape}</td>
-				<td>{if $item.enabled == 1}Show{else}Hide{/if}</td>
+				<td>{if $item.enabled == 1}{$enabled_opt[1]}{else}{$enabled_opt[0]}{/if}</td>
 				<td>
 					<button class="ajax-link listbutton" data-class="public_assets" data-function="delete" data-id="{$item.id}" style="float:right;color:black;margin-right:5px;"><span class="ui-icon ui-icon-trash"></span></button>
 					<button class="ajax-link listbutton" data-class="public_assets" data-function="edit" data-id="{$item.id}" style="float:right;color:black;"><span class="ui-icon ui-icon-pencil"></span></button>

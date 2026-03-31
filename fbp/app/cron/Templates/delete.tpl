@@ -2,7 +2,7 @@
 
 	<input type="hidden" name="id" value="{$data.id}">
 
-	<span class="lang">Delete the following Handler Function</span>
+	<span class="lang">{t key="cron.delete_label"}</span>
 	<p>
 		<b>
 			{$data.title}
@@ -10,8 +10,7 @@
 	</p>
 
 	<br>
-	<p class="lang">If you perform this process, it will not be restored. Do you want to process it?</p>
+	<p class="lang">{t key="cron.delete_confirm"}</p>
 </form>
 
-<button class="ajax-link lang" data-form="form_{$timestamp}" data-class="{$class}" data-function="delete_exe">Delete</button>
-
+<button class="ajax-link lang" data-form="form_{$timestamp}" data-class="{$class}" data-function="delete_exe">{t key="common.delete"}</button>

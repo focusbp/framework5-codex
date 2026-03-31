@@ -1,6 +1,6 @@
 <div>
 	<div style="float:right;margin-bottom:8px;">
-		<button class="ajax-link lang" data-class="{$class}" data-function="add">Add Rule</button>
+		<button class="ajax-link lang" data-class="{$class}" data-function="add">{t key="webhook_rule.add_button"}</button>
 	</div>
 </div>
 <div style="clear:both;"></div>
@@ -9,11 +9,11 @@
 	<thead>
 		<tr class="table-head">
 			<th style="width:5%;"></th>
-			<th class="lang" style="width:10%;">Channel</th>
-			<th class="lang" style="width:20%;">Keyword</th>
-			<th class="lang" style="width:10%;">Match</th>
-			<th class="lang" style="width:20%;">Action Class</th>
-			<th class="lang" style="width:10%;">Status</th>
+			<th class="lang" style="width:10%;">{t key="webhook_rule.channel"}</th>
+			<th class="lang" style="width:20%;">{t key="webhook_rule.keyword"}</th>
+			<th class="lang" style="width:10%;">{t key="webhook_rule.match"}</th>
+			<th class="lang" style="width:20%;">{t key="webhook_rule.action_class"}</th>
+			<th class="lang" style="width:10%;">{t key="webhook_rule.status"}</th>
 			<th style="width:25%;"></th>
 		</tr>
 	</thead>
@@ -25,7 +25,7 @@
 				<td>{$item.keyword}</td>
 				<td>{$item.match_type}</td>
 				<td>{$item.action_class}</td>
-				<td>{if $item.enabled == 1}Enabled{else}Disabled{/if}</td>
+				<td>{if $item.enabled == 1}{$enabled_opt[1]}{else}{$enabled_opt[0]}{/if}</td>
 				<td>
 					<button class="ajax-link listbutton" data-class="{$class}" data-function="delete" data-id="{$item.id}" style="float:right;color:black;margin-right:5px;"><span class="ui-icon ui-icon-trash"></span></button>
 					<button class="ajax-link listbutton" data-class="{$class}" data-function="edit" data-id="{$item.id}" style="float:right;color:black;"><span class="ui-icon ui-icon-pencil"></span></button>

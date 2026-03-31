@@ -26,11 +26,11 @@ class login {
 		
 		// 半角英数字のバリデーション
 		if (!preg_match('/^[a-zA-Z0-9@._\-!#$%&*?]+$/', $login_id)) {
-		    $ctl->res_error_message("login_id", "Only alphanumeric characters and allowed symbols (@, ., _, -, !, #, $, %, &, *, ?) can be used in the Login ID.");
+		    $ctl->res_error_message("login_id", $ctl->t("login.validation.login_id_format"));
 		}
 
 		if (!preg_match('/^[a-zA-Z0-9@._\-!#$%&*?]+$/', $password)) {
-		    $ctl->res_error_message("password", "Only alphanumeric characters and allowed symbols (@, ., _, -, !, #, $, %, &, *, ?) can be used in the Password.");
+		    $ctl->res_error_message("password", $ctl->t("login.validation.password_format"));
 		}
 		
 		if($ctl->count_res_error_message()>0){
@@ -62,7 +62,7 @@ class login {
 		$template = str_replace('{$ssl}',"",$template);	
 		file_put_contents(dirname(__FILE__) . "/../../../.htaccess", $template);
 	
-		$ctl->show_multi_dialog("new_account", "finish_new_account.tpl","Making new account");
+		$ctl->show_multi_dialog("new_account", "finish_new_account.tpl", $ctl->t("login.dialog.make_new_account"));
 	}
 	
 	function close(Controller $ctl){
@@ -74,7 +74,7 @@ class login {
 		//ユーザが登録されているか確認
 		$list = $this->ffm_user->select("type",0);
 		if(count($list) == 0){
-			$ctl->show_multi_dialog("new_account", "new_account.tpl","Making new account");
+			$ctl->show_multi_dialog("new_account", "new_account.tpl", $ctl->t("login.dialog.make_new_account"));
 			
 		}else{
 			$ctl->assign("user", null);
@@ -134,7 +134,6 @@ class login {
 	}
 
 	function check(Controller $ctl) {
-		$lang = $_POST["lang_selector"];
 		$login_id = $ctl->POST("login_id");
 		$password = $ctl->POST("password");
 
@@ -143,7 +142,7 @@ class login {
 			$this->login_ok($ctl, $user, $login_id, $password);
 		} else {
 			$ctl->assign("login_id", $login_id);
-			$ctl->assign("err_password", "You can't login this system.");
+			$ctl->assign("err_password", $ctl->t("validation.login.failed"));
 			
 			if($ctl->POST("_call_from") == "appcon"){
 				$ctl->reload_area("#form", $ctl->fetch("form.tpl"));

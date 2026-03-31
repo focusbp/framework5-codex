@@ -1,28 +1,28 @@
 <form id="edit_form">
 	
-	<p class="lang">Login ID</p>
+	<p>{t key="user.login_id"}</p>
 	<h5>{$data.login_id}</h5>
 
 
-	<p class="lang">Name</p>
+	<p>{t key="user.name"}</p>
 	<input type="text" name="name" value="{$data.name}">
 
-	<p class="lang">email</p>
+	<p>{t key="user.email"}</p>
 	<input type="text" name="email" value="{$data.email}">
 	<p class="error">{$err_email}</p>
 
 	
-	<p class="lang">Status</p>
+	<p>{t key="user.status"}</p>
 	{html_options name="status" options=$arr_status selected=$data.status}
 	
-	<p class="lang">Type</p>
+	<p>{t key="user.type"}</p>
 	{html_options id="dropdown_user_type" name="type" options=$user_type_opt selected=$data.type}
 	
 	<div class="permission-row">
-	<p class="lang">Developer Permission</p>
+	<p>{t key="user.developer_permission"}</p>
 	{html_options name="developer_permission" options=$developer_permission_opt selected=$data.developer_permission}
 	
-	<p class="lang">Data Manager Permission (Release / Backup)</p>
+	<p>{t key="user.data_manager_permission"}</p>
 	{html_options name="data_manager_permission" options=$data_manager_permission_opt selected=$data.data_manager_permission}
 	</div>
 	
@@ -30,7 +30,7 @@
 
 </form>
 
-<button class="ajax-link lang" data-class="user" data-function="edit_exe" data-form="edit_form" data-id="{$data.id}">Submit</button>	
+<button class="ajax-link" data-class="user" data-function="edit_exe" data-form="edit_form" data-id="{$data.id}">{t key="common.save"}</button>	
 
 <script>
 // type によって権限行の表示/非表示を切り替え

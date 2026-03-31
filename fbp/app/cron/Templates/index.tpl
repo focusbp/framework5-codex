@@ -2,7 +2,7 @@
 
 <div>
 	<div style="float:right;margin-bottom: 8px;">
-		<button class="ajax-link lang" data-class="{$class}" data-function="add">Add</button>
+		<button class="ajax-link lang" data-class="{$class}" data-function="add">{t key="common.add"}</button>
 		
 	</div>
 </div>
@@ -12,10 +12,10 @@
 	<thead>
 		<tr class="table-head">
 			<th></th>
-			<th class="lang">Title</th>
-			<th class="lang">Class Name</th>
-			<th class="lang">Handler Function</th>
-			<th class="lang">Last Log</th>
+			<th class="lang">{t key="common.title"}</th>
+			<th class="lang">{t key="common.class_name"}</th>
+			<th class="lang">{t key="cron.handler_function"}</th>
+			<th class="lang">{t key="cron.last_log"}</th>
 			
 			<th></th>
 		</tr>
@@ -33,7 +33,7 @@
 					<button class="ajax-link listbutton" data-class="{$class}" data-function="delete" data-id="{$item.id}" style="float:right;color:black;margin-right:5px;"><span class="ui-icon ui-icon-trash"></span></button>
 
 					<button class="ajax-link listbutton" data-class="{$class}" data-function="edit" data-id="{$item.id}" style="float:right;color:black;"><span class="ui-icon ui-icon-pencil"></span></button>
-					<button class="ajax-link lang" data-class="{$class}" data-function="exec" data-id="{$item._id_enc}">Exec Cron Tasks</button>
+					<button class="ajax-link lang" data-class="{$class}" data-function="exec" data-id="{$item._id_enc}">{t key="cron.exec"}</button>
 				</td>
 			</tr>
 		{/foreach}

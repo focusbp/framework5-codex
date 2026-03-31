@@ -2557,11 +2557,6 @@ function get_lang_list() {
 
 function translate() {
 
-
-	if (Cookies.get("lang") == null) {
-		return;
-	}
-
 	// // 事前準備
 	$(".lang").each(function (index) {
 		//タグ内に英語が設定されていない場合は lang_en に保持しておく
@@ -2621,7 +2616,7 @@ function translate() {
 
 
 	//翻訳実行
-	var selected_lang = Cookies.get("lang");
+	var selected_lang = "jp";
 	$(".lang").each(function (index) {
 
 		var en = $(this).attr("lang_en");
@@ -2662,14 +2657,7 @@ function translate() {
 
 $(function () {
 	get_lang_list();
-
-	var lang = getURLParam("lang");
-	if (lang !== null) {
-		if ($("#lang_selector").length > 0) {
-			$("#lang_selector").val(lang);
-			Cookies.set('lang', lang, cookieOpt());
-		}
-	}
+	Cookies.set("lang", "jp", cookieOpt());
 
 	if ($("#testserver").html() == "true") {
 
@@ -2681,45 +2669,7 @@ $(function () {
 
 	}
 
-	// 初期の言語設定
-	var lang;
-	if ($("#lang_priority").html() == "0") {
-		lang = Cookies.get("lang");
-		if (lang == null) {
-			if ($("#lang_selector").length > 0) {
-				// 言語ドロップダウンのデータを使う
-				lang = $("#lang_selector").val();
-				if (lang === undefined || lang == "undefined") {
-					lang = "en";
-				}
-			} else {
-				// Browser
-				lang = window.navigator.language;
-				if (lang == "ja") {
-					lang = "jp";
-				} else {
-					lang = "en";
-				}
-			}
-		}
-		Cookies.set('lang', lang, cookieOpt());
-	} else {
-		// Default Language
-		lang = $("#lang_default").html();
-		if (lang == "") {
-			lang = "en";
-		}
-	}
-	// 翻訳実行
-	Cookies.set("lang", lang, cookieOpt());
 	translate();
-
-	$("#lang_selector").val(lang);
-	$("#lang_selector").off("change");
-	$("#lang_selector").on("change", function () {
-		Cookies.set('lang', $(this).val(), cookieOpt());
-		translate();
-	});
 
 	// 翻訳の編集画面表示
 	// 画面から .langを検索して、リストをサーバーに送付
@@ -2762,7 +2712,7 @@ $(function () {
 //-----------------------------------
 append_function_dialog("__all__", function (dialog_id, flg_window = false) {
 
-	var selected_lang = Cookies.get("lang");
+	var selected_lang = "jp";
 
 	// World_date_time
 	exec_world_datetime();

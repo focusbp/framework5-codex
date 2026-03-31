@@ -165,6 +165,16 @@ interface ctl_fw {
 	 * @return string The current language.
 	 */
 	function get_lang();
+
+	/**
+	 * Translates a key using the lightweight i18n catalog.
+	 *
+	 * @param string $key Translation key.
+	 * @param array $params Placeholder values such as ["name" => "Alice"].
+	 * @param string|null $lang Optional language override. Use "en" or "local".
+	 * @return string
+	 */
+	function t($key, $params = [], $lang = null);
 	
 	/**
 	 * Logs in to a specified node.

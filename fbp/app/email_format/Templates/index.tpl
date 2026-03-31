@@ -1,15 +1,15 @@
 
 <div style="margin-top: 10px;">
-    <button class="ajax-link lang" data-class="{$class}" data-function="add" style="margin-top: 0px;">Add Email Templates</button>
-    <button class="ajax-link lang" data-class="{$class}" data-function="json_upload" style="margin-top: 0px;">JSON Upload</button>
-    <button class="download-link lang" data-filename="email_template.json" data-class="{$class}" data-function="json_download" style="margin-top: 0px;">JSON Download</button>    
+    <button class="ajax-link lang" data-class="{$class}" data-function="add" style="margin-top: 0px;">{t key="email_format.add_button"}</button>
+    <button class="ajax-link lang" data-class="{$class}" data-function="json_upload" style="margin-top: 0px;">{t key="email_format.json_upload"}</button>
+    <button class="download-link lang" data-filename="email_template.json" data-class="{$class}" data-function="json_download" style="margin-top: 0px;">{t key="email_format.json_download"}</button>    
 </div>
 <table style="margin-top:20px;" class="moredata">
 	<thead>
 		<tr class="table-head" style="background-color: #FFF;color: black;border-top: none;">
-			<th class="lang">Template Name</th>
+			<th class="lang">{t key="email_format.template_name"}</th>
 			<th class="lang">Key</th>
-			<th class="lang">Subject</th>
+			<th class="lang">{t key="email_format.subject"}</th>
 
 			<th></th>
 		</tr>

@@ -230,7 +230,7 @@ class db {
 
 		$ctl->assign("parents_opt", $this->get_parent_opt(null));
 
-		$ctl->show_multi_dialog("add_db", "add.tpl", "Add Table", 600, true, true);
+		$ctl->show_multi_dialog("add_db", "add.tpl", $ctl->t("db.dialog.add_table"), 600, true, true);
 	}
 
 	//save add data
@@ -283,11 +283,11 @@ class db {
 		$errors = [];
 
 		if (empty($post["tb_name"])) {
-			$errors["tb_name"] = "Table Name is required!";
+			$errors["tb_name"] = $ctl->t("db.validation.table_name_required");
 		}
 
 		if (!preg_match('/^[a-z0-9_]+$/', $post["tb_name"])) {
-			$errors["tb_name"] = "You can use lowercase or \"_\" for this field.";
+			$errors["tb_name"] = $ctl->t("db.validation.table_name_format");
 		}
 
 		// Duplicate error check
@@ -295,7 +295,7 @@ class db {
 		foreach ($list as $d) {
 			if ($post["tb_name"] == $d["tb_name"]) {
 				if ($post["id"] != $d["id"]) {
-					$errors["tb_name"] = "Table Name is duplicated!";
+					$errors["tb_name"] = $ctl->t("db.validation.table_name_duplicated");
 				}
 			}
 		}
@@ -433,7 +433,7 @@ class db {
 		$ctl->ajax("db", "make_table_format");
 
 		if ($mode == "database") {
-			$ctl->show_multi_dialog("edit_db", "edit.tpl", "Edit DB Setting", 1200, "_top.tpl", true);
+			$ctl->show_multi_dialog("edit_db", "edit.tpl", $ctl->t("db.dialog.edit_setting"), 1200, "_top.tpl", true);
 			$ctl->invoke("page", ["tb_name" => $data["tb_name"]], "db_additionals");
 		} else {
 
@@ -443,7 +443,7 @@ class db {
 			$ctl->assign("child", $post["child"]);
 			$ctl->assign("parent_id", $post["parent_id"]);
 
-			$ctl->show_multi_dialog("edit_db", "_edit_field.tpl", "Edit DB Setting", 1200, "_top.tpl", true);
+			$ctl->show_multi_dialog("edit_db", "_edit_field.tpl", $ctl->t("db.dialog.edit_setting"), 1200, "_top.tpl", true);
 		}
 	}
 
@@ -603,7 +603,7 @@ class db {
 		//validate
 		$vlist = $this->fmt_screen_fields->select(["tb_name", "screen_name", "db_fields_id"], [$arr["tb_name"], $arr["screen_name"], $arr["db_fields_id"]], true, "AND", "sort", SORT_ASC);
 		if (count($vlist) > 0) {
-			$ctl->show_notification_text($arr["parameter_name"] . " already exists.");
+			$ctl->show_notification_text($ctl->t("db.notification.parameter_exists", ["parameter_name" => $arr["parameter_name"]]));
 			return;
 		}
 
@@ -655,7 +655,7 @@ class db {
 		$id = $ctl->POST("id");
 		$data = $this->fmt_db->get($id);
 		$ctl->assign("data", $data);		
-		$ctl->show_multi_dialog("delete", "delete.tpl", "Delete Table", 500, true, true);
+		$ctl->show_multi_dialog("delete", "delete.tpl", $ctl->t("db.dialog.delete_table"), 500, true, true);
 	}
 
 	//delete data form database
@@ -729,7 +729,7 @@ class db {
 		$post["image_width_thumbnail"] = 50;
 		$post["title_color"] = $ctl->get_session("title_color");
 		$ctl->assign('post', $post);
-		$ctl->show_multi_dialog("add_db_fields", "add_fields.tpl", "Add Parameters", 1000, true, true);
+		$ctl->show_multi_dialog("add_db_fields", "add_fields.tpl", $ctl->t("db.dialog.add_parameters"), 1000, true, true);
 	}
 
 	//save add data
@@ -739,35 +739,35 @@ class db {
 
 		//validation
 		if (empty($post["parameter_name"])) {
-			$ctl->res_error_message("parameter_name", "Parameter Name is required!");
+			$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_required"));
 		}
 
 		if (!preg_match('/^[a-z0-9_]+$/', $post["parameter_name"])) {
-			$ctl->res_error_message("parameter_name", "You can use lowercase or \"_\" for the Parameter Name.");
+			$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_format"));
 		}
 
 		// Duplicate error check
 		$list = $this->fmt_db_fields->select("db_id", $post['db_id']);
 		foreach ($list as $d) {
 			if ($post["parameter_name"] == $d["parameter_name"]) {
-				$ctl->res_error_message("parameter_name", "Duplicate parameter name error!");
+				$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_duplicate"));
 			}
 		}
 
 		if ($post["parameter_name"] == "api_user_id") {
-			$ctl->res_error_message("parameter_name", "api_user_id is prohibited to use as parameter name manually.");
+			$ctl->res_error_message("parameter_name", $ctl->t("db.validation.api_user_id_prohibited"));
 		}
 
 		// check prohibition_item_name
 		foreach (array_merge($this->fmt_db_fields->get_prohibition_items(), ["id"]) as $name) {
 			if ($post["parameter_name"] == $name) {
-				$ctl->res_error_message("parameter_name", "This value is prohibited to use as parameter name.");
+				$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_prohibited"));
 			}
 		}
 
 		// title
 		if (empty($post["parameter_title"])) {
-			$ctl->res_error_message("parameter_title", "Parameter Title is required!");
+			$ctl->res_error_message("parameter_title", $ctl->t("db.validation.parameter_title_required"));
 		}
 
 		$constant_array_name = $post["constant_array_name"] ?? "";
@@ -780,7 +780,7 @@ class db {
 		}
 		if ($is_table_only && in_array($post["type"], ["dropdown", "checkbox", "radio"], true)) {
 			if ($display_fields_for_dropdown === "") {
-				$ctl->res_error_message("display_fields_for_dropdown", "Display Fields for Dropdown is required when /table/... is selected.");
+				$ctl->res_error_message("display_fields_for_dropdown", $ctl->t("db.validation.display_fields_required"));
 			}
 		}
 
@@ -898,13 +898,13 @@ class db {
 		$data = $this->fmt_db_fields->get($post['id']);
 
 		if ($data["parameter_name"] == "api_user_id") {
-			$ctl->show_notification_text("You cannot edit api_user_id.");
+			$ctl->show_notification_text($ctl->t("db.notification.api_user_id_edit_forbidden"));
 			return;
 		}
 
 		$data = array_merge($data, $post);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("edit_db_fields", "edit_fields.tpl", "Edit Parameters", 1000, true, true);
+		$ctl->show_multi_dialog("edit_db_fields", "edit_fields.tpl", $ctl->t("db.dialog.edit_parameters"), 1000, true, true);
 	}
 
 	//save edited data
@@ -914,11 +914,11 @@ class db {
 
 		//validation
 		if (empty($post["parameter_name"])) {
-			$ctl->res_error_message("parameter_name", "Parameter Name is required!");
+			$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_required"));
 		}
 
 		if (!preg_match('/^[a-z0-9_]+$/', $post["parameter_name"])) {
-			$ctl->res_error_message("parameter_name", "You can use lowercase or \"_\" for the Parameter Name.");
+			$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_format"));
 		}
 
 		// Duplicate error check
@@ -926,7 +926,7 @@ class db {
 		foreach ($list as $d) {
 			if ($post["parameter_name"] == $d["parameter_name"]) {
 				if ($post["id"] != $d["id"]) {
-					$ctl->res_error_message("parameter_name", "Duplicate parameter name error!");
+					$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_duplicate"));
 				}
 			}
 		}
@@ -934,13 +934,13 @@ class db {
 		// check prohibition_item_name
 		foreach ($this->fmt_db_fields->get_prohibition_items() as $name) {
 			if ($post["parameter_name"] == $name) {
-				$ctl->res_error_message("parameter_name", "This value is prohibited to use as parameter name.");
+				$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_prohibited"));
 			}
 		}
 
 		// title
 		if (empty($post["parameter_title"])) {
-			$ctl->res_error_message("parameter_title", "Parameter Title is required!");
+			$ctl->res_error_message("parameter_title", $ctl->t("db.validation.parameter_title_required"));
 		}
 
 		$constant_array_name = $post["constant_array_name"] ?? "";
@@ -953,13 +953,13 @@ class db {
 		}
 		if ($is_table_only && in_array($post["type"], ["dropdown", "checkbox", "radio"], true)) {
 			if ($display_fields_for_dropdown === "") {
-				$ctl->res_error_message("display_fields_for_dropdown", "Display Fields for Dropdown is required when /table/... is selected.");
+				$ctl->res_error_message("display_fields_for_dropdown", $ctl->t("db.validation.display_fields_required"));
 			}
 		}
 
 		// length
 		if (empty($post["length"])) {
-			$ctl->res_error_message("length", "Parameter Length is required!");
+			$ctl->res_error_message("length", $ctl->t("db.validation.parameter_length_required"));
 		}
 
 		if ($ctl->count_res_error_message() > 0) {
@@ -1000,7 +1000,7 @@ class db {
 		$id = $ctl->POST("id");
 		$data = $this->fmt_db_fields->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("delete_fiedls", "delete_fiedls.tpl", "Delete Parameters", 500, true, true);
+		$ctl->show_multi_dialog("delete_fiedls", "delete_fiedls.tpl", $ctl->t("db.dialog.delete_parameters"), 500, true, true);
 	}
 
 	//delete data form database
@@ -1011,7 +1011,7 @@ class db {
 
 		$table = $this->fmt_db->get($data["db_id"]);
 		if ($table["api_scope"] == "user" && $data["parameter_name"] == "api_user_id") {
-			$ctl->show_notification_text("You cannot delete api_user_id because the API scope is set to 'user'.");
+			$ctl->show_notification_text($ctl->t("db.notification.api_user_id_delete_forbidden"));
 			return;
 		}
 
@@ -1090,11 +1090,11 @@ class db {
 		if (!empty($post["screen_name"])) {
 			$screen_list = $this->fmt_screen->select(["tb_name", "screen_name"], [$post["tb_name"], $post["screen_name"]]);
 			if (count($screen_list) > 0) {
-				$ctl->res_error_message("screen_name", "Duplicate Record Error!");
+				$ctl->res_error_message("screen_name", $ctl->t("db.validation.screen_name_duplicate"));
 			}
 
 			if (!preg_match('/^[a-z0-9_]+$/', $post["screen_name"])) {
-				$ctl->res_error_message("screen_name", "You can use lowercase or \"_\" for the Screen Name.");
+				$ctl->res_error_message("screen_name", $ctl->t("db.validation.screen_name_format"));
 			}
 
 			if ($ctl->count_res_error_message() > 0) {
@@ -1114,7 +1114,7 @@ class db {
 			];
 			$ctl->ajax("db", "edit", $arr);
 		} else {
-			$ctl->res_error_message("screen_name", "Please type screen name.");
+			$ctl->res_error_message("screen_name", $ctl->t("db.validation.screen_name_required"));
 			return;
 		}
 	}
@@ -1129,7 +1129,7 @@ class db {
 		$ctl->assign("post", $post);
 		$ctl->assign("data", $d);
 
-		$ctl->show_multi_dialog("delete_screen", "delete_screen.tpl", "Delete the screen");
+		$ctl->show_multi_dialog("delete_screen", "delete_screen.tpl", $ctl->t("db.dialog.delete_screen"));
 	}
 
 	function delete_screen_exe(Controller $ctl) {
@@ -1142,7 +1142,7 @@ class db {
 
 		foreach ($this->default_screen_list as $default) {
 			if ($screen_name == $default) {
-				$ctl->res_error_message("screen_name", "This field name can't be deleted.");
+				$ctl->res_error_message("screen_name", $ctl->t("db.validation.default_screen_delete_forbidden"));
 			}
 		}
 		if ($ctl->count_res_error_message() > 0) {

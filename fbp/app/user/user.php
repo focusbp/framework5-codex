@@ -32,7 +32,7 @@ class user {
 
 	function append(Controller $ctl) {
 
-		$ctl->show_multi_dialog("user_add", "append.tpl", "Add User", 800, true, true);
+		$ctl->show_multi_dialog("user_add", "append.tpl", $ctl->t("user.dialog.add"), 800, true, true);
 	}
 
 	function append_exe(Controller $ctl) {
@@ -44,12 +44,12 @@ class user {
 
 		if (empty($c["login_id"])) {
 			$flg = false;
-			$ctl->assign("err_login_id", "You needs a loging ID.");
+			$ctl->assign("err_login_id", $ctl->t("user.validation.login_id_required"));
 		}
 
 		if (!filter_var($c['email'], FILTER_VALIDATE_EMAIL)) {
 			$flg = false;
-			$ctl->assign("err_email", "Invalid email format.");
+			$ctl->assign("err_email", $ctl->t("validation.email.invalid"));
 		}
 			
 		//check whether login id is tacken or not
@@ -59,7 +59,7 @@ class user {
 			foreach ($list as $d) {
 				if ($d["login_id"] == $c["login_id"]) {
 					$flg = false;
-					$ctl->assign("err_login_id", "You can't user this login id.");
+					$ctl->assign("err_login_id", $ctl->t("user.validation.login_id_unavailable"));
 				}
 			}
 		}
@@ -77,7 +77,7 @@ class user {
 			$this->page($ctl);
 		} else {
 			$ctl->assign("data", $ctl->POST());
-			$ctl->show_multi_dialog("user_add", "append.tpl", "Add User", 800, true, true);
+			$ctl->show_multi_dialog("user_add", "append.tpl", $ctl->t("user.dialog.add"), 800, true, true);
 		}
 	}
 
@@ -85,7 +85,7 @@ class user {
 		$id = $ctl->POST("id");
 		$data = $this->ffm->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("user_edit", "edit.tpl", "Edit User", 800, true, true);
+		$ctl->show_multi_dialog("user_edit", "edit.tpl", $ctl->t("user.dialog.edit"), 800, true, true);
 	}
 
 	function edit_exe(Controller $ctl) {
@@ -94,7 +94,7 @@ class user {
 		if (!empty($c["email"])) {
 			if (!filter_var($c["email"], FILTER_VALIDATE_EMAIL)) {
 				$flg = false;
-				$ctl->assign("err_email", "Invalid email format.");
+				$ctl->assign("err_email", $ctl->t("validation.email.invalid"));
 			}
 		}
 
@@ -123,7 +123,7 @@ class user {
 		$id = $ctl->POST("id");
 		$data = $this->ffm->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("user_delete", "delete.tpl", "Delete User", 800, true, true);
+		$ctl->show_multi_dialog("user_delete", "delete.tpl", $ctl->t("user.dialog.delete"), 800, true, true);
 	}
 
 	function delete_exe(Controller $ctl) {
@@ -134,13 +134,13 @@ class user {
 	}
 
 	function passchange(Controller $ctl) {
-		$ctl->show_multi_dialog("change_password", "passchange.tpl", "Change Password", 800, true, true);
+		$ctl->show_multi_dialog("change_password", "passchange.tpl", $ctl->t("user.dialog.change_password"), 800, true, true);
 	}
 
 	function passchange_exe(Controller $ctl) {
 		$password = $ctl->POST("password");
 		if ((string) $password === "") {
-			$ctl->res_error_message("password", "Password is needed.");
+			$ctl->res_error_message("password", $ctl->t("password_reset.validation.password_required"));
 			return;
 		}
 		$d = $this->ffm->get($ctl->get_session("user_id"));
@@ -165,19 +165,19 @@ class user {
 		$id = (int) $ctl->POST("id");
 		$data = $this->ffm->get($id);
 		$ctl->assign("data", $data);
-		$ctl->show_multi_dialog("user_password_reset_" . $id, "reset_password.tpl", "Reset Password", 500, true, true);
+		$ctl->show_multi_dialog("user_password_reset_" . $id, "reset_password.tpl", $ctl->t("user.dialog.reset_password"), 500, true, true);
 	}
 
 	function password_reset_exe(Controller $ctl) {
 		$id = (int) $ctl->POST("id");
 		$data = $this->ffm->get($id);
 		if (!is_array($data) || empty($data["id"])) {
-			$ctl->res_error_message("id", "User not found.");
+			$ctl->res_error_message("id", $ctl->t("user.validation.user_not_found"));
 			return;
 		}
 		$this->send_account_invite($ctl, (int) $data["id"]);
 		$ctl->close_multi_dialog("user_password_reset_" . $id);
-		$ctl->show_notification_text("Password setup link has been sent.");
+		$ctl->show_notification_text($ctl->t("user.notification.password_setup_link_sent"));
 	}
 
 	function page(Controller $ctl) {
@@ -197,7 +197,7 @@ class user {
 		$login_url = $ctl->get_APP_URL("login","page");
 		$ctl->assign("login_url", $login_url);
 
-		$ctl->show_main_area("index.tpl", "User");
+		$ctl->show_main_area("index.tpl", $ctl->t("user.page_title"));
 	}
 
 	function fr_verification_mail_send(Controller $ctl) {
@@ -228,7 +228,7 @@ class user {
 		$ctl->assign('post', $post);
 		$code_list = ["UTF-8"=>"UTF-8(Exported from Google SpreadSheet/Mac)","win"=>"SJIS-win(Exported from Windows Excel)"];
 		$ctl->assign("code_list",$code_list);
-		$ctl->show_multi_dialog("upload_csv", "upload_csv.tpl", "Upload CSV", 800);
+		$ctl->show_multi_dialog("upload_csv", "upload_csv.tpl", $ctl->t("user.dialog.upload_csv"), 800);
 	}
 	
 	
@@ -272,17 +272,17 @@ class user {
 			}
 
 			if (empty($row[0])){
-				$errors[] = "Name is empty";
+				$errors[] = $ctl->t("user.validation.csv_name_required");
 			}
 			if (empty($row[1])){
-				$errors[] = "Email is empty";
+				$errors[] = $ctl->t("user.validation.csv_email_required");
 			}
 			if (!filter_var($row[1], FILTER_VALIDATE_EMAIL)){
-				$errors[] = "Incorrect email format";
+				$errors[] = $ctl->t("validation.email.invalid");
 			}
 			$users = $this->ffm->select(["login_id"], [$row[1]], true);
 			if(count($users) > 0){
-				$errors[] = "Email is duplicated";
+				$errors[] = $ctl->t("user.validation.csv_email_duplicated");
 			}
 			
 			$rec = [
@@ -304,7 +304,7 @@ class user {
 		$ctl->assign("list",$list);
 		$ctl->assign("next_flg",$next_flg);
 		
-		$ctl->show_multi_dialog("upload_csv", "upload_confirm.tpl", "Upload CSV", 800);
+		$ctl->show_multi_dialog("upload_csv", "upload_confirm.tpl", $ctl->t("user.dialog.upload_csv"), 800);
 
 		fclose($fp);
 	}
@@ -340,7 +340,7 @@ class user {
 		}
 		
 		$ctl->assign("count",count($list));
-		$ctl->show_multi_dialog("upload_csv", "upload_finish.tpl", "Upload CSV", 800);
+		$ctl->show_multi_dialog("upload_csv", "upload_finish.tpl", $ctl->t("user.dialog.upload_csv"), 800);
 		$ctl->ajax("user","page");
 	}
 

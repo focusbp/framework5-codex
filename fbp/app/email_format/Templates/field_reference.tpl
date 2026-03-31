@@ -1,5 +1,5 @@
 
-<h5>Database Field Reference</h5>
+<h5>{t key="email_format.field_reference"}</h5>
 
 {html_options name="db_id" options=$db_opt selected=$db_id id="db_id_dropdown"}
 
@@ -31,5 +31,4 @@
 	});
 </script>
 				
-
 

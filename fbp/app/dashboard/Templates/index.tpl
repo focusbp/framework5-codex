@@ -1,6 +1,6 @@
 <div class="dashboard-grid">
 	{if $dashboard_empty}
-		<div class="dashboard-empty">No dashboard widgets are registered.</div>
+		<div class="dashboard-empty">{t key="dashboard.empty"}</div>
 	{else}
 		{foreach $dashboard_rows as $row}
 			<div class="dashboard-row">

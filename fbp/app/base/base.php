@@ -60,6 +60,23 @@ class base {
 		
 		$setting = $ctl->get_setting();
 		$ctl->assign("setting",$setting);
+		$ctl->assign("base_i18n", [
+			"app_name" => $ctl->t("base.app_name"),
+			"tagline" => $ctl->t("base.tagline"),
+			"dev_mode" => $ctl->t("base.dev_mode"),
+			"download_release_file" => $ctl->t("base.download_release_file"),
+			"debug" => $ctl->t("base.debug"),
+			"dashboard" => $ctl->t("base.menu.dashboard"),
+			"databases" => $ctl->t("base.menu.databases"),
+			"public_side" => $ctl->t("base.menu.public_side"),
+			"homepage" => $ctl->t("base.menu.homepage"),
+			"admin_console" => $ctl->t("base.menu.admin_console"),
+			"development_panel" => $ctl->t("base.menu.development_panel"),
+			"release_backup" => $ctl->t("base.menu.release_backup"),
+			"user_management" => $ctl->t("base.menu.user_management"),
+			"system_setting" => $ctl->t("base.menu.system_setting"),
+			"codex_terminal" => $ctl->t("base.menu.codex_terminal"),
+		]);
 		
 		// 初期のメールテンプレートを入れる
 		$ffm_email_format = $ctl->db("email_format", "email_format");
@@ -144,6 +161,18 @@ class base {
 		
 		$setting = $ctl->get_setting();
 		$ctl->assign("setting",$setting);
+		$ctl->assign("base_menu_i18n", [
+			"dashboard" => $ctl->t("base.menu.dashboard"),
+			"databases" => $ctl->t("base.menu.databases"),
+			"public_side" => $ctl->t("base.menu.public_side"),
+			"homepage" => $ctl->t("base.menu.homepage"),
+			"admin_console" => $ctl->t("base.menu.admin_console"),
+			"development_panel" => $ctl->t("base.menu.development_panel"),
+			"release_backup" => $ctl->t("base.menu.release_backup"),
+			"user_management" => $ctl->t("base.menu.user_management"),
+			"system_setting" => $ctl->t("base.menu.system_setting"),
+			"codex_terminal" => $ctl->t("base.menu.codex_terminal"),
+		]);
 		
 		// Database Menu
 		$list = $this->fmt_db->select("show_menu",1,true,"AND","sort",SORT_ASC);

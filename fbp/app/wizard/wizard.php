@@ -26,7 +26,7 @@ class wizard {
 	function submit_note_action_next(Controller $ctl) {
 		$action = trim((string) $ctl->POST("note_action"));
 		if (!in_array($action, ["add", "update", "delete", "child_add", "parent_child"], true)) {
-			$ctl->res_error_message("note_action", "内容を選択してください。");
+			$ctl->res_error_message("note_action", $ctl->t("wizard.validation.choose_action"));
 			return;
 		}
 		$state = [
@@ -71,12 +71,12 @@ class wizard {
 	function submit_child_note_parent_next(Controller $ctl) {
 		$parent_tb_name = $this->normalize_table_name((string) $ctl->POST("parent_tb_name"));
 		if ($parent_tb_name === "") {
-			$ctl->res_error_message("parent_tb_name", "親ノートを選択してください。");
+			$ctl->res_error_message("parent_tb_name", $ctl->t("wizard.validation.parent_note_required"));
 			return;
 		}
 		$db = $this->find_db_row_by_tb_name($ctl, $parent_tb_name);
 		if (!is_array($db) || count($db) === 0) {
-			$ctl->res_error_message("parent_tb_name", "親ノートが見つかりません。");
+			$ctl->res_error_message("parent_tb_name", $ctl->t("wizard.validation.parent_note_not_found"));
 			return;
 		}
 		$state = $this->get_table_create_state($ctl);
@@ -111,12 +111,12 @@ class wizard {
 	function submit_note_edit_table_next(Controller $ctl) {
 		$tb_name = $this->normalize_table_name((string) $ctl->POST("target_tb_name"));
 		if ($tb_name === "") {
-			$ctl->res_error_message("target_tb_name", "対象ノートを選択してください。");
+			$ctl->res_error_message("target_tb_name", $ctl->t("wizard.validation.target_note_required"));
 			return;
 		}
 		$db = $this->find_db_row_by_tb_name($ctl, $tb_name);
 		if (!is_array($db) || count($db) === 0) {
-			$ctl->res_error_message("target_tb_name", "対象ノートが見つかりません。");
+			$ctl->res_error_message("target_tb_name", $ctl->t("wizard.validation.target_note_not_found"));
 			return;
 		}
 		$state = [
@@ -150,18 +150,18 @@ class wizard {
 		$description = trim((string) $ctl->POST("description"));
 		$show_menu = (string) $ctl->POST("show_menu");
 		if (!isset($this->get_note_show_menu_options()[$show_menu])) {
-			$ctl->res_error_message("show_menu", "メニュー表示を選択してください。");
+			$ctl->res_error_message("show_menu", $ctl->t("wizard.validation.show_menu_required"));
 			return;
 		}
 		$sortkey = trim((string) $ctl->POST("sortkey"));
 		$sortkey_opt = $this->get_note_sortkey_options($ctl, $tb_name);
 		if (!isset($sortkey_opt[$sortkey])) {
-			$ctl->res_error_message("sortkey", "並び順の基準を選択してください。");
+			$ctl->res_error_message("sortkey", $ctl->t("wizard.validation.sortkey_required"));
 			return;
 		}
 		$sort_order = (string) $ctl->POST("sort_order");
 		if (!isset($this->get_note_sort_order_options()[$sort_order])) {
-			$ctl->res_error_message("sort_order", "並び順を選択してください。");
+			$ctl->res_error_message("sort_order", $ctl->t("wizard.validation.sort_order_required"));
 			return;
 		}
 		$list_width = trim((string) $ctl->POST("list_width"));
@@ -216,12 +216,12 @@ class wizard {
 	function submit_note_delete_table_next(Controller $ctl) {
 		$tb_name = $this->normalize_table_name((string) $ctl->POST("target_tb_name"));
 		if ($tb_name === "") {
-			$ctl->res_error_message("target_tb_name", "削除対象ノートを選択してください。");
+			$ctl->res_error_message("target_tb_name", $ctl->t("wizard.validation.delete_target_note_required"));
 			return;
 		}
 		$db = $this->find_db_row_by_tb_name($ctl, $tb_name);
 		if (!is_array($db) || count($db) === 0) {
-			$ctl->res_error_message("target_tb_name", "対象ノートが見つかりません。");
+			$ctl->res_error_message("target_tb_name", $ctl->t("wizard.validation.target_note_not_found"));
 			return;
 		}
 		$state = [
@@ -259,22 +259,22 @@ class wizard {
 	function submit_parent_child_note_child_next(Controller $ctl) {
 		$child_tb_name = $this->normalize_table_name((string) $ctl->POST("child_tb_name"));
 		if ($child_tb_name === "") {
-			$ctl->res_error_message("child_tb_name", "子ノートを選択してください。");
+			$ctl->res_error_message("child_tb_name", $ctl->t("wizard.validation.child_note_required"));
 			return;
 		}
 		$child_db = $this->find_db_row_by_tb_name($ctl, $child_tb_name);
 		if (!is_array($child_db) || count($child_db) === 0) {
-			$ctl->res_error_message("child_tb_name", "子ノートが見つかりません。");
+			$ctl->res_error_message("child_tb_name", $ctl->t("wizard.validation.child_note_not_found"));
 			return;
 		}
 		$parent_db_id = $this->normalize_single_id($child_db["parent_tb_id"] ?? "");
 		if ($parent_db_id === "") {
-			$ctl->res_error_message("child_tb_name", "親子設定のある子ノートを選択してください。");
+			$ctl->res_error_message("child_tb_name", $ctl->t("wizard.validation.child_note_parent_required"));
 			return;
 		}
 		$parent_db = $ctl->db("db", "db")->get((int) $parent_db_id);
 		if (!is_array($parent_db) || count($parent_db) === 0) {
-			$ctl->res_error_message("child_tb_name", "親ノートが見つかりません。");
+			$ctl->res_error_message("child_tb_name", $ctl->t("wizard.validation.parent_note_not_found"));
 			return;
 		}
 		$state = [
@@ -302,13 +302,13 @@ class wizard {
 		}
 		$dropdown_item_display_type = trim((string) $ctl->POST("dropdown_item_display_type"));
 		if (!isset($this->get_dropdown_item_display_type_options()[$dropdown_item_display_type])) {
-			$ctl->res_error_message("dropdown_item_display_type", "親の表示方法を選択してください。");
+			$ctl->res_error_message("dropdown_item_display_type", $ctl->t("wizard.validation.parent_display_type_required"));
 			return;
 		}
 		$dropdown_item = trim((string) $ctl->POST("dropdown_item"));
 		$dropdown_item_opt = $this->get_parent_dropdown_item_options($ctl, (string) ($state["parent_tb_name"] ?? ""));
 		if ($dropdown_item_display_type === "field" && !isset($dropdown_item_opt[$dropdown_item])) {
-			$ctl->res_error_message("dropdown_item", "親の表示フィールドを選択してください。");
+			$ctl->res_error_message("dropdown_item", $ctl->t("wizard.validation.parent_display_field_required"));
 			return;
 		}
 		$dropdown_item_template = trim((string) $ctl->POST("dropdown_item_template"));
@@ -323,7 +323,7 @@ class wizard {
 		}
 		$cascade_delete_flag = (string) $ctl->POST("cascade_delete_flag");
 		if (!isset($this->get_cascade_delete_flag_options()[$cascade_delete_flag])) {
-			$ctl->res_error_message("cascade_delete_flag", "削除設定を選択してください。");
+			$ctl->res_error_message("cascade_delete_flag", $ctl->t("wizard.validation.cascade_delete_required"));
 			return;
 		}
 		$state["dropdown_item_display_type"] = $dropdown_item_display_type;
@@ -362,7 +362,7 @@ class wizard {
 		$parent_db = $ctl->db("db", "db")->get((int) $parent_db_id);
 		$child_db = $ctl->db("db", "db")->get((int) $child_db_id);
 		if (!is_array($parent_db) || count($parent_db) === 0 || !is_array($child_db) || count($child_db) === 0) {
-			$ctl->show_notification_text("対象ノートが見つかりません。", 3);
+			$ctl->show_notification_text($ctl->t("wizard.validation.target_note_not_found"), 3);
 			return;
 		}
 		$parent_db["dropdown_item"] = (string) ($state["dropdown_item"] ?? "id");
@@ -423,7 +423,7 @@ class wizard {
 	function submit_fields_next(Controller $ctl) {
 		$field_mode = trim((string) $ctl->POST("field_mode"));
 		if ($field_mode !== "auto" && $field_mode !== "manual") {
-			$ctl->res_error_message("field_mode", "項目設定方法を選択してください。");
+			$ctl->res_error_message("field_mode", $ctl->t("wizard.validation.field_mode_required"));
 			return;
 		}
 
@@ -499,7 +499,7 @@ class wizard {
 	function submit_db_additionals_type_next(Controller $ctl) {
 		$type = trim((string) $ctl->POST("additional_type"));
 		if ($type === "") {
-			$ctl->res_error_message("additional_type", "追加する機能を選択してください。");
+			$ctl->res_error_message("additional_type", $ctl->t("wizard.validation.additional_type_required"));
 			return;
 		}
 		$state = $this->get_db_additionals_state($ctl);
@@ -530,7 +530,7 @@ class wizard {
 			return;
 		}
 		if ($type !== "original_form") {
-			$ctl->show_notification_text("この機能は準備中です。現在は Original Form / PDF / CSV Download / CSV Upload / Chart / LINEメッセージ送信 を使用できます。", 3);
+			$ctl->show_notification_text($ctl->t("wizard.notification.db_additionals_preparing"), 3);
 			return;
 		}
 	}
@@ -551,12 +551,12 @@ class wizard {
 	function submit_line_message_table_next(Controller $ctl) {
 		$db_id = $this->normalize_single_id((string) $ctl->POST("db_id"));
 		if ($db_id === "") {
-			$ctl->res_error_message("db_id", "ボタン配置場所のテーブルを選択してください。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.button_table_required"));
 			return;
 		}
 		$db = $ctl->db("db", "db")->get($db_id);
 		if (!is_array($db) || count($db) === 0) {
-			$ctl->res_error_message("db_id", "対象テーブルが見つかりません。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.target_table_not_found"));
 			return;
 		}
 		$tb_name = $this->normalize_table_name((string) ($db["tb_name"] ?? ""));
@@ -581,7 +581,7 @@ class wizard {
 		$place = (string) $ctl->POST("place");
 		$place_opt = $this->get_original_form_place_options(((int) ($state["parent_tb_id"] ?? 0)) > 0);
 		if (!isset($place_opt[$place])) {
-			$ctl->res_error_message("place", "配置場所を選択してください。");
+			$ctl->res_error_message("place", $ctl->t("wizard.validation.place_required"));
 			return;
 		}
 		$state["place"] = $place;
@@ -601,7 +601,7 @@ class wizard {
 		}
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_line_message_state($ctl);
@@ -646,12 +646,12 @@ class wizard {
 		$db_id = (string) $ctl->POST("db_id");
 		$db_id = $this->normalize_single_id($db_id);
 		if ($db_id === "") {
-			$ctl->res_error_message("db_id", "ボタン配置場所のテーブルを選択してください。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.button_table_required"));
 			return;
 		}
 		$db = $ctl->db("db", "db")->get($db_id);
 		if (!is_array($db) || count($db) === 0) {
-			$ctl->res_error_message("db_id", "対象テーブルが見つかりません。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.target_table_not_found"));
 			return;
 		}
 		$tb_name = $this->normalize_table_name((string) ($db["tb_name"] ?? ""));
@@ -677,7 +677,7 @@ class wizard {
 		$place = (string) $ctl->POST("place");
 		$place_opt = $this->get_original_form_place_options(((int) ($state["parent_tb_id"] ?? 0)) > 0);
 		if (!isset($place_opt[$place])) {
-			$ctl->res_error_message("place", "配置場所を選択してください。");
+			$ctl->res_error_message("place", $ctl->t("wizard.validation.place_required"));
 			return;
 		}
 		$state["place"] = $place;
@@ -689,7 +689,7 @@ class wizard {
 		$state = $this->get_pdf_state($ctl);
 		$field_ids = $this->normalize_id_list($ctl->POST("field_ids"));
 		if (count($field_ids) === 0) {
-			$ctl->res_error_message("field_ids", "使用するフィールドを1つ以上選択してください。");
+			$ctl->res_error_message("field_ids", $ctl->t("wizard.validation.use_fields_required"));
 			return;
 		}
 		$valid_rows = $this->get_table_field_detail_rows($ctl, (string) ($state["tb_name"] ?? ""));
@@ -708,7 +708,7 @@ class wizard {
 			$selected[] = $id;
 		}
 		if (count($selected) === 0) {
-			$ctl->res_error_message("field_ids", "選択されたフィールドが見つかりません。");
+			$ctl->res_error_message("field_ids", $ctl->t("wizard.validation.selected_fields_not_found"));
 			return;
 		}
 		$state["field_ids"] = $selected;
@@ -724,7 +724,7 @@ class wizard {
 		}
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_pdf_state($ctl);
@@ -774,12 +774,12 @@ class wizard {
 		$db_id = (string) $ctl->POST("db_id");
 		$db_id = $this->normalize_single_id($db_id);
 		if ($db_id === "") {
-			$ctl->res_error_message("db_id", "ボタン配置場所のテーブルを選択してください。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.button_table_required"));
 			return;
 		}
 		$db = $ctl->db("db", "db")->get($db_id);
 		if (!is_array($db) || count($db) === 0) {
-			$ctl->res_error_message("db_id", "対象テーブルが見つかりません。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.target_table_not_found"));
 			return;
 		}
 		$tb_name = $this->normalize_table_name((string) ($db["tb_name"] ?? ""));
@@ -805,7 +805,7 @@ class wizard {
 		$place = (string) $ctl->POST("place");
 		$place_opt = $this->get_original_form_place_options(((int) ($state["parent_tb_id"] ?? 0)) > 0);
 		if (!isset($place_opt[$place])) {
-			$ctl->res_error_message("place", "配置場所を選択してください。");
+			$ctl->res_error_message("place", $ctl->t("wizard.validation.place_required"));
 			return;
 		}
 		$state["place"] = $place;
@@ -817,7 +817,7 @@ class wizard {
 		$state = $this->get_csv_download_state($ctl);
 		$field_ids = $this->normalize_id_list($ctl->POST("field_ids"));
 		if (count($field_ids) === 0) {
-			$ctl->res_error_message("field_ids", "使用するフィールドを1つ以上選択してください。");
+			$ctl->res_error_message("field_ids", $ctl->t("wizard.validation.use_fields_required"));
 			return;
 		}
 		$valid_rows = $this->get_table_field_detail_rows($ctl, (string) ($state["tb_name"] ?? ""));
@@ -836,7 +836,7 @@ class wizard {
 			$selected[] = $id;
 		}
 		if (count($selected) === 0) {
-			$ctl->res_error_message("field_ids", "選択されたフィールドが見つかりません。");
+			$ctl->res_error_message("field_ids", $ctl->t("wizard.validation.selected_fields_not_found"));
 			return;
 		}
 		$state["field_ids"] = $selected;
@@ -852,7 +852,7 @@ class wizard {
 		}
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_csv_download_state($ctl);
@@ -902,12 +902,12 @@ class wizard {
 		$db_id = (string) $ctl->POST("db_id");
 		$db_id = $this->normalize_single_id($db_id);
 		if ($db_id === "") {
-			$ctl->res_error_message("db_id", "ボタン配置場所のテーブルを選択してください。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.button_table_required"));
 			return;
 		}
 		$db = $ctl->db("db", "db")->get($db_id);
 		if (!is_array($db) || count($db) === 0) {
-			$ctl->res_error_message("db_id", "対象テーブルが見つかりません。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.target_table_not_found"));
 			return;
 		}
 		$tb_name = $this->normalize_table_name((string) ($db["tb_name"] ?? ""));
@@ -933,7 +933,7 @@ class wizard {
 		$place = (string) $ctl->POST("place");
 		$place_opt = $this->get_original_form_place_options(((int) ($state["parent_tb_id"] ?? 0)) > 0);
 		if (!isset($place_opt[$place])) {
-			$ctl->res_error_message("place", "配置場所を選択してください。");
+			$ctl->res_error_message("place", $ctl->t("wizard.validation.place_required"));
 			return;
 		}
 		$state["place"] = $place;
@@ -945,7 +945,7 @@ class wizard {
 		$state = $this->get_csv_upload_state($ctl);
 		$field_ids = $this->normalize_id_list($ctl->POST("field_ids"));
 		if (count($field_ids) === 0) {
-			$ctl->res_error_message("field_ids", "使用するフィールドを1つ以上選択してください。");
+			$ctl->res_error_message("field_ids", $ctl->t("wizard.validation.use_fields_required"));
 			return;
 		}
 		$valid_rows = $this->get_table_field_detail_rows($ctl, (string) ($state["tb_name"] ?? ""));
@@ -964,7 +964,7 @@ class wizard {
 			$selected[] = $id;
 		}
 		if (count($selected) === 0) {
-			$ctl->res_error_message("field_ids", "選択されたフィールドが見つかりません。");
+			$ctl->res_error_message("field_ids", $ctl->t("wizard.validation.selected_fields_not_found"));
 			return;
 		}
 		$state["field_ids"] = $selected;
@@ -980,7 +980,7 @@ class wizard {
 		}
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_csv_upload_state($ctl);
@@ -1031,12 +1031,12 @@ class wizard {
 		$db_id = (string) $ctl->POST("db_id");
 		$db_id = $this->normalize_single_id($db_id);
 		if ($db_id === "") {
-			$ctl->res_error_message("db_id", "ボタン配置場所のテーブルを選択してください。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.button_table_required"));
 			return;
 		}
 		$db = $ctl->db("db", "db")->get($db_id);
 		if (!is_array($db) || count($db) === 0) {
-			$ctl->res_error_message("db_id", "対象テーブルが見つかりません。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.target_table_not_found"));
 			return;
 		}
 		$tb_name = $this->normalize_table_name((string) ($db["tb_name"] ?? ""));
@@ -1066,7 +1066,7 @@ class wizard {
 		$place = (string) $ctl->POST("place");
 		$place_opt = $this->get_original_form_place_options(((int) ($state["parent_tb_id"] ?? 0)) > 0);
 		if (!isset($place_opt[$place])) {
-			$ctl->res_error_message("place", "配置場所を選択してください。");
+			$ctl->res_error_message("place", $ctl->t("wizard.validation.place_required"));
 			return;
 		}
 		$state["place"] = $place;
@@ -1079,7 +1079,7 @@ class wizard {
 		$chart_type = trim((string) $ctl->POST("chart_type"));
 		$chart_opt = $this->get_chart_type_options();
 		if (!isset($chart_opt[$chart_type])) {
-			$ctl->res_error_message("chart_type", "チャートの種類を選択してください。");
+			$ctl->res_error_message("chart_type", $ctl->t("wizard.validation.chart_type_required"));
 			return;
 		}
 		$state["chart_type"] = $chart_type;
@@ -1091,7 +1091,7 @@ class wizard {
 		$state = $this->get_chart_state($ctl);
 		$field_ids = $this->normalize_id_list($ctl->POST("field_ids"));
 		if (count($field_ids) === 0) {
-			$ctl->res_error_message("field_ids", "集計に使うフィールドを1つ以上選択してください。");
+			$ctl->res_error_message("field_ids", $ctl->t("wizard.validation.chart_fields_required"));
 			return;
 		}
 		$valid_rows = $this->get_table_field_detail_rows($ctl, (string) ($state["tb_name"] ?? ""));
@@ -1110,7 +1110,7 @@ class wizard {
 			$selected[] = $id;
 		}
 		if (count($selected) === 0) {
-			$ctl->res_error_message("field_ids", "選択されたフィールドが見つかりません。");
+			$ctl->res_error_message("field_ids", $ctl->t("wizard.validation.selected_fields_not_found"));
 			return;
 		}
 		$state["field_ids"] = $selected;
@@ -1126,7 +1126,7 @@ class wizard {
 		}
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_chart_state($ctl);
@@ -1198,7 +1198,7 @@ class wizard {
 	function submit_cron_action_next(Controller $ctl) {
 		$action = trim((string) $ctl->POST("cron_action"));
 		if ($action === "") {
-			$ctl->res_error_message("cron_action", "内容を選択してください。");
+			$ctl->res_error_message("cron_action", $ctl->t("wizard.validation.choose_action"));
 			return;
 		}
 		$state = $this->get_cron_state($ctl);
@@ -1216,20 +1216,20 @@ class wizard {
 			$this->show_cron_step_target($ctl, $state);
 			return;
 		}
-		$ctl->show_notification_text("この機能は準備中です。現在は 定期処理追加 / 定期処理変更 / 定期処理削除 を使用できます。", 3);
+		$ctl->show_notification_text($ctl->t("wizard.notification.cron_preparing"), 3);
 	}
 
 	function submit_cron_target_next(Controller $ctl) {
 		$cron_id = $this->normalize_single_id((string) $ctl->POST("cron_id"));
 		if ($cron_id === "") {
 			$action = (string) ($this->get_cron_state($ctl)["cron_action"] ?? "");
-			$ctl->res_error_message("cron_id", $action === "delete" ? "削除する定期処理を選択してください。" : "変更する定期処理を選択してください。");
+			$ctl->res_error_message("cron_id", $action === "delete" ? $ctl->t("wizard.validation.cron_delete_target_required") : $ctl->t("wizard.validation.cron_edit_target_required"));
 			return;
 		}
 		$data = $this->get_cron_editable_row($ctl, $cron_id);
 		if ($data === null) {
 			$action = (string) ($this->get_cron_state($ctl)["cron_action"] ?? "");
-			$ctl->res_error_message("cron_id", $action === "delete" ? "削除対象の定期処理が見つかりません。" : "変更対象の定期処理が見つかりません。");
+			$ctl->res_error_message("cron_id", $action === "delete" ? $ctl->t("wizard.validation.cron_delete_target_not_found") : $ctl->t("wizard.validation.cron_edit_target_not_found"));
 			return;
 		}
 		$state = $this->get_cron_state($ctl);
@@ -1349,7 +1349,7 @@ class wizard {
 	function submit_public_pages_action_next(Controller $ctl) {
 		$action = trim((string) $ctl->POST("page_action"));
 		if ($action === "") {
-			$ctl->res_error_message("page_action", "内容を選択してください。");
+			$ctl->res_error_message("page_action", $ctl->t("wizard.validation.choose_action"));
 			return;
 		}
 		$state = $this->get_public_pages_state($ctl);
@@ -1375,7 +1375,7 @@ class wizard {
 			$this->show_public_pages_step_target($ctl, $state);
 			return;
 		}
-		$ctl->show_notification_text("この機能は準備中です。", 3);
+		$ctl->show_notification_text($ctl->t("wizard.notification.preparing"), 3);
 	}
 
 	function submit_public_pages_add_info_next(Controller $ctl) {
@@ -1401,12 +1401,12 @@ class wizard {
 		$registry_id = $this->normalize_single_id((string) $ctl->POST("registry_id"));
 		if ($registry_id === "") {
 			$action = (string) ($this->get_public_pages_state($ctl)["page_action"] ?? "");
-			$ctl->res_error_message("registry_id", $action === "delete" ? "削除するページを選択してください。" : "変更するページを選択してください。");
+			$ctl->res_error_message("registry_id", $action === "delete" ? $ctl->t("wizard.validation.page_delete_target_required") : $ctl->t("wizard.validation.page_edit_target_required"));
 			return;
 		}
 		$row = $this->get_public_pages_registry_row($ctl, $registry_id);
 		if ($row === null) {
-			$ctl->res_error_message("registry_id", "対象ページが見つかりません。");
+			$ctl->res_error_message("registry_id", $ctl->t("wizard.validation.page_target_not_found"));
 			return;
 		}
 		$state = $this->get_public_pages_state($ctl);
@@ -1445,7 +1445,7 @@ class wizard {
 		$action = (string) ($state["page_action"] ?? "");
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state["request_text"] = $request_text;
@@ -1527,7 +1527,7 @@ class wizard {
 	function submit_embed_app_action_next(Controller $ctl) {
 		$action = trim((string) $ctl->POST("embed_action"));
 		if ($action === "") {
-			$ctl->res_error_message("embed_action", "内容を選択してください。");
+			$ctl->res_error_message("embed_action", $ctl->t("wizard.validation.choose_action"));
 			return;
 		}
 		$state = $this->get_embed_app_state($ctl);
@@ -1546,19 +1546,19 @@ class wizard {
 			$this->show_embed_app_step_target($ctl, $state);
 			return;
 		}
-		$ctl->show_notification_text("この機能は準備中です。", 3);
+		$ctl->show_notification_text($ctl->t("wizard.notification.preparing"), 3);
 	}
 
 	function submit_embed_app_target_next(Controller $ctl) {
 		$embed_app_id = $this->normalize_single_id((string) $ctl->POST("embed_app_id"));
 		if ($embed_app_id === "") {
 			$action = (string) ($this->get_embed_app_state($ctl)["embed_action"] ?? "");
-			$ctl->res_error_message("embed_app_id", $action === "delete" ? "削除する Embed App を選択してください。" : "変更する Embed App を選択してください。");
+			$ctl->res_error_message("embed_app_id", $action === "delete" ? $ctl->t("wizard.validation.embed_app_delete_target_required") : $ctl->t("wizard.validation.embed_app_edit_target_required"));
 			return;
 		}
 		$row = $this->get_embed_app_row($ctl, $embed_app_id);
 		if ($row === null) {
-			$ctl->res_error_message("embed_app_id", "対象の Embed App が見つかりません。");
+			$ctl->res_error_message("embed_app_id", $ctl->t("wizard.validation.embed_app_target_not_found"));
 			return;
 		}
 		$state = $this->get_embed_app_state($ctl);
@@ -1597,7 +1597,7 @@ class wizard {
 	function submit_embed_app_request_next(Controller $ctl) {
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_embed_app_state($ctl);
@@ -1640,7 +1640,7 @@ class wizard {
 	function submit_dashboard_action_next(Controller $ctl) {
 		$action = trim((string) $ctl->POST("dashboard_action"));
 		if ($action === "") {
-			$ctl->res_error_message("dashboard_action", "内容を選択してください。");
+			$ctl->res_error_message("dashboard_action", $ctl->t("wizard.validation.choose_action"));
 			return;
 		}
 		$state = $this->get_dashboard_state($ctl);
@@ -1660,19 +1660,19 @@ class wizard {
 			$this->show_dashboard_step_target($ctl, $state);
 			return;
 		}
-		$ctl->show_notification_text("この機能は準備中です。", 3);
+		$ctl->show_notification_text($ctl->t("wizard.notification.preparing"), 3);
 	}
 
 	function submit_dashboard_target_next(Controller $ctl) {
 		$dashboard_id = $this->normalize_single_id((string) $ctl->POST("dashboard_id"));
 		if ($dashboard_id === "") {
 			$action = (string) ($this->get_dashboard_state($ctl)["dashboard_action"] ?? "");
-			$ctl->res_error_message("dashboard_id", $action === "delete" ? "削除する Dashboard を選択してください。" : "変更する Dashboard を選択してください。");
+			$ctl->res_error_message("dashboard_id", $action === "delete" ? $ctl->t("wizard.validation.dashboard_delete_target_required") : $ctl->t("wizard.validation.dashboard_edit_target_required"));
 			return;
 		}
 		$row = $this->get_dashboard_row($ctl, $dashboard_id);
 		if ($row === null) {
-			$ctl->res_error_message("dashboard_id", "対象の Dashboard が見つかりません。");
+			$ctl->res_error_message("dashboard_id", $ctl->t("wizard.validation.dashboard_target_not_found"));
 			return;
 		}
 		$state = $this->get_dashboard_state($ctl);
@@ -1704,7 +1704,7 @@ class wizard {
 			return;
 		}
 		if (!in_array($column_width, ["1", "2", "3"], true)) {
-			$ctl->res_error_message("column_width", "Width を選択してください。");
+			$ctl->res_error_message("column_width", $ctl->t("wizard.validation.dashboard_width_required"));
 			return;
 		}
 		$state = $this->get_dashboard_state($ctl);
@@ -1719,7 +1719,7 @@ class wizard {
 	function submit_dashboard_request_next(Controller $ctl) {
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_dashboard_state($ctl);
@@ -1853,7 +1853,7 @@ class wizard {
 	function submit_line_bot_action_next(Controller $ctl) {
 		$action = trim((string) $ctl->POST("line_action"));
 		if ($action === "") {
-			$ctl->res_error_message("line_action", "内容を選択してください。");
+			$ctl->res_error_message("line_action", $ctl->t("wizard.validation.choose_action"));
 			return;
 		}
 		$state = $this->get_line_bot_state($ctl);
@@ -1872,7 +1872,7 @@ class wizard {
 			return;
 		}
 		if ($action !== "add") {
-			$ctl->show_notification_text("この機能は準備中です。現在は Line Bot処理追加 / Line Bot処理変更 / Line Bot処理削除 / LINE用会員データベース作製 を使用できます。", 3);
+			$ctl->show_notification_text($ctl->t("wizard.notification.line_bot_preparing"), 3);
 			return;
 		}
 		$this->show_line_bot_step_event($ctl, $state);
@@ -1882,7 +1882,7 @@ class wizard {
 		$event_type = trim((string) $ctl->POST("event_type"));
 		$event_opt = $this->get_line_bot_event_options();
 		if (!isset($event_opt[$event_type])) {
-			$ctl->res_error_message("event_type", "イベントを選択してください。");
+			$ctl->res_error_message("event_type", $ctl->t("wizard.validation.event_type_required"));
 			return;
 		}
 		$state = $this->get_line_bot_state($ctl);
@@ -1923,7 +1923,7 @@ class wizard {
 	function submit_line_bot_request_next(Controller $ctl) {
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_line_bot_state($ctl);
@@ -2016,12 +2016,12 @@ class wizard {
 	function submit_line_bot_delete_next(Controller $ctl) {
 		$rule_id = $this->normalize_single_id((string) $ctl->POST("rule_id"));
 		if ($rule_id === "") {
-			$ctl->res_error_message("rule_id", "削除するルールを選択してください。");
+			$ctl->res_error_message("rule_id", $ctl->t("wizard.validation.rule_delete_target_required"));
 			return;
 		}
 		$rule = $this->get_line_bot_editable_rule($ctl, $rule_id);
 		if ($rule === null) {
-			$ctl->res_error_message("rule_id", "削除対象のルールが見つかりません。");
+			$ctl->res_error_message("rule_id", $ctl->t("wizard.validation.rule_delete_target_not_found"));
 			return;
 		}
 		$state = $this->get_line_bot_delete_state($ctl);
@@ -2056,12 +2056,12 @@ class wizard {
 	function submit_line_bot_edit_rule_next(Controller $ctl) {
 		$rule_id = $this->normalize_single_id((string) $ctl->POST("rule_id"));
 		if ($rule_id === "") {
-			$ctl->res_error_message("rule_id", "変更するルールを選択してください。");
+			$ctl->res_error_message("rule_id", $ctl->t("wizard.validation.rule_edit_target_required"));
 			return;
 		}
 		$rule = $this->get_line_bot_editable_rule($ctl, $rule_id);
 		if ($rule === null) {
-			$ctl->res_error_message("rule_id", "変更対象のルールが見つかりません。");
+			$ctl->res_error_message("rule_id", $ctl->t("wizard.validation.rule_edit_target_not_found"));
 			return;
 		}
 		$state = $this->get_line_bot_edit_state($ctl);
@@ -2081,7 +2081,7 @@ class wizard {
 		$event_type = trim((string) $ctl->POST("event_type"));
 		$event_opt = $this->get_line_bot_event_options();
 		if (!isset($event_opt[$event_type])) {
-			$ctl->res_error_message("event_type", "イベントを選択してください。");
+			$ctl->res_error_message("event_type", $ctl->t("wizard.validation.event_type_required"));
 			return;
 		}
 		$keyword = "";
@@ -2117,7 +2117,7 @@ class wizard {
 		}
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_line_bot_edit_state($ctl);
@@ -2148,12 +2148,12 @@ class wizard {
 		$db_id = (string) $ctl->POST("db_id");
 		$db_id = $this->normalize_single_id($db_id);
 		if ($db_id === "") {
-			$ctl->res_error_message("db_id", "ボタン配置場所のテーブルを選択してください。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.button_table_required"));
 			return;
 		}
 		$db = $ctl->db("db", "db")->get($db_id);
 		if (!is_array($db) || count($db) === 0) {
-			$ctl->res_error_message("db_id", "対象テーブルが見つかりません。");
+			$ctl->res_error_message("db_id", $ctl->t("wizard.validation.target_table_not_found"));
 			return;
 		}
 		$tb_name = $this->normalize_table_name((string) ($db["tb_name"] ?? ""));
@@ -2178,7 +2178,7 @@ class wizard {
 		$place = (string) $ctl->POST("place");
 		$place_opt = $this->get_original_form_place_options(((int) ($state["parent_tb_id"] ?? 0)) > 0);
 		if (!isset($place_opt[$place])) {
-			$ctl->res_error_message("place", "配置場所を選択してください。");
+			$ctl->res_error_message("place", $ctl->t("wizard.validation.place_required"));
 			return;
 		}
 		$state["place"] = $place;
@@ -2194,7 +2194,7 @@ class wizard {
 		}
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
-			$ctl->res_error_message("request_text", "制作内容を入力してください。");
+			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_original_form_state($ctl);
@@ -2244,14 +2244,14 @@ class wizard {
 	function submit_table_change_action_next(Controller $ctl) {
 		$action = trim((string) $ctl->POST("change_action"));
 		if ($action === "") {
-			$ctl->res_error_message("change_action", "変更内容を選択してください。");
+			$ctl->res_error_message("change_action", $ctl->t("wizard.validation.change_action_required"));
 			return;
 		}
 		$state = $this->get_table_change_state($ctl);
 		$state["change_action"] = $action;
 		$this->save_table_change_state($ctl, $state);
 		if (!in_array($action, ["add_field", "delete_field", "update_field", "add_screen_field"], true)) {
-			$ctl->show_notification_text("この変更パターンは準備中です。現在は「テーブルへの項目追加」「テーブルへの項目削除」「テーブルへの項目変更」「標準画面への項目追加・削除」を使用できます。", 3);
+			$ctl->show_notification_text($ctl->t("wizard.notification.table_change_preparing"), 3);
 			return;
 		}
 		$this->show_table_change_step_table($ctl, $state);
@@ -2260,12 +2260,12 @@ class wizard {
 	function submit_table_change_table_next(Controller $ctl) {
 		$target = $this->normalize_table_name((string) $ctl->POST("target_tb_name"));
 		if ($target === "") {
-			$ctl->res_error_message("target_tb_name", "対象テーブルを選択してください。");
+			$ctl->res_error_message("target_tb_name", $ctl->t("wizard.validation.target_table_required"));
 			return;
 		}
 		$list = $ctl->db("db", "db")->select("tb_name", $target);
 		if (!is_array($list) || count($list) === 0) {
-			$ctl->res_error_message("target_tb_name", "対象テーブルが見つかりません。");
+			$ctl->res_error_message("target_tb_name", $ctl->t("wizard.validation.target_table_not_found"));
 			return;
 		}
 		$state = $this->get_table_change_state($ctl);
@@ -2333,12 +2333,12 @@ class wizard {
 		$plan_lines = [];
 		$prompt_text = "";
 		$preview_tpl = "table_change_preview.tpl";
-		$preview_title = "Wizard: テーブル変更(項目追加) 確認";
+		$preview_title = $ctl->t("wizard.table_change.preview_add");
 		if ($action === "add_screen_field") {
 			$plan_lines = $this->build_table_change_add_screen_plan_lines($state);
 			$prompt_text = $this->build_table_change_add_screen_prompt_text($state, $plan_lines);
 			$preview_tpl = "table_change_screen_add_preview.tpl";
-			$preview_title = "Wizard: テーブル変更(標準画面への項目追加・削除) 確認";
+			$preview_title = $ctl->t("wizard.table_change.preview_screen_add");
 		} else {
 			$plan_lines = $this->build_table_change_add_plan_lines($state);
 			$prompt_text = $this->build_table_change_add_prompt_text($state, $plan_lines);
@@ -2354,7 +2354,7 @@ class wizard {
 		$state = $this->get_table_change_state($ctl);
 		$selected = $ctl->POST("delete_field_ids");
 		if (!is_array($selected) || count($selected) === 0) {
-			$ctl->res_error_message("delete_field_ids", "削除する項目を1つ以上選択してください。");
+			$ctl->res_error_message("delete_field_ids", $ctl->t("wizard.validation.delete_fields_required"));
 			return;
 		}
 		$valid_map = $this->get_table_field_options($ctl, (string) ($state["target_tb_name"] ?? ""));
@@ -2369,7 +2369,7 @@ class wizard {
 			$lines[] = $valid_map[$key];
 		}
 		if (count($ids) === 0) {
-			$ctl->res_error_message("delete_field_ids", "選択された項目が見つかりません。");
+			$ctl->res_error_message("delete_field_ids", $ctl->t("wizard.validation.selected_fields_not_found"));
 			return;
 		}
 		$state["delete_field_ids"] = $ids;
@@ -2382,14 +2382,14 @@ class wizard {
 		$ctl->set_session("wizard_current_prompt", $prompt_text);
 		$ctl->assign("row", $state);
 		$ctl->assign("plan_lines", $plan_lines);
-		$ctl->show_multi_dialog("wizard", "table_change_delete_preview.tpl", "Wizard: テーブル変更(項目削除) 確認", 980);
+		$ctl->show_multi_dialog("wizard", "table_change_delete_preview.tpl", $ctl->t("wizard.table_change.preview_delete"), 980);
 	}
 
 	function submit_table_change_update_field_next(Controller $ctl) {
 		$state = $this->get_table_change_state($ctl);
 		$update_field_id = (string) $ctl->POST("update_field_id");
 		if ($update_field_id === "" || !preg_match('/^[0-9]+$/', $update_field_id)) {
-			$ctl->res_error_message("update_field_id", "変更する項目を選択してください。");
+			$ctl->res_error_message("update_field_id", $ctl->t("wizard.validation.update_field_required"));
 			return;
 		}
 		$change_text = trim((string) $ctl->POST("update_field_change_text"));
@@ -2399,7 +2399,7 @@ class wizard {
 		}
 		$field_options = $this->get_table_field_options($ctl, (string) ($state["target_tb_name"] ?? ""));
 		if (!isset($field_options[$update_field_id])) {
-			$ctl->res_error_message("update_field_id", "選択した項目が見つかりません。");
+			$ctl->res_error_message("update_field_id", $ctl->t("wizard.validation.selected_field_not_found"));
 			return;
 		}
 
@@ -2414,14 +2414,14 @@ class wizard {
 		$ctl->set_session("wizard_current_prompt", $prompt_text);
 		$ctl->assign("row", $state);
 		$ctl->assign("plan_lines", $plan_lines);
-		$ctl->show_multi_dialog("wizard", "table_change_update_preview.tpl", "Wizard: テーブル変更(項目変更) 確認", 980);
+		$ctl->show_multi_dialog("wizard", "table_change_update_preview.tpl", $ctl->t("wizard.table_change.preview_update"), 980);
 	}
 
 	function submit_table_change_screen_add_fields_next(Controller $ctl) {
 		$state = $this->get_table_change_state($ctl);
 		$selected = $ctl->POST("screen_add_field_ids");
 		if (!is_array($selected) || count($selected) === 0) {
-			$ctl->res_error_message("screen_add_field_ids", "追加する項目を1つ以上選択してください。");
+			$ctl->res_error_message("screen_add_field_ids", $ctl->t("wizard.validation.screen_add_fields_required"));
 			return;
 		}
 		$valid_map = $this->get_table_field_options($ctl, (string) ($state["target_tb_name"] ?? ""));
@@ -2436,7 +2436,7 @@ class wizard {
 			$lines[] = $valid_map[$key];
 		}
 		if (count($ids) === 0) {
-			$ctl->res_error_message("screen_add_field_ids", "選択された項目が見つかりません。");
+			$ctl->res_error_message("screen_add_field_ids", $ctl->t("wizard.validation.selected_fields_not_found"));
 			return;
 		}
 		$state["screen_add_field_ids"] = $ids;
@@ -2510,109 +2510,109 @@ class wizard {
 	private function show_home(Controller $ctl) {
 		$wizard_groups = [
 			[
-				"title" => "ノート",
+				"title" => $ctl->t("wizard.home.group.note.title"),
 				"icon_path" => "css/images/wizard-icon001.png",
 				"items" => [
-					["label" => "ノートの追加", "status" => "ready"],
-					["label" => "ノートの設定変更", "status" => "ready"],
-					["label" => "ノートの削除", "status" => "ready"],
-					["label" => "子ノート追加", "status" => "ready"],
-					["label" => "親子ノート設定", "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.note.item_add"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.note.item_edit"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.note.item_delete"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.note.item_child_add"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.note.item_parent_child"), "status" => "ready"],
 				],
-				"button_label" => "このウィザードを使う",
+				"button_label" => $ctl->t("wizard.home.use_this_wizard"),
 				"button_function" => "open_note_wizard",
 				"enabled" => 1
 			],
 			[
-				"title" => "ノートの項目",
+				"title" => $ctl->t("wizard.home.group.table_change.title"),
 				"icon_path" => "css/images/wizard-icon002.png",
 				"items" => [
-					["label" => "ノートへの項目追加", "status" => "ready"],
-					["label" => "ノートへの項目変更", "status" => "ready"],
-					["label" => "ノートへの項目削除", "status" => "ready"],
-					["label" => "標準画面への項目追加・削除", "status" => "ready"]
+					["label" => $ctl->t("wizard.home.group.table_change.item_add"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.table_change.item_edit"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.table_change.item_delete"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.table_change.item_screen"), "status" => "ready"]
 				],
-				"button_label" => "このウィザードを使う",
+				"button_label" => $ctl->t("wizard.home.use_this_wizard"),
 				"button_function" => "open_table_change_wizard",
 				"enabled" => 1
 			],
 			[
-				"title" => "ノートにボタン追加",
+				"title" => $ctl->t("wizard.home.group.db_additionals.title"),
 				"icon_path" => "css/images/wizard-icon003.png",
 				"items" => [
-					["label" => "Original Form", "status" => "ready"],
-					["label" => "PDF", "status" => "ready"],
-					["label" => "CSV Download", "status" => "ready"],
-					["label" => "CSV Upload", "status" => "ready"],
-					["label" => "チャート", "status" => "ready"],
-					["label" => "LINEメッセージ送信", "status" => "ready"]
+					["label" => $ctl->t("wizard.home.group.db_additionals.item_original_form"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.db_additionals.item_pdf"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.db_additionals.item_csv_download"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.db_additionals.item_csv_upload"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.db_additionals.item_chart"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.db_additionals.item_line_message"), "status" => "ready"]
 				],
-				"button_label" => "このウィザードを使う",
+				"button_label" => $ctl->t("wizard.home.use_this_wizard"),
 				"button_function" => "open_db_additionals_wizard",
 				"enabled" => 1
 			],
 			[
-				"title" => "LINE Bot",
+				"title" => $ctl->t("wizard.home.group.line_bot.title"),
 				"icon_path" => "css/images/wizard-icon005.png",
 				"items" => [
-					["label" => "LINE用会員ノート作製", "status" => "ready"],
-					["label" => "Line Bot処理追加", "status" => "ready"],
-					["label" => "Line Bot処理変更", "status" => "ready"],
-					["label" => "Line Bot処理削除", "status" => "ready"]
+					["label" => $ctl->t("wizard.home.group.line_bot.item_member_link"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.line_bot.item_add"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.line_bot.item_edit"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.line_bot.item_delete"), "status" => "ready"]
 				],
-				"button_label" => "このウィザードを使う",
+				"button_label" => $ctl->t("wizard.home.use_this_wizard"),
 				"button_function" => "open_line_bot_wizard",
 				"enabled" => 1
 			],
 			[
-				"title" => "定期実行処理",
+				"title" => $ctl->t("wizard.home.group.cron.title"),
 				"icon_path" => "css/images/wizard-icon006.png",
 				"items" => [
-					["label" => "定期処理追加", "status" => "ready"],
-					["label" => "定期処理変更", "status" => "ready"],
-					["label" => "定期処理削除", "status" => "ready"]
+					["label" => $ctl->t("wizard.home.group.cron.item_add"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.cron.item_edit"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.cron.item_delete"), "status" => "ready"]
 				],
-				"button_label" => "このウィザードを使う",
+				"button_label" => $ctl->t("wizard.home.use_this_wizard"),
 				"button_function" => "open_cron_wizard",
 				"enabled" => 1
 			],
 				[
-					"title" => "一般公開",
+					"title" => $ctl->t("wizard.home.group.public_pages.title"),
 					"icon_path" => "css/images/wizard-icon004.png",
 					"items" => [
-						["label" => "画像の登録", "status" => "ready"],
-						["label" => "共通デザイン（ヘッダ・フッタ）作製", "status" => "ready"],
-						["label" => "新規ページ追加", "status" => "ready"],
-						["label" => "既存ページ変更", "status" => "ready"],
-						["label" => "既存ページ削除", "status" => "ready"],
-						["label" => "メニューの管理", "status" => "ready"]
+						["label" => $ctl->t("wizard.home.group.public_pages.item_asset_add"), "status" => "ready"],
+						["label" => $ctl->t("wizard.home.group.public_pages.item_common_design"), "status" => "ready"],
+						["label" => $ctl->t("wizard.home.group.public_pages.item_add"), "status" => "ready"],
+						["label" => $ctl->t("wizard.home.group.public_pages.item_edit"), "status" => "ready"],
+						["label" => $ctl->t("wizard.home.group.public_pages.item_delete"), "status" => "ready"],
+						["label" => $ctl->t("wizard.home.group.public_pages.item_menu_manage"), "status" => "ready"]
 					],
-					"button_label" => "このウィザードを使う",
+					"button_label" => $ctl->t("wizard.home.use_this_wizard"),
 					"button_function" => "open_public_pages_wizard",
 					"enabled" => 1,
 					"visible" => 0
 				],
 				[
-					"title" => "埋め込みアプリ",
+					"title" => $ctl->t("wizard.home.group.embed_app.title"),
 					"icon_path" => "css/images/wizard-icon007.png",
 					"items" => [
-						["label" => "Embed App 新規制作", "status" => "ready"],
-						["label" => "Embed App 既存変更", "status" => "ready"],
-						["label" => "Embed App 削除", "status" => "ready"]
+						["label" => $ctl->t("wizard.home.group.embed_app.item_add"), "status" => "ready"],
+						["label" => $ctl->t("wizard.home.group.embed_app.item_edit"), "status" => "ready"],
+						["label" => $ctl->t("wizard.home.group.embed_app.item_delete"), "status" => "ready"]
 					],
-					"button_label" => "このウィザードを使う",
+					"button_label" => $ctl->t("wizard.home.use_this_wizard"),
 					"button_function" => "open_embed_app_wizard",
 					"enabled" => 1
 				],
 				[
-					"title" => "Dashboard",
+					"title" => $ctl->t("wizard.home.group.dashboard.title"),
 					"icon_path" => "css/images/wizard-icon008.png",
 					"items" => [
-						["label" => "Dashboard 追加", "status" => "ready"],
-						["label" => "Dashboard 変更", "status" => "ready"],
-						["label" => "Dashboard 削除", "status" => "ready"]
+						["label" => $ctl->t("wizard.home.group.dashboard.item_add"), "status" => "ready"],
+						["label" => $ctl->t("wizard.home.group.dashboard.item_edit"), "status" => "ready"],
+						["label" => $ctl->t("wizard.home.group.dashboard.item_delete"), "status" => "ready"]
 					],
-					"button_label" => "このウィザードを使う",
+					"button_label" => $ctl->t("wizard.home.use_this_wizard"),
 					"button_function" => "open_dashboard_wizard",
 					"enabled" => 1
 				]
@@ -2621,31 +2621,33 @@ class wizard {
 			return !isset($group["visible"]) || (int) $group["visible"] === 1;
 		}));
 		$ctl->assign("wizard_groups", $wizard_groups);
-		$ctl->show_multi_dialog("wizard", "home.tpl", "Codex Wizard", 980, "_fixed_bar.tpl");
+		$ctl->show_multi_dialog("wizard", "home.tpl", $ctl->t("wizard.title"), 980, "_fixed_bar.tpl");
 	}
 
 	private function show_step_purpose(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("back_function", ((string) ($state["create_mode"] ?? "") === "child") ? "back_to_table_create_parent" : "run");
-		$title = ((string) ($state["create_mode"] ?? "") === "child") ? "Wizard: 用途 (2/5)" : "Wizard: 用途 (1/4)";
+		$title = ((string) ($state["create_mode"] ?? "") === "child")
+			? $ctl->t("wizard.note_create_child.step_purpose")
+			: $ctl->t("wizard.note_create.step_purpose");
 		$ctl->show_multi_dialog("wizard", "table_create_step_purpose.tpl", $title, 760);
 	}
 
 	private function show_note_step_select(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "note_select.tpl", "Wizard: ノート / 内容選択", 760);
+		$ctl->show_multi_dialog("wizard", "note_select.tpl", $ctl->t("wizard.note.step_select"), 760);
 	}
 
 	private function show_table_create_parent_step(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_options", $this->get_parent_table_options($ctl));
-		$ctl->show_multi_dialog("wizard", "table_create_step_parent.tpl", "Wizard: 親ノート選択 (1/5)", 760);
+		$ctl->show_multi_dialog("wizard", "table_create_step_parent.tpl", $ctl->t("wizard.note_create_child.step_parent"), 760);
 	}
 
 	private function show_note_edit_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_options", $this->get_table_options($ctl));
-		$ctl->show_multi_dialog("wizard", "note_edit_step_table.tpl", "Wizard: ノート設定変更 / 対象選択 (2/4)", 760);
+		$ctl->show_multi_dialog("wizard", "note_edit_step_table.tpl", $ctl->t("wizard.note_edit.step_table"), 760);
 	}
 
 	private function show_note_edit_step_basic(Controller $ctl, array $state) {
@@ -2653,7 +2655,7 @@ class wizard {
 		$ctl->assign("note_show_menu_options", $this->get_note_show_menu_options());
 		$ctl->assign("note_sort_order_options", $this->get_note_sort_order_options());
 		$ctl->assign("note_sortkey_options", $this->get_note_sortkey_options($ctl, (string) ($state["target_tb_name"] ?? "")));
-		$ctl->show_multi_dialog("wizard", "note_edit_step_basic.tpl", "Wizard: ノート設定変更 / 基本設定 (3/4)", 820);
+		$ctl->show_multi_dialog("wizard", "note_edit_step_basic.tpl", $ctl->t("wizard.note_edit.step_basic"), 820);
 	}
 
 	private function show_note_edit_preview(Controller $ctl, array $state) {
@@ -2663,13 +2665,13 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("plan_lines", $plan_lines);
 		$ctl->assign("prompt_text", $prompt_text);
-		$ctl->show_multi_dialog("wizard", "note_edit_preview.tpl", "Wizard: ノート設定変更 / 確認 (4/4)", 900);
+		$ctl->show_multi_dialog("wizard", "note_edit_preview.tpl", $ctl->t("wizard.note_edit.step_preview"), 900);
 	}
 
 	private function show_note_delete_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_options", $this->get_table_options($ctl));
-		$ctl->show_multi_dialog("wizard", "note_delete_step_table.tpl", "Wizard: ノート削除 / 対象選択 (2/3)", 760);
+		$ctl->show_multi_dialog("wizard", "note_delete_step_table.tpl", $ctl->t("wizard.note_delete.step_table"), 760);
 	}
 
 	private function show_note_delete_preview(Controller $ctl, array $state) {
@@ -2679,13 +2681,13 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("plan_lines", $plan_lines);
 		$ctl->assign("prompt_text", $prompt_text);
-		$ctl->show_multi_dialog("wizard", "note_delete_preview.tpl", "Wizard: ノート削除 / 確認 (3/3)", 900);
+		$ctl->show_multi_dialog("wizard", "note_delete_preview.tpl", $ctl->t("wizard.note_delete.step_preview"), 900);
 	}
 
 	private function show_parent_child_note_step_child(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("child_table_options", $this->get_child_table_options($ctl));
-		$ctl->show_multi_dialog("wizard", "parent_child_note_step_child.tpl", "Wizard: 親子ノート設定 / 子ノート選択 (2/4)", 760);
+		$ctl->show_multi_dialog("wizard", "parent_child_note_step_child.tpl", $ctl->t("wizard.parent_child_note.step_child"), 760);
 	}
 
 	private function show_parent_child_note_step_basic(Controller $ctl, array $state) {
@@ -2693,17 +2695,19 @@ class wizard {
 		$ctl->assign("dropdown_item_options", $this->get_parent_dropdown_item_options($ctl, (string) ($state["parent_tb_name"] ?? "")));
 		$ctl->assign("dropdown_item_display_type_options", $this->get_dropdown_item_display_type_options());
 		$ctl->assign("cascade_delete_flag_options", $this->get_cascade_delete_flag_options());
-		$ctl->show_multi_dialog("wizard", "parent_child_note_step_basic.tpl", "Wizard: 親子ノート設定 / 設定 (3/4)", 860);
+		$ctl->show_multi_dialog("wizard", "parent_child_note_step_basic.tpl", $ctl->t("wizard.parent_child_note.step_basic"), 860);
 	}
 
 	private function show_parent_child_note_preview(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "parent_child_note_preview.tpl", "Wizard: 親子ノート設定 / 確認 (4/4)", 900);
+		$ctl->show_multi_dialog("wizard", "parent_child_note_preview.tpl", $ctl->t("wizard.parent_child_note.step_preview"), 900);
 	}
 
 	private function show_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$title = ((string) ($state["create_mode"] ?? "") === "child") ? "Wizard: ノート名 (3/5)" : "Wizard: ノート名 (2/4)";
+		$title = ((string) ($state["create_mode"] ?? "") === "child")
+			? $ctl->t("wizard.note_create_child.step_note_name")
+			: $ctl->t("wizard.note_create.step_note_name");
 		$ctl->show_multi_dialog("wizard", "table_create_step_table.tpl", $title, 760);
 	}
 
@@ -2711,7 +2715,9 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_create_field_type_options", $this->get_table_create_field_type_options());
 		$ctl->assign("table_create_option_field_types_json", json_encode(["dropdown", "checkbox", "radio"], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-		$title = ((string) ($state["create_mode"] ?? "") === "child") ? "Wizard: 項目設定 (4/5)" : "Wizard: 項目設定 (3/4)";
+		$title = ((string) ($state["create_mode"] ?? "") === "child")
+			? $ctl->t("wizard.note_create_child.step_fields")
+			: $ctl->t("wizard.note_create.step_fields");
 		$ctl->show_multi_dialog("wizard", "table_create_step_fields.tpl", $title, 820);
 	}
 
@@ -2723,27 +2729,29 @@ class wizard {
 		$ctl->set_session("wizard_current_prompt", $prompt_text);
 		$ctl->assign("plan_lines", $plan_lines);
 		$ctl->assign("prompt_text", $prompt_text);
-		$title = ((string) ($state["create_mode"] ?? "") === "child") ? "Wizard: 実行確認 (5/5)" : "Wizard: 実行確認 (4/4)";
+		$title = ((string) ($state["create_mode"] ?? "") === "child")
+			? $ctl->t("wizard.note_create_child.step_preview")
+			: $ctl->t("wizard.note_create.step_preview");
 		$ctl->show_multi_dialog("wizard", "table_create_preview.tpl", $title, 900);
 	}
 
 	private function show_table_change_step_select(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "table_change_select.tpl", "Wizard: テーブル変更内容 (1/4)", 760);
+		$ctl->show_multi_dialog("wizard", "table_change_select.tpl", $ctl->t("wizard.table_change.step_select"), 760);
 	}
 
 	private function show_table_change_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_options", $this->get_table_options($ctl));
-		$ctl->show_multi_dialog("wizard", "table_change_step_table.tpl", "Wizard: 対象テーブル (2/4)", 760);
+		$ctl->show_multi_dialog("wizard", "table_change_step_table.tpl", $ctl->t("wizard.table_change.step_table"), 760);
 	}
 
 	private function show_table_change_step_fields(Controller $ctl, array $state) {
 		if (trim((string) ($state["fields_text"] ?? "")) === "") {
-			$state["fields_text"] = "新しい項目名（text）";
+			$state["fields_text"] = $ctl->t("wizard.table_change.fields.default");
 		}
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "table_change_step_fields.tpl", "Wizard: 追加項目 (3/4)", 760);
+		$ctl->show_multi_dialog("wizard", "table_change_step_fields.tpl", $ctl->t("wizard.table_change.step_fields"), 760);
 	}
 
 	private function show_table_change_step_display(Controller $ctl, array $state) {
@@ -2759,9 +2767,9 @@ class wizard {
 			$ctl->assign("display_target_labels", $this->get_display_target_labels());
 			$ctl->assign("field_display_rows", $this->build_field_display_rows($state));
 		}
-		$title = "Wizard: 表示先 (4/4)";
+		$title = $ctl->t("wizard.table_change.step_display");
 		if (($state["change_action"] ?? "") === "add_screen_field") {
-			$title = "Wizard: 標準画面への項目追加・削除 (3/4)";
+			$title = $ctl->t("wizard.table_change.step_screen_add");
 		}
 		$ctl->show_multi_dialog("wizard", "table_change_step_display.tpl", $title, 760);
 	}
@@ -2770,32 +2778,32 @@ class wizard {
 		$options = $this->get_table_field_options($ctl, (string) ($state["target_tb_name"] ?? ""));
 		$ctl->assign("row", $state);
 		$ctl->assign("delete_field_rows", $this->build_delete_field_rows($options, $state["delete_field_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "table_change_step_delete_fields.tpl", "Wizard: 削除項目 (3/4)", 760);
+		$ctl->show_multi_dialog("wizard", "table_change_step_delete_fields.tpl", $ctl->t("wizard.table_change.step_delete_fields"), 760);
 	}
 
 	private function show_table_change_step_update_field(Controller $ctl, array $state) {
 		$options = $this->get_table_field_options($ctl, (string) ($state["target_tb_name"] ?? ""));
 		$ctl->assign("row", $state);
-		$ctl->assign("update_field_options", ["" => "選択してください"] + $options);
-		$ctl->show_multi_dialog("wizard", "table_change_step_update_field.tpl", "Wizard: 変更項目 (3/4)", 760);
+		$ctl->assign("update_field_options", ["" => $ctl->t("wizard.select_please")] + $options);
+		$ctl->show_multi_dialog("wizard", "table_change_step_update_field.tpl", $ctl->t("wizard.table_change.step_update_field"), 760);
 	}
 
 	private function show_table_change_step_screen_add_fields(Controller $ctl, array $state) {
 		$options = $this->get_table_field_options($ctl, (string) ($state["target_tb_name"] ?? ""));
 		$ctl->assign("row", $state);
 		$ctl->assign("screen_add_field_rows", $this->build_delete_field_rows($options, $state["screen_add_field_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "table_change_step_screen_add_fields.tpl", "Wizard: 追加項目 (3/4)", 760);
+		$ctl->show_multi_dialog("wizard", "table_change_step_screen_add_fields.tpl", $ctl->t("wizard.table_change.step_screen_add_fields"), 760);
 	}
 
 	private function show_original_form_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_id_options", $this->get_table_id_options($ctl));
-		$ctl->show_multi_dialog("wizard", "original_form_step_table.tpl", "Wizard: Original Form / テーブル選択 (1/3)", 760);
+		$ctl->show_multi_dialog("wizard", "original_form_step_table.tpl", $ctl->t("wizard.original_form.step_table"), 760);
 	}
 
 	private function show_db_additionals_select(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "db_additionals_select.tpl", "Wizard: db_additionals 機能選択", 760);
+		$ctl->show_multi_dialog("wizard", "db_additionals_select.tpl", $ctl->t("wizard.db_additionals.step_select"), 760);
 	}
 
 	private function show_original_form_step_place(Controller $ctl, array $state) {
@@ -2803,7 +2811,7 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
-		$ctl->show_multi_dialog("wizard", "original_form_step_place.tpl", "Wizard: Original Form / 配置場所 (2/3)", 760);
+		$ctl->show_multi_dialog("wizard", "original_form_step_place.tpl", $ctl->t("wizard.original_form.step_place"), 760);
 	}
 
 	private function show_original_form_step_request(Controller $ctl, array $state) {
@@ -2811,13 +2819,13 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
-		$ctl->show_multi_dialog("wizard", "original_form_step_request.tpl", "Wizard: Original Form / 制作内容 (3/3)", 760);
+		$ctl->show_multi_dialog("wizard", "original_form_step_request.tpl", $ctl->t("wizard.original_form.step_request"), 760);
 	}
 
 	private function show_pdf_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_id_options", $this->get_table_id_options($ctl));
-		$ctl->show_multi_dialog("wizard", "pdf_step_table.tpl", "Wizard: PDF / テーブル選択 (1/3)", 760);
+		$ctl->show_multi_dialog("wizard", "pdf_step_table.tpl", $ctl->t("wizard.pdf.step_table"), 760);
 	}
 
 	private function show_pdf_step_place(Controller $ctl, array $state) {
@@ -2825,14 +2833,14 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
-		$ctl->show_multi_dialog("wizard", "pdf_step_place.tpl", "Wizard: PDF / 配置場所 (2/4)", 760);
+		$ctl->show_multi_dialog("wizard", "pdf_step_place.tpl", $ctl->t("wizard.pdf.step_place"), 760);
 	}
 
 	private function show_pdf_step_fields(Controller $ctl, array $state) {
 		$rows = $this->get_table_field_detail_rows($ctl, (string) ($state["tb_name"] ?? ""));
 		$ctl->assign("row", $state);
 		$ctl->assign("pdf_field_rows", $this->build_pdf_field_rows($rows, $state["field_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "pdf_step_fields.tpl", "Wizard: PDF / 使用フィールド (3/4)", 900);
+		$ctl->show_multi_dialog("wizard", "pdf_step_fields.tpl", $ctl->t("wizard.pdf.step_fields"), 900);
 	}
 
 	private function show_pdf_step_request(Controller $ctl, array $state) {
@@ -2842,13 +2850,13 @@ class wizard {
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
 		$ctl->assign("pdf_selected_fields", $this->build_pdf_selected_field_rows($rows, $state["field_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "pdf_step_request.tpl", "Wizard: PDF / 制作内容 (4/4)", 900);
+		$ctl->show_multi_dialog("wizard", "pdf_step_request.tpl", $ctl->t("wizard.pdf.step_request"), 900);
 	}
 
 	private function show_csv_download_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_id_options", $this->get_table_id_options($ctl));
-		$ctl->show_multi_dialog("wizard", "csv_download_step_table.tpl", "Wizard: CSV Download / テーブル選択 (1/4)", 760);
+		$ctl->show_multi_dialog("wizard", "csv_download_step_table.tpl", $ctl->t("wizard.csv_download.step_table"), 760);
 	}
 
 	private function show_csv_download_step_place(Controller $ctl, array $state) {
@@ -2856,14 +2864,14 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
-		$ctl->show_multi_dialog("wizard", "csv_download_step_place.tpl", "Wizard: CSV Download / 配置場所 (2/4)", 760);
+		$ctl->show_multi_dialog("wizard", "csv_download_step_place.tpl", $ctl->t("wizard.csv_download.step_place"), 760);
 	}
 
 	private function show_csv_download_step_fields(Controller $ctl, array $state) {
 		$rows = $this->get_table_field_detail_rows($ctl, (string) ($state["tb_name"] ?? ""));
 		$ctl->assign("row", $state);
 		$ctl->assign("csv_field_rows", $this->build_pdf_field_rows($rows, $state["field_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "csv_download_step_fields.tpl", "Wizard: CSV Download / 使用フィールド (3/4)", 900);
+		$ctl->show_multi_dialog("wizard", "csv_download_step_fields.tpl", $ctl->t("wizard.csv_download.step_fields"), 900);
 	}
 
 	private function show_csv_download_step_request(Controller $ctl, array $state) {
@@ -2873,13 +2881,13 @@ class wizard {
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
 		$ctl->assign("csv_selected_fields", $this->build_pdf_selected_field_rows($rows, $state["field_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "csv_download_step_request.tpl", "Wizard: CSV Download / 制作内容 (4/4)", 900);
+		$ctl->show_multi_dialog("wizard", "csv_download_step_request.tpl", $ctl->t("wizard.csv_download.step_request"), 900);
 	}
 
 	private function show_csv_upload_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_id_options", $this->get_table_id_options($ctl));
-		$ctl->show_multi_dialog("wizard", "csv_upload_step_table.tpl", "Wizard: CSV Upload / テーブル選択 (1/4)", 760);
+		$ctl->show_multi_dialog("wizard", "csv_upload_step_table.tpl", $ctl->t("wizard.csv_upload.step_table"), 760);
 	}
 
 	private function show_csv_upload_step_place(Controller $ctl, array $state) {
@@ -2887,14 +2895,14 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
-		$ctl->show_multi_dialog("wizard", "csv_upload_step_place.tpl", "Wizard: CSV Upload / 配置場所 (2/4)", 760);
+		$ctl->show_multi_dialog("wizard", "csv_upload_step_place.tpl", $ctl->t("wizard.csv_upload.step_place"), 760);
 	}
 
 	private function show_csv_upload_step_fields(Controller $ctl, array $state) {
 		$rows = $this->get_table_field_detail_rows($ctl, (string) ($state["tb_name"] ?? ""));
 		$ctl->assign("row", $state);
 		$ctl->assign("csv_upload_field_rows", $this->build_pdf_field_rows($rows, $state["field_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "csv_upload_step_fields.tpl", "Wizard: CSV Upload / 使用フィールド (3/4)", 900);
+		$ctl->show_multi_dialog("wizard", "csv_upload_step_fields.tpl", $ctl->t("wizard.csv_upload.step_fields"), 900);
 	}
 
 	private function show_csv_upload_step_request(Controller $ctl, array $state) {
@@ -2904,13 +2912,13 @@ class wizard {
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
 		$ctl->assign("csv_upload_selected_fields", $this->build_pdf_selected_field_rows($rows, $state["field_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "csv_upload_step_request.tpl", "Wizard: CSV Upload / 制作内容 (4/4)", 900);
+		$ctl->show_multi_dialog("wizard", "csv_upload_step_request.tpl", $ctl->t("wizard.csv_upload.step_request"), 900);
 	}
 
 	private function show_chart_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_id_options", $this->get_table_id_options($ctl));
-		$ctl->show_multi_dialog("wizard", "chart_step_table.tpl", "Wizard: Chart / テーブル選択 (1/5)", 760);
+		$ctl->show_multi_dialog("wizard", "chart_step_table.tpl", $ctl->t("wizard.chart.step_table"), 760);
 	}
 
 	private function show_chart_step_place(Controller $ctl, array $state) {
@@ -2918,20 +2926,20 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
-		$ctl->show_multi_dialog("wizard", "chart_step_place.tpl", "Wizard: Chart / 配置場所 (2/5)", 760);
+		$ctl->show_multi_dialog("wizard", "chart_step_place.tpl", $ctl->t("wizard.chart.step_place"), 760);
 	}
 
 	private function show_chart_step_type(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("chart_type_options", $this->get_chart_type_options());
-		$ctl->show_multi_dialog("wizard", "chart_step_type.tpl", "Wizard: Chart / 種類 (3/5)", 760);
+		$ctl->show_multi_dialog("wizard", "chart_step_type.tpl", $ctl->t("wizard.chart.step_type"), 760);
 	}
 
 	private function show_chart_step_fields(Controller $ctl, array $state) {
 		$rows = $this->get_table_field_detail_rows($ctl, (string) ($state["tb_name"] ?? ""));
 		$ctl->assign("row", $state);
 		$ctl->assign("chart_field_rows", $this->build_pdf_field_rows($rows, $state["field_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "chart_step_fields.tpl", "Wizard: Chart / 集計フィールド (4/5)", 900);
+		$ctl->show_multi_dialog("wizard", "chart_step_fields.tpl", $ctl->t("wizard.chart.step_fields"), 900);
 	}
 
 	private function show_chart_step_request(Controller $ctl, array $state) {
@@ -2942,13 +2950,13 @@ class wizard {
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
 		$ctl->assign("chart_type_options", $this->get_chart_type_options());
 		$ctl->assign("chart_selected_fields", $this->build_pdf_selected_field_rows($rows, $state["field_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "chart_step_request.tpl", "Wizard: Chart / 制作内容 (5/5)", 900);
+		$ctl->show_multi_dialog("wizard", "chart_step_request.tpl", $ctl->t("wizard.chart.step_request"), 900);
 	}
 
 	private function show_line_message_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("table_id_options", $this->get_table_id_options($ctl));
-		$ctl->show_multi_dialog("wizard", "line_message_step_table.tpl", "Wizard: LINEメッセージ送信 / テーブル選択 (1/3)", 760);
+		$ctl->show_multi_dialog("wizard", "line_message_step_table.tpl", $ctl->t("wizard.line_message.step_table"), 760);
 	}
 
 	private function show_line_message_step_place(Controller $ctl, array $state) {
@@ -2956,7 +2964,7 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
-		$ctl->show_multi_dialog("wizard", "line_message_step_place.tpl", "Wizard: LINEメッセージ送信 / 配置場所 (2/3)", 760);
+		$ctl->show_multi_dialog("wizard", "line_message_step_place.tpl", $ctl->t("wizard.line_message.step_place"), 760);
 	}
 
 	private function show_line_message_step_request(Controller $ctl, array $state) {
@@ -2964,12 +2972,12 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("is_child", $is_child ? 1 : 0);
 		$ctl->assign("place_options", $this->get_original_form_place_options($is_child));
-		$ctl->show_multi_dialog("wizard", "line_message_step_request.tpl", "Wizard: LINEメッセージ送信 / 制作内容 (3/3)", 900);
+		$ctl->show_multi_dialog("wizard", "line_message_step_request.tpl", $ctl->t("wizard.line_message.step_request"), 900);
 	}
 
 	private function show_cron_step_select(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "cron_select.tpl", "Wizard: Cron / 内容選択 (1/3)", 760);
+		$ctl->show_multi_dialog("wizard", "cron_select.tpl", $ctl->t("wizard.cron.step_select"), 760);
 	}
 
 	private function show_cron_step_target(Controller $ctl, array $state) {
@@ -2977,48 +2985,46 @@ class wizard {
 		$ctl->assign("cron_id_options", $this->get_cron_options($ctl));
 		$is_delete = ((string) ($state["cron_action"] ?? "")) === "delete";
 		$ctl->assign("cron_target_mode", $is_delete ? "delete" : "edit");
-		$title = $is_delete
-			? "Wizard: Cron / 削除対象選択 (2/2)"
-			: "Wizard: Cron / 変更対象選択 (2/4)";
+		$title = $is_delete ? $ctl->t("wizard.cron.step_target_delete") : $ctl->t("wizard.cron.step_target_edit");
 		$ctl->show_multi_dialog("wizard", "cron_step_target.tpl", $title, 900);
 	}
 
 	private function show_cron_step_timing(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$title = ((string) ($state["cron_action"] ?? "")) === "edit"
-			? "Wizard: Cron / 実行タイミング (3/4)"
-			: "Wizard: Cron / 実行タイミング (2/3)";
+			? $ctl->t("wizard.cron.step_timing_edit")
+			: $ctl->t("wizard.cron.step_timing_add");
 		$ctl->show_multi_dialog("wizard", "cron_step_timing.tpl", $title, 900);
 	}
 
 	private function show_cron_step_request(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$title = ((string) ($state["cron_action"] ?? "")) === "edit"
-			? "Wizard: Cron / 処理内容 (4/4)"
-			: "Wizard: Cron / 処理内容 (3/3)";
+			? $ctl->t("wizard.cron.step_request_edit")
+			: $ctl->t("wizard.cron.step_request_add");
 		$ctl->show_multi_dialog("wizard", "cron_step_request.tpl", $title, 900);
 	}
 
 	private function show_public_pages_step_select(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "public_pages_select.tpl", "Wizard: public_pages / 内容選択", 760);
+		$ctl->show_multi_dialog("wizard", "public_pages_select.tpl", $ctl->t("wizard.public_pages.step_select"), 760);
 	}
 
 	private function show_public_pages_step_add_info(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "public_pages_step_add_info.tpl", "Wizard: public_pages / ページ基本情報 (2/4)", 760);
+		$ctl->show_multi_dialog("wizard", "public_pages_step_add_info.tpl", $ctl->t("wizard.public_pages.step_add_info"), 760);
 	}
 
 	private function show_public_pages_step_asset_add(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "public_pages_step_asset_add.tpl", "Wizard: public_pages / 画像の登録 (2/2)", 760);
+		$ctl->show_multi_dialog("wizard", "public_pages_step_asset_add.tpl", $ctl->t("wizard.public_pages.step_asset_add"), 760);
 	}
 
 	private function show_public_pages_step_menu_manage(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("menu_manage_rows", $this->get_public_pages_menu_manage_rows($ctl));
 		$ctl->assign("menu_show_options", [0 => "Hide", 1 => "Show"]);
-		$ctl->show_multi_dialog("wizard", "public_pages_menu_manage.tpl", "Wizard: public_pages / メニューの管理 (2/2)", 980);
+		$ctl->show_multi_dialog("wizard", "public_pages_menu_manage.tpl", $ctl->t("wizard.public_pages.step_menu_manage"), 980);
 	}
 
 	private function show_public_pages_step_target(Controller $ctl, array $state) {
@@ -3026,8 +3032,8 @@ class wizard {
 		$ctl->assign("public_pages_registry_options", $this->get_public_pages_registry_options($ctl));
 		$action = (string) ($state["page_action"] ?? "");
 		$title = $action === "delete"
-			? "Wizard: public_pages / 削除対象選択 (2/2)"
-			: "Wizard: public_pages / 変更対象選択 (2/4)";
+			? $ctl->t("wizard.public_pages.step_target_delete")
+			: $ctl->t("wizard.public_pages.step_target_edit");
 		$ctl->show_multi_dialog("wizard", "public_pages_step_target.tpl", $title, 900);
 	}
 
@@ -3036,11 +3042,11 @@ class wizard {
 		$ctl->assign("public_asset_rows", $this->get_public_asset_rows_for_wizard($ctl, $state["public_asset_ids"] ?? []));
 		$action = (string) ($state["page_action"] ?? "");
 		if ($action === "common_design") {
-			$title = "Wizard: public_pages / 画像選択 (2/7)";
+			$title = $ctl->t("wizard.public_pages.step_assets_common_design");
 		} elseif ($action === "edit") {
-			$title = "Wizard: public_pages / 画像選択 (3/4)";
+			$title = $ctl->t("wizard.public_pages.step_assets_edit");
 		} else {
-			$title = "Wizard: public_pages / 画像選択 (3/4)";
+			$title = $ctl->t("wizard.public_pages.step_assets_add");
 		}
 		$ctl->show_multi_dialog("wizard", "public_pages_step_assets.tpl", $title, 900);
 	}
@@ -3049,11 +3055,11 @@ class wizard {
 		$this->show_public_pages_step_common_text(
 			$ctl,
 			$state,
-			"Wizard: public_pages / ヘッダ要件 (3/7)",
-			"ヘッダ要件",
+			$ctl->t("wizard.public_pages.step_common_header"),
+			$ctl->t("wizard.public_pages.common_header"),
 			"header_value",
 			(string) ($state["common_header_text"] ?? ""),
-			"例: 左にロゴ、右に主要メニュー3件とCTAボタンを置く。スマホではハンバーガーメニューにする。",
+			$ctl->t("wizard.public_pages.common_header_example"),
 			"back_to_public_pages_assets",
 			"submit_public_pages_common_header_next"
 		);
@@ -3063,11 +3069,11 @@ class wizard {
 		$this->show_public_pages_step_common_text(
 			$ctl,
 			$state,
-			"Wizard: public_pages / フッタ要件 (4/7)",
-			"フッタ要件",
+			$ctl->t("wizard.public_pages.step_common_footer"),
+			$ctl->t("wizard.public_pages.common_footer"),
 			"footer_value",
 			(string) ($state["common_footer_text"] ?? ""),
-			"例: 会社名、住所、電話番号、プライバシーポリシー、SNSリンクを表示する。",
+			$ctl->t("wizard.public_pages.common_footer_example"),
 			"back_to_public_pages_common_header",
 			"submit_public_pages_common_footer_next"
 		);
@@ -3077,11 +3083,11 @@ class wizard {
 		$this->show_public_pages_step_common_text(
 			$ctl,
 			$state,
-			"Wizard: public_pages / 共通導線 (5/7)",
-			"共通導線",
+			$ctl->t("wizard.public_pages.step_common_nav"),
+			$ctl->t("wizard.public_pages.common_nav"),
 			"nav_value",
 			(string) ($state["common_nav_text"] ?? ""),
-			"例: 料金、お問い合わせ、よくある質問、無料相談への導線を共通表示する。",
+			$ctl->t("wizard.public_pages.common_nav_example"),
 			"back_to_public_pages_common_footer",
 			"submit_public_pages_common_nav_next"
 		);
@@ -3091,11 +3097,11 @@ class wizard {
 		$this->show_public_pages_step_common_text(
 			$ctl,
 			$state,
-			"Wizard: public_pages / デザイン方針 (6/7)",
-			"デザイン方針",
+			$ctl->t("wizard.public_pages.step_common_style"),
+			$ctl->t("wizard.public_pages.common_style"),
 			"style_value",
 			(string) ($state["common_style_text"] ?? ""),
-			"例: 白ベースで信頼感のあるデザイン。CTAは青。スマホ優先で余白を広めに取る。",
+			$ctl->t("wizard.public_pages.common_style_example"),
 			"back_to_public_pages_common_nav",
 			"submit_public_pages_common_style_next"
 		);
@@ -3120,13 +3126,15 @@ class wizard {
 		$ctl->assign("example_text", $example);
 		$ctl->assign("back_function_name", $back_function);
 		$ctl->assign("next_function_name", $next_function);
+		$ctl->assign("step_prompt", $ctl->t("wizard.public_pages.common_text.prompt", ["label" => $step_label]));
+		$ctl->assign("example_prompt", $ctl->t("wizard.public_pages.common_text.example", ["example" => $example]));
 		$ctl->show_multi_dialog("wizard", "public_pages_common_design_text.tpl", $title, 900);
 	}
 
 	private function show_public_pages_step_common_confirm(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("selected_public_asset_rows", $this->build_selected_public_asset_rows($ctl, $state["public_asset_ids"] ?? []));
-		$ctl->show_multi_dialog("wizard", "public_pages_common_design_confirm.tpl", "Wizard: public_pages / 確認 (7/7)", 900);
+		$ctl->show_multi_dialog("wizard", "public_pages_common_design_confirm.tpl", $ctl->t("wizard.public_pages.step_common_confirm"), 900);
 	}
 
 	private function show_public_pages_step_request(Controller $ctl, array $state) {
@@ -3134,59 +3142,59 @@ class wizard {
 		$ctl->assign("selected_public_asset_rows", $this->build_selected_public_asset_rows($ctl, $state["public_asset_ids"] ?? []));
 		$action = (string) ($state["page_action"] ?? "");
 		if ($action === "common_design") {
-			$title = "Wizard: public_pages / 共通デザイン (3/3)";
+			$title = $ctl->t("wizard.public_pages.step_request_common_design");
 		} elseif ($action === "edit") {
-			$title = "Wizard: public_pages / 制作内容 (4/4)";
+			$title = $ctl->t("wizard.public_pages.step_request_edit");
 		} else {
-			$title = "Wizard: public_pages / 制作内容 (4/4)";
+			$title = $ctl->t("wizard.public_pages.step_request_add");
 		}
 		$ctl->show_multi_dialog("wizard", "public_pages_step_request.tpl", $title, 900);
 	}
 
 	private function show_embed_app_step_basic(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "embed_app_step_basic.tpl", "Wizard: Embed App / 基本設定 (2/3)", 900);
+		$ctl->show_multi_dialog("wizard", "embed_app_step_basic.tpl", $ctl->t("wizard.embed_app.step_basic"), 900);
 	}
 
 	private function show_embed_app_step_request(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$title = ((string) ($state["embed_action"] ?? "")) === "edit"
-			? "Wizard: Embed App / 変更内容 (3/3)"
-			: "Wizard: Embed App / 制作内容 (3/3)";
+			? $ctl->t("wizard.embed_app.step_request_edit")
+			: $ctl->t("wizard.embed_app.step_request_add");
 		$ctl->show_multi_dialog("wizard", "embed_app_step_request.tpl", $title, 900);
 	}
 
 	private function show_embed_app_step_select(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "embed_app_select.tpl", "Wizard: Embed App / 内容選択 (1/3)", 760);
+		$ctl->show_multi_dialog("wizard", "embed_app_select.tpl", $ctl->t("wizard.embed_app.step_select"), 760);
 	}
 
 	private function show_embed_app_step_target(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("embed_app_options", $this->get_embed_app_options($ctl));
 		$title = ((string) ($state["embed_action"] ?? "")) === "delete"
-			? "Wizard: Embed App / 削除対象選択 (2/2)"
-			: "Wizard: Embed App / 対象選択 (2/3)";
+			? $ctl->t("wizard.embed_app.step_target_delete")
+			: $ctl->t("wizard.embed_app.step_target");
 		$ctl->show_multi_dialog("wizard", "embed_app_step_target.tpl", $title, 900);
 	}
 
 	private function show_dashboard_step_select(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "dashboard_select.tpl", "Wizard: Dashboard / 内容選択 (1/3)", 760);
+		$ctl->show_multi_dialog("wizard", "dashboard_select.tpl", $ctl->t("wizard.dashboard.step_select"), 760);
 	}
 
 	private function show_dashboard_step_basic(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("dashboard_column_width_options", $this->get_dashboard_column_width_options());
-		$ctl->show_multi_dialog("wizard", "dashboard_step_basic.tpl", "Wizard: Dashboard / 基本設定 (2/3)", 900);
+		$ctl->show_multi_dialog("wizard", "dashboard_step_basic.tpl", $ctl->t("wizard.dashboard.step_basic"), 900);
 	}
 
 	private function show_dashboard_step_target(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("dashboard_options", $this->get_dashboard_options($ctl));
 		$title = ((string) ($state["dashboard_action"] ?? "")) === "delete"
-			? "Wizard: Dashboard / 削除対象選択 (2/2)"
-			: "Wizard: Dashboard / 対象選択 (2/3)";
+			? $ctl->t("wizard.dashboard.step_target_delete")
+			: $ctl->t("wizard.dashboard.step_target");
 		$ctl->show_multi_dialog("wizard", "dashboard_step_target.tpl", $title, 900);
 	}
 
@@ -3194,25 +3202,25 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("dashboard_column_width_label", $this->get_dashboard_column_width_options()[(int) ($state["column_width"] ?? 1)] ?? "1 column");
 		$title = ((string) ($state["dashboard_action"] ?? "")) === "edit"
-			? "Wizard: Dashboard / 変更内容 (3/3)"
-			: "Wizard: Dashboard / 制作内容 (3/3)";
+			? $ctl->t("wizard.dashboard.step_request_edit")
+			: $ctl->t("wizard.dashboard.step_request_add");
 		$ctl->show_multi_dialog("wizard", "dashboard_step_request.tpl", $title, 900);
 	}
 
 	private function show_line_bot_step_select(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "line_bot_select.tpl", "Wizard: Line Bot / 内容選択 (1/4)", 760);
+		$ctl->show_multi_dialog("wizard", "line_bot_select.tpl", $ctl->t("wizard.line_bot.step_select"), 760);
 	}
 
 	private function show_line_bot_step_event(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("line_bot_event_options", $this->get_line_bot_event_options());
-		$ctl->show_multi_dialog("wizard", "line_bot_step_event.tpl", "Wizard: Line Bot / イベント (2/4)", 760);
+		$ctl->show_multi_dialog("wizard", "line_bot_step_event.tpl", $ctl->t("wizard.line_bot.step_event"), 760);
 	}
 
 	private function show_line_bot_step_keyword(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "line_bot_step_keyword.tpl", "Wizard: Line Bot / キーワード (3/4)", 760);
+		$ctl->show_multi_dialog("wizard", "line_bot_step_keyword.tpl", $ctl->t("wizard.line_bot.step_keyword"), 760);
 	}
 
 	private function show_line_bot_step_request(Controller $ctl, array $state) {
@@ -3220,44 +3228,44 @@ class wizard {
 		$ctl->assign("line_bot_event_options", $this->get_line_bot_event_options());
 		$ctl->assign("line_bot_keyword_preview", $this->build_line_bot_keyword_preview($state));
 		$title = ((string) ($state["event_type"] ?? "")) === "keyword"
-			? "Wizard: Line Bot / 制作内容 (4/4)"
-			: "Wizard: Line Bot / 制作内容 (3/3)";
+			? $ctl->t("wizard.line_bot.step_request_keyword")
+			: $ctl->t("wizard.line_bot.step_request");
 		$ctl->show_multi_dialog("wizard", "line_bot_step_request.tpl", $title, 900);
 	}
 
 	private function show_line_member_link_step_table(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "line_member_link_step_table.tpl", "Wizard: LINE用会員データベース作製 / 固定テンプレート (1/1)", 900);
+		$ctl->show_multi_dialog("wizard", "line_member_link_step_table.tpl", $ctl->t("wizard.line_bot.step_member_link"), 900);
 	}
 
 	private function show_line_bot_delete_step_rule(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("line_bot_delete_rule_options", $this->get_line_bot_edit_rule_options($ctl));
-		$ctl->show_multi_dialog("wizard", "line_bot_delete_step_rule.tpl", "Wizard: Line Bot / 削除対象選択 (2/2)", 900);
+		$ctl->show_multi_dialog("wizard", "line_bot_delete_step_rule.tpl", $ctl->t("wizard.line_bot.step_delete_rule"), 900);
 	}
 
 	private function show_line_bot_edit_step_rule(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("line_bot_edit_rule_options", $this->get_line_bot_edit_rule_options($ctl));
-		$ctl->show_multi_dialog("wizard", "line_bot_edit_step_rule.tpl", "Wizard: Line Bot / 変更対象選択 (2/4)", 900);
+		$ctl->show_multi_dialog("wizard", "line_bot_edit_step_rule.tpl", $ctl->t("wizard.line_bot.step_edit_rule"), 900);
 	}
 
 	private function show_line_bot_edit_step_event(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("line_bot_event_options", $this->get_line_bot_event_options());
-		$ctl->show_multi_dialog("wizard", "line_bot_edit_step_event.tpl", "Wizard: Line Bot / 変更内容 (3/4)", 900);
+		$ctl->show_multi_dialog("wizard", "line_bot_edit_step_event.tpl", $ctl->t("wizard.line_bot.step_edit_event"), 900);
 	}
 
 	private function show_line_bot_edit_step_request(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("line_bot_event_options", $this->get_line_bot_event_options());
 		$ctl->assign("line_bot_keyword_preview", $this->build_line_bot_keyword_preview($state));
-		$ctl->show_multi_dialog("wizard", "line_bot_edit_step_request.tpl", "Wizard: Line Bot / 制作内容 (4/4)", 900);
+		$ctl->show_multi_dialog("wizard", "line_bot_edit_step_request.tpl", $ctl->t("wizard.line_bot.step_edit_request"), 900);
 	}
 
 	private function show_table_change_screen_done(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
-		$ctl->show_multi_dialog("wizard", "table_change_screen_done.tpl", "Wizard: 標準画面への項目追加・削除 完了", 760);
+		$ctl->show_multi_dialog("wizard", "table_change_screen_done.tpl", $ctl->t("wizard.table_change.step_screen_done"), 760);
 	}
 
 	private function get_table_create_state(Controller $ctl): array {

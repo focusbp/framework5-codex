@@ -20,14 +20,14 @@ class restore {
 		$setting = $ctl->get_setting();
 		$ctl->assign("setting", $setting);
 		if (empty($setting["project_release_code"])) {
-			$ctl->assign("message", "Please set the Project Release Code on the settings screen first.");
+			$ctl->assign("message", $ctl->t("release.validation.project_release_code_required"));
 			$ctl->assign("flg", false);
 		} else {
-			$ctl->assign("message", "Download Project :" . $setting["project_release_code"]);
+			$ctl->assign("message", $ctl->t("restore.download_project_message", ["code" => $setting["project_release_code"]]));
 			$ctl->assign("flg", true);
 		}
 
-		$ctl->show_multi_dialog("download", "download.tpl", "Download Release Package");
+		$ctl->show_multi_dialog("download", "download.tpl", $ctl->t("restore.dialog.download_package"));
 	}
 
 	function download_zip_exe(Controller $ctl) {
@@ -83,13 +83,13 @@ class restore {
 		$setting = $ctl->get_setting();
 		$ctl->assign("setting", $setting);
 		if (empty($setting["project_release_code"])) {
-			$ctl->assign("message", "Please set the Project Release Code on the settings screen first.");
+			$ctl->assign("message", $ctl->t("release.validation.project_release_code_required"));
 			$ctl->assign("flg", false);
 		} else {
-			$ctl->assign("message", "Release Project :" . $setting["project_release_code"]);
+			$ctl->assign("message", $ctl->t("restore.restore_project_message", ["code" => $setting["project_release_code"]]));
 			$ctl->assign("flg", true);
 		}
-		$ctl->show_multi_dialog("Restore", "restore.tpl", "Restore", 600, true, true);
+		$ctl->show_multi_dialog("Restore", "restore.tpl", $ctl->t("restore.dialog.restore"), 600, true, true);
 	}
 
 	function restore_confirm(Controller $ctl) {
@@ -116,16 +116,16 @@ class restore {
 				$ctl->assign("info", $info);
 				$ctl->assign("flg", true);
 			} else {
-				$ctl->assign("message", "This is not a restore file for this project.");
+				$ctl->assign("message", $ctl->t("restore.validation.invalid_restore_file"));
 				$ctl->assign("info", $info);
 				$ctl->assign("flg", false);
 				unlink($this->zipfile);
 			}
 		} else {
-			$ctl->assign("message", "Cannot open the file uploaded.");
+			$ctl->assign("message", $ctl->t("release.validation.cannot_open_uploaded_file"));
 			$ctl->assign("flg", false);
 		}
-		$ctl->show_multi_dialog("Restore", "restore_confirm.tpl", "Restore", 600, true, true);
+		$ctl->show_multi_dialog("Restore", "restore_confirm.tpl", $ctl->t("restore.dialog.restore"), 600, true, true);
 	}
 
 	function restore_exe(Controller $ctl) {
@@ -161,14 +161,14 @@ class restore {
 
 			unlink($this->zipfile);
 
-			$ctl->assign("success", "Successfully Released.");
+			$ctl->assign("success", $ctl->t("restore.success"));
 			
 			// cron再設定
 			$ctl->cron_set();
 		} else {
-			$ctl->assign("fail", "Cannot open <$this->zipfile>\n");
+			$ctl->assign("fail", $ctl->t("release.validation.cannot_open_file", ["file" => $this->zipfile]));
 		}
-		$ctl->show_multi_dialog("Restore", "restore_done.tpl", "Restore", 600, true, true);
+		$ctl->show_multi_dialog("Restore", "restore_done.tpl", $ctl->t("restore.dialog.restore"), 600, true, true);
 	}
 
 	function reload(Controller $ctl) {
