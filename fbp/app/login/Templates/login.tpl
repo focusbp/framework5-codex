@@ -12,7 +12,7 @@
 
 			<div id="login_area">
 
-				<div id="form"></div>	
+				<div id="form" style="margin-bottom:100px;"></div>	
 
 				<div style="clear:both;"></div>
 

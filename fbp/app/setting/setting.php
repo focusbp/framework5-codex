@@ -44,6 +44,7 @@ class setting {
 		$ctl->assign("arr_ssl",$this->arr_ssl);
 		$ctl->assign("arr_flg_show_lang_on_chat",$this->arr_flg_show_lang_on_chat);
 		$ctl->assign("arr_show_developer_panel",$this->arr_show_developer_panel);
+		$ctl->assign("arr_line_forward_unknown_to_manager", $this->get_line_forward_unknown_to_manager_options($ctl));
 		
 		$this->currency_list = include (__DIR__."/currency.php");
 		$ctl->assign("currency_list", $this->currency_list);
@@ -85,6 +86,9 @@ class setting {
 		$setting["lang_default"] = I18nSimple::get_legacy_lang_code_from_setting($setting);
 		if (!isset($setting["flg_show_lang_on_chat"])) {
 			$setting["flg_show_lang_on_chat"] = 0;
+		}
+		if (!isset($setting["line_forward_unknown_to_manager"])) {
+			$setting["line_forward_unknown_to_manager"] = 0;
 		}
 		
 		
@@ -156,6 +160,9 @@ class setting {
 		$setting["lang_default"] = I18nSimple::get_legacy_lang_code_from_setting($setting);
 		if (!isset($setting["flg_show_lang_on_chat"])) {
 			$setting["flg_show_lang_on_chat"] = 0;
+		}
+		if (!isset($setting["line_forward_unknown_to_manager"])) {
+			$setting["line_forward_unknown_to_manager"] = 0;
 		}
 
 		$ctl->assign("setting", $setting);
@@ -260,6 +267,13 @@ class setting {
 			return "en";
 		}
 		return $code;
+	}
+
+	private function get_line_forward_unknown_to_manager_options(Controller $ctl): array {
+		return [
+			0 => $ctl->t("setting.line_forward_unknown_to_manager.option.forward"),
+			1 => $ctl->t("setting.line_forward_unknown_to_manager.option.no_forward"),
+		];
 	}
 
 }

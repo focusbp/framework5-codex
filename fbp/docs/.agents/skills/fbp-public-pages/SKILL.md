@@ -34,7 +34,10 @@ description: Build and operate public_pages with login-free entry points, secure
 - 公開ページ全体のラップは `fbp/lib/Templates/publicsite_index.tpl` を前提にする。
 - 共通head周りの調整は `fbp/Templates/publicsite_header.tpl` を優先する。
 - 共通footer周りの調整は `fbp/Templates/publicsite_footer.tpl` を優先する。
-- 可視ヘッダ・可視フッタのHTML骨格は `publicsite_index.tpl` 側に置く。
+- `publicsite_index.tpl` は公開ページ共通の骨組みに限定し、ブランド名・会社名・ロゴURLなどを固定で持たせない。
+- 可視ヘッダの内容は `publicsite_header.tpl`、可視フッタの内容は `publicsite_footer.tpl` 側で持つ。
+- `publicsite_index.tpl` 側には header / contents / footer の配置枠だけを置く。
+- `publicsite_header.tpl` / `publicsite_footer.tpl` が未作成でも壊れないように、必要なら空の class 付き要素で成立する構造にする。
 - head内のCSS追加は `publicsite_header.tpl` 側に置く。
 - 末尾scriptや共通JS追加は `publicsite_footer.tpl` 側に置く。
 - `publicsite_footer.tpl` 既存の script / DOM 責務は維持したまま拡張する。

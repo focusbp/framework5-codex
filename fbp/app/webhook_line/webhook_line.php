@@ -56,7 +56,11 @@ class webhook_line {
 								break;
 							}
 						}
-						$this->forward_to_managers($ctl, $linebot, $line_member, $text);
+						$setting = (array)($ctl->get_setting() ?? []);
+						$line_forward_unknown_to_manager = (int)($setting["line_forward_unknown_to_manager"] ?? 0);
+						if ($line_forward_unknown_to_manager === 0) {
+							$this->forward_to_managers($ctl, $linebot, $line_member, $text);
+						}
 						break;
 
 					case "image":
@@ -174,8 +178,7 @@ class webhook_line {
 	protected function resolve_member_by_rule(Controller $ctl, array $event, string $userid, string $displayname): ?array {
 		$rule = $this->find_rule_by_data_type($ctl, "0", "getting_member");
 		if ($rule === null) {
-			$ctl->log("[webhook] webhook_rule not found for data_type=getting_member");
-			return null;
+			return $this->resolve_member_by_default($ctl, $userid, $displayname);
 		}
 
 		$action_class = trim((string)($rule["action_class"] ?? ""));
@@ -210,6 +213,34 @@ class webhook_line {
 			return $result["line_member"];
 		}
 		return null;
+	}
+
+	protected function resolve_member_by_default(Controller $ctl, string $userid, string $displayname): ?array {
+		$userid = trim($userid);
+		if ($userid === "") {
+			return null;
+		}
+
+		$list = $ctl->db("line_member")->select("userid", $userid);
+		if (is_array($list) && count($list) > 0) {
+			return $list[0];
+		}
+
+		$insert_row = [];
+		$insert_row["userid"] = $userid;
+		$insert_row["line_name"] = trim($displayname);
+		$insert_row["name"] = trim($displayname);
+		$insert_row["member_type"] = 0;
+		$id = (int)$ctl->db("line_member")->insert($insert_row);
+		if ($id <= 0) {
+			return null;
+		}
+
+		$line_member = $ctl->db("line_member")->get($id);
+		if (empty($line_member) || !is_array($line_member)) {
+			return null;
+		}
+		return $line_member;
 	}
 
 	protected function create_action_instance(Controller $ctl, string $class) {

@@ -18,9 +18,6 @@
 			<td style="border:1px solid #d5dbe5;padding:8px;">{$line_bot_keyword_preview|escape}</td>
 		</tr>
 	</table>
-	<p style="font-weight:bold;margin:0 0 4px 0;">{t key="wizard.line_bot.edit_request.button_title"}</p>
-	<input type="text" name="button_title" value="{$row.button_title|escape}" style="width:100%;">
-	<p class="error_message error_button_title"></p>
 	<p style="font-weight:bold;margin:0 0 4px 0;">{t key="wizard.original_form.request.request_text"}</p>
 	<textarea name="request_text" rows="8" style="width:100%;">{$row.request_text|escape}</textarea>
 	<p class="error_message error_request_text"></p>

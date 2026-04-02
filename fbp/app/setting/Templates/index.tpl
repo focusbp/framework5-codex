@@ -197,6 +197,10 @@
 			<td>{t key="setting.bot_greeting_message"}</td>
 			<td><textarea name="line_bot_greeting_message">{$setting.line_bot_greeting_message}</textarea></td>
 		</tr>
+		<tr>
+			<td>{t key="setting.line_forward_unknown_to_manager"}</td>
+			<td>{html_options name="line_forward_unknown_to_manager" options=$arr_line_forward_unknown_to_manager selected=$setting.line_forward_unknown_to_manager}</td>
+		</tr>
 	</table>
 		
 

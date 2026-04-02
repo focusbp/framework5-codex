@@ -3,10 +3,6 @@
 	<div style="line-height:1.9;">
 		<label style="display:block;"><input type="radio" name="page_action" value="asset_add" {if $row.page_action == 'asset_add'}checked{/if}> {t key="wizard.public_pages.action.asset_add"}</label>
 		<label style="display:block;"><input type="radio" name="page_action" value="common_design" {if $row.page_action == 'common_design'}checked{/if}> {t key="wizard.public_pages.action.common_design"}</label>
-		<label style="display:block;"><input type="radio" name="page_action" value="add" {if $row.page_action == 'add'}checked{/if}> {t key="wizard.public_pages.action.add"}</label>
-		<label style="display:block;"><input type="radio" name="page_action" value="edit" {if $row.page_action == 'edit'}checked{/if}> {t key="wizard.public_pages.action.edit"}</label>
-		<label style="display:block;"><input type="radio" name="page_action" value="delete" {if $row.page_action == 'delete'}checked{/if}> {t key="wizard.public_pages.action.delete"}</label>
-		<label style="display:block;"><input type="radio" name="page_action" value="menu_manage" {if $row.page_action == 'menu_manage'}checked{/if}> {t key="wizard.public_pages.action.menu_manage"}</label>
 	</div>
 	<p class="error_message error_page_action"></p>
 

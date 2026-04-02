@@ -1257,7 +1257,11 @@ class wizard {
 			"event_type" => "",
 			"keyword" => "",
 			"button_title" => "",
-			"request_text" => ""
+			"request_text" => "",
+			"line_channel_secret" => "",
+			"line_accesstoken" => "",
+			"line_channel_secret_saved" => "0",
+			"line_accesstoken_saved" => "0"
 		];
 		$this->save_line_bot_state($ctl, $state);
 		$this->show_line_bot_step_select($ctl, $state);
@@ -1938,6 +1942,10 @@ class wizard {
 			$this->open_line_member_link_wizard($ctl);
 			return;
 		}
+		if ($action === "connect") {
+			$this->open_line_bot_connect_wizard($ctl);
+			return;
+		}
 		if ($action === "edit") {
 			$this->open_line_bot_edit_wizard($ctl);
 			return;
@@ -1964,6 +1972,9 @@ class wizard {
 		$state["event_type"] = $event_type;
 		if ($event_type !== "keyword") {
 			$state["keyword"] = "";
+		}
+		if ($event_type === "follow" && trim((string) ($state["request_text"] ?? "")) === "") {
+			$state["request_text"] = $ctl->t("wizard.line_bot.request.default_follow");
 		}
 		$this->save_line_bot_state($ctl, $state);
 		if ($event_type === "keyword") {
@@ -2020,6 +2031,111 @@ class wizard {
 		$this->show_line_bot_step_select($ctl, $state);
 	}
 
+	function open_line_bot_connect_wizard(Controller $ctl) {
+		$setting = $this->get_line_bot_setting_row($ctl);
+		$state = $this->get_line_bot_state($ctl);
+		$state["line_action"] = "connect";
+		$state["line_channel_secret"] = trim((string) ($setting["line_channel_secret"] ?? ""));
+		$state["line_accesstoken"] = trim((string) ($setting["line_accesstoken"] ?? ""));
+		$state["line_forward_unknown_to_manager"] = (string) ($setting["line_forward_unknown_to_manager"] ?? "0");
+		$state["line_channel_secret_saved"] = $state["line_channel_secret"] === "" ? "0" : "1";
+		$state["line_accesstoken_saved"] = $state["line_accesstoken"] === "" ? "0" : "1";
+		$this->save_line_bot_state($ctl, $state);
+		$this->show_line_bot_connect_step_intro($ctl, $state);
+	}
+
+	function submit_line_bot_connect_intro_next(Controller $ctl) {
+		$state = $this->get_line_bot_state($ctl);
+		$this->show_line_bot_connect_step_webhook($ctl, $state);
+	}
+
+	function submit_line_bot_connect_webhook_next(Controller $ctl) {
+		$state = $this->get_line_bot_state($ctl);
+		$this->show_line_bot_connect_step_response($ctl, $state);
+	}
+
+	function submit_line_bot_connect_response_next(Controller $ctl) {
+		$state = $this->get_line_bot_state($ctl);
+		$this->show_line_bot_connect_step_credentials($ctl, $state);
+	}
+
+	function submit_line_bot_connect_credentials_next(Controller $ctl) {
+		$state = $this->get_line_bot_state($ctl);
+		$line_channel_secret = trim((string) $ctl->POST("line_channel_secret"));
+		$line_accesstoken = trim((string) $ctl->POST("line_accesstoken"));
+
+		if ($line_channel_secret === "" && (string) ($state["line_channel_secret_saved"] ?? "0") !== "1") {
+			$ctl->res_error_message("line_channel_secret", "Channel Secret を入力してください。");
+			return;
+		}
+		if ($line_accesstoken === "" && (string) ($state["line_accesstoken_saved"] ?? "0") !== "1") {
+			$ctl->res_error_message("line_accesstoken", "Channel Access Token を入力してください。");
+			return;
+		}
+
+		if ($line_channel_secret !== "") {
+			$state["line_channel_secret"] = $line_channel_secret;
+			$state["line_channel_secret_saved"] = "1";
+		}
+		if ($line_accesstoken !== "") {
+			$state["line_accesstoken"] = $line_accesstoken;
+			$state["line_accesstoken_saved"] = "1";
+		}
+
+		$this->save_line_bot_state($ctl, $state);
+		$this->show_line_bot_connect_step_greeting($ctl, $state);
+	}
+
+	function submit_line_bot_connect_save(Controller $ctl) {
+		$state = $this->get_line_bot_state($ctl);
+		$line_forward_unknown_to_manager = (string) $ctl->POST("line_forward_unknown_to_manager");
+		$options = $this->get_line_forward_unknown_to_manager_options($ctl);
+		if (!isset($options[$line_forward_unknown_to_manager])) {
+			$ctl->res_error_message("line_forward_unknown_to_manager", $ctl->t("wizard.validation.select_required"));
+			return;
+		}
+		$state["line_forward_unknown_to_manager"] = $line_forward_unknown_to_manager;
+		$this->save_line_bot_state($ctl, $state);
+
+		$setting = $this->get_line_bot_setting_row($ctl);
+		$setting["line_channel_secret"] = (string) ($state["line_channel_secret"] ?? "");
+		$setting["line_accesstoken"] = (string) ($state["line_accesstoken"] ?? "");
+		$setting["line_forward_unknown_to_manager"] = (int) ($state["line_forward_unknown_to_manager"] ?? "0");
+
+		$db = $ctl->db("setting", "setting");
+		if (!isset($setting["id"])) {
+			$setting["id"] = 1;
+		}
+		if ((int) ($setting["id"] ?? 0) > 0) {
+			$db->update($setting);
+		} else {
+			$db->insert($setting);
+		}
+		$ctl->set_session("setting", $setting);
+		$ctl->close_multi_dialog("wizard");
+		$ctl->show_notification_text("公式LINEとの接続設定を保存しました。", 2);
+	}
+
+	function back_to_line_bot_connect_intro(Controller $ctl) {
+		$state = $this->get_line_bot_state($ctl);
+		$this->show_line_bot_connect_step_intro($ctl, $state);
+	}
+
+	function back_to_line_bot_connect_webhook(Controller $ctl) {
+		$state = $this->get_line_bot_state($ctl);
+		$this->show_line_bot_connect_step_webhook($ctl, $state);
+	}
+
+	function back_to_line_bot_connect_response(Controller $ctl) {
+		$state = $this->get_line_bot_state($ctl);
+		$this->show_line_bot_connect_step_webhook($ctl, $state);
+	}
+
+	function back_to_line_bot_connect_credentials(Controller $ctl) {
+		$state = $this->get_line_bot_state($ctl);
+		$this->show_line_bot_connect_step_credentials($ctl, $state);
+	}
+
 	function back_to_line_bot_event(Controller $ctl) {
 		$state = $this->get_line_bot_state($ctl);
 		$this->show_line_bot_step_event($ctl, $state);
@@ -2040,7 +2156,7 @@ class wizard {
 			"create_if_missing" => "1",
 			"button_title" => "LINE用会員DB作製",
 			"request_text" =>
-				"LINE user_id と会員DBを連結し、未登録時は必ず新規作成する getting_member を実装してください。\n" .
+				"LINE user_id と会員DBを連結するための会員テーブルを作成してください。\n" .
 				"対象テーブル: line_member\n" .
 				"LINE user_id フィールド: userid\n" .
 				"表示名フィールド: line_name\n" .
@@ -2056,10 +2172,6 @@ class wizard {
 		$list = $ctl->db("db", "db")->select("tb_name", $tb_name);
 		if (is_array($list) && count($list) > 0) {
 			$ctl->res_error_message("line_member_template", "テンプレート用のテーブル " . $tb_name . " は既に使用されています。");
-			return;
-		}
-		if ($this->find_line_bot_duplicate_keyword($ctl, "[getting_member]") !== null) {
-			$ctl->res_error_message("line_member_template", "getting_member は既に登録されています。");
 			return;
 		}
 		$this->save_line_member_link_state($ctl, $state);
@@ -2106,13 +2218,11 @@ class wizard {
 		$state["action_class"] = trim((string) ($rule["action_class"] ?? ""));
 		$this->save_line_bot_delete_state($ctl, $state);
 
-		$prompt = $this->build_line_bot_delete_prompt_text($state);
-		$ctl->set_session("wizard_current_prompt", "");
-		$ctl->set_session("wizard_table_create_prompt", "");
-		$ctl->set_session("wizard_table_change_prompt", "");
-		$ctl->set_session("codex_terminal_initial_input", $prompt);
-		$ctl->close_multi_dialog("wizard");
-		$ctl->invoke("run", [], "codex_terminal");
+		$ctl->db("webhook_rule", "webhook_rule")->delete((int) $rule_id);
+		$this->delete_line_bot_action_class_dir((string) ($state["action_class"] ?? ""));
+		$this->save_line_bot_delete_state($ctl, []);
+		$ctl->show_notification_text($ctl->t("wizard.notification.deleted"), 2);
+		$this->reflesh_all_screen($ctl);
 	}
 
 	function open_line_bot_edit_wizard(Controller $ctl) {
@@ -2148,6 +2258,14 @@ class wizard {
 			$state["button_title"] = $state["action_class"];
 		}
 		$this->save_line_bot_edit_state($ctl, $state);
+		if ($state["event_type"] === "follow") {
+			$this->show_line_bot_edit_step_request($ctl, $state);
+			return;
+		}
+		if ($state["event_type"] === "keyword") {
+			$this->show_line_bot_edit_step_keyword($ctl, $state);
+			return;
+		}
 		$this->show_line_bot_edit_step_event($ctl, $state);
 	}
 
@@ -2185,18 +2303,12 @@ class wizard {
 	}
 
 	function submit_line_bot_edit_request_next(Controller $ctl) {
-		$button_title = trim((string) $ctl->POST("button_title"));
-		if ($button_title === "") {
-			$ctl->res_error_message("button_title", "処理名を入力してください。");
-			return;
-		}
 		$request_text = trim((string) $ctl->POST("request_text"));
 		if ($request_text === "") {
 			$ctl->res_error_message("request_text", $ctl->t("wizard.validation.request_text_required"));
 			return;
 		}
 		$state = $this->get_line_bot_edit_state($ctl);
-		$state["button_title"] = $button_title;
 		$state["request_text"] = $request_text;
 		$this->save_line_bot_edit_state($ctl, $state);
 
@@ -2216,6 +2328,14 @@ class wizard {
 
 	function back_to_line_bot_edit_event(Controller $ctl) {
 		$state = $this->get_line_bot_edit_state($ctl);
+		if ((string) ($state["event_type"] ?? "") === "follow") {
+			$this->show_line_bot_edit_step_rule($ctl, $state);
+			return;
+		}
+		if ((string) ($state["event_type"] ?? "") === "keyword") {
+			$this->show_line_bot_edit_step_rule($ctl, $state);
+			return;
+		}
 		$this->show_line_bot_edit_step_event($ctl, $state);
 	}
 
@@ -2865,6 +2985,7 @@ class wizard {
 				"icon_path" => "css/images/wizard-icon005.png",
 				"items" => [
 					["label" => $ctl->t("wizard.home.group.line_bot.item_member_link"), "status" => "ready"],
+					["label" => $ctl->t("wizard.home.group.line_bot.item_connect"), "status" => "ready"],
 					["label" => $ctl->t("wizard.home.group.line_bot.item_add"), "status" => "ready"],
 					["label" => $ctl->t("wizard.home.group.line_bot.item_edit"), "status" => "ready"],
 					["label" => $ctl->t("wizard.home.group.line_bot.item_delete"), "status" => "ready"]
@@ -2891,16 +3012,11 @@ class wizard {
 					"icon_path" => "css/images/wizard-icon004.png",
 					"items" => [
 						["label" => $ctl->t("wizard.home.group.public_pages.item_asset_add"), "status" => "ready"],
-						["label" => $ctl->t("wizard.home.group.public_pages.item_common_design"), "status" => "ready"],
-						["label" => $ctl->t("wizard.home.group.public_pages.item_add"), "status" => "ready"],
-						["label" => $ctl->t("wizard.home.group.public_pages.item_edit"), "status" => "ready"],
-						["label" => $ctl->t("wizard.home.group.public_pages.item_delete"), "status" => "ready"],
-						["label" => $ctl->t("wizard.home.group.public_pages.item_menu_manage"), "status" => "ready"]
+						["label" => $ctl->t("wizard.home.group.public_pages.item_common_design"), "status" => "ready"]
 					],
 					"button_label" => $ctl->t("wizard.home.use_this_wizard"),
 					"button_function" => "open_public_pages_wizard",
-					"enabled" => 1,
-					"visible" => 0
+					"enabled" => 1
 				],
 				[
 					"title" => $ctl->t("wizard.home.group.embed_app.title"),
@@ -3597,6 +3713,34 @@ class wizard {
 		$ctl->show_multi_dialog("wizard", "line_bot_select.tpl", $ctl->t("wizard.line_bot.step_select"), 760);
 	}
 
+	private function show_line_bot_connect_step_intro(Controller $ctl, array $state) {
+		$ctl->assign("row", $state);
+		$ctl->assign("line_manager_url", "https://manager.line.biz/");
+		$ctl->show_multi_dialog("wizard", "line_bot_connect_step_intro.tpl", $ctl->t("wizard.line_bot.step_connect_intro"), 760);
+	}
+
+	private function show_line_bot_connect_step_webhook(Controller $ctl, array $state) {
+		$ctl->assign("row", $state);
+		$ctl->assign("line_webhook_url", $ctl->get_APP_URL("webhook_line", "receive"));
+		$ctl->show_multi_dialog("wizard", "line_bot_connect_step_webhook.tpl", $ctl->t("wizard.line_bot.step_connect_webhook"), 760);
+	}
+
+	private function show_line_bot_connect_step_response(Controller $ctl, array $state) {
+		$ctl->assign("row", $state);
+		$ctl->show_multi_dialog("wizard", "line_bot_connect_step_response.tpl", $ctl->t("wizard.line_bot.step_connect_response"), 760);
+	}
+
+	private function show_line_bot_connect_step_credentials(Controller $ctl, array $state) {
+		$ctl->assign("row", $state);
+		$ctl->show_multi_dialog("wizard", "line_bot_connect_step_credentials.tpl", $ctl->t("wizard.line_bot.step_connect_credentials"), 760);
+	}
+
+	private function show_line_bot_connect_step_greeting(Controller $ctl, array $state) {
+		$ctl->assign("row", $state);
+		$ctl->assign("line_forward_unknown_to_manager_options", $this->get_line_forward_unknown_to_manager_options($ctl));
+		$ctl->show_multi_dialog("wizard", "line_bot_connect_step_greeting.tpl", $ctl->t("wizard.line_bot.step_connect_greeting"), 760);
+	}
+
 	private function show_line_bot_step_event(Controller $ctl, array $state) {
 		$ctl->assign("row", $state);
 		$ctl->assign("line_bot_event_options", $this->get_line_bot_event_options());
@@ -3639,6 +3783,11 @@ class wizard {
 		$ctl->assign("row", $state);
 		$ctl->assign("line_bot_event_options", $this->get_line_bot_event_options());
 		$ctl->show_multi_dialog("wizard", "line_bot_edit_step_event.tpl", $ctl->t("wizard.line_bot.step_edit_event"), 900);
+	}
+
+	private function show_line_bot_edit_step_keyword(Controller $ctl, array $state) {
+		$ctl->assign("row", $state);
+		$ctl->show_multi_dialog("wizard", "line_bot_edit_step_keyword.tpl", $ctl->t("wizard.line_bot.step_edit_event"), 900);
 	}
 
 	private function show_line_bot_edit_step_request(Controller $ctl, array $state) {
@@ -4011,7 +4160,12 @@ class wizard {
 			"event_type" => (string) ($state["event_type"] ?? ""),
 			"keyword" => (string) ($state["keyword"] ?? ""),
 			"button_title" => (string) ($state["button_title"] ?? ""),
-			"request_text" => (string) ($state["request_text"] ?? "")
+			"request_text" => (string) ($state["request_text"] ?? ""),
+			"line_channel_secret" => (string) ($state["line_channel_secret"] ?? ""),
+			"line_accesstoken" => (string) ($state["line_accesstoken"] ?? ""),
+			"line_forward_unknown_to_manager" => (string) ($state["line_forward_unknown_to_manager"] ?? "0"),
+			"line_channel_secret_saved" => (string) ($state["line_channel_secret_saved"] ?? "0"),
+			"line_accesstoken_saved" => (string) ($state["line_accesstoken_saved"] ?? "0")
 		];
 	}
 
@@ -4232,7 +4386,27 @@ class wizard {
 		$state["keyword"] = trim((string) ($state["keyword"] ?? ""));
 		$state["button_title"] = trim((string) ($state["button_title"] ?? ""));
 		$state["request_text"] = (string) ($state["request_text"] ?? "");
+		$state["line_channel_secret"] = trim((string) ($state["line_channel_secret"] ?? ""));
+		$state["line_accesstoken"] = trim((string) ($state["line_accesstoken"] ?? ""));
+		$state["line_forward_unknown_to_manager"] = ((string) ($state["line_forward_unknown_to_manager"] ?? "0") === "1") ? "1" : "0";
+		$state["line_channel_secret_saved"] = ((string) ($state["line_channel_secret_saved"] ?? "0") === "1") ? "1" : "0";
+		$state["line_accesstoken_saved"] = ((string) ($state["line_accesstoken_saved"] ?? "0") === "1") ? "1" : "0";
 		$ctl->set_session("wizard_line_bot_state", $state);
+	}
+
+	private function get_line_forward_unknown_to_manager_options(Controller $ctl): array {
+		return [
+			"0" => $ctl->t("setting.line_forward_unknown_to_manager.option.forward"),
+			"1" => $ctl->t("setting.line_forward_unknown_to_manager.option.no_forward"),
+		];
+	}
+
+	private function get_line_bot_setting_row(Controller $ctl): array {
+		$setting = $ctl->db("setting", "setting")->get(1);
+		if (!is_array($setting) || count($setting) === 0) {
+			$setting = ["id" => 1];
+		}
+		return $setting;
 	}
 
 	private function save_embed_app_state(Controller $ctl, array $state): void {
@@ -4868,7 +5042,6 @@ class wizard {
 		$plan_block = "- " . implode("\n- ", $plan_lines);
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 (((string) ($row["create_mode"] ?? "") === "child") ? "子ノート追加\n\n" : "ノート追加\n\n") .
 "【目的】\n" .
@@ -4951,7 +5124,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "db_additionals / Original Form 追加\n\n" .
 "【対象テーブル】\n" .
@@ -4996,7 +5168,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		}
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "db_additionals / PDF 追加\n\n" .
 "【対象テーブル】\n" .
@@ -5040,7 +5211,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		}
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "db_additionals / CSV Download 追加\n\n" .
 "【対象テーブル】\n" .
@@ -5084,7 +5254,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		}
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "db_additionals / CSV Upload 追加\n\n" .
 "【対象テーブル】\n" .
@@ -5131,7 +5300,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		}
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "db_additionals / Chart 追加\n\n" .
 "【対象テーブル】\n" .
@@ -5165,7 +5333,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "db_additionals / LINEメッセージ送信 追加\n\n" .
 "【対象テーブル】\n" .
@@ -5206,7 +5373,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "db_additionals / 制作済みボタン変更\n\n" .
 "【対象ボタンID】\n" .
@@ -5516,7 +5682,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$match_type = $event_type === "follow" ? "data_type" : "exact";
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "Line Bot処理追加\n\n" .
 "【イベント】\n" .
@@ -5533,7 +5698,8 @@ $request_text . "\n\n" .
 "- webhook_rule と webhook_line の流れに沿って実装する\n" .
 "- channel は LINE(0) を使用する\n" .
 "- 友達追加時は [follow] / data_type として扱う\n" .
-"- キーワード入力時は exact として扱う\n\n" .
+"- キーワード入力時は exact として扱う\n" .
+"\n" .
 $this->build_prompt_policy_block() . "\n\n" .
 "【完了条件】\n" .
 "- webhook_rule の重複がない\n" .
@@ -5555,7 +5721,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$rule_id = $this->normalize_single_id($row["rule_id"] ?? "");
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "Line Bot処理変更\n\n" .
 "【対象ルールID】\n" .
@@ -5596,7 +5761,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$action_class = trim((string) ($row["action_class"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "Line Bot処理削除\n\n" .
 "【対象ルールID】\n" .
@@ -5620,6 +5784,54 @@ $this->build_prompt_policy_block() . "\n\n" .
 		);
 	}
 
+	private function delete_line_bot_action_class_dir(string $action_class): void {
+		$action_class = trim($action_class);
+		if ($action_class === "" || !preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $action_class)) {
+			return;
+		}
+		$dirs = new Dirs();
+		$base_dir = realpath($dirs->appdir_user);
+		if ($base_dir === false) {
+			return;
+		}
+		$target_dir = $dirs->appdir_user . "/" . $action_class;
+		if (!is_dir($target_dir)) {
+			return;
+		}
+		$target_real = realpath($target_dir);
+		if ($target_real === false) {
+			return;
+		}
+		if (strpos($target_real, $base_dir . DIRECTORY_SEPARATOR) !== 0) {
+			return;
+		}
+		$this->delete_directory_recursive($target_real);
+	}
+
+	private function delete_directory_recursive(string $dir): void {
+		if (!is_dir($dir)) {
+			return;
+		}
+		$items = scandir($dir);
+		if (!is_array($items)) {
+			return;
+		}
+		foreach ($items as $item) {
+			if ($item === "." || $item === "..") {
+				continue;
+			}
+			$path = $dir . DIRECTORY_SEPARATOR . $item;
+			if (is_dir($path) && !is_link($path)) {
+				$this->delete_directory_recursive($path);
+				continue;
+			}
+			if (file_exists($path) || is_link($path)) {
+				@unlink($path);
+			}
+		}
+		@rmdir($dir);
+	}
+
 	private function build_line_member_link_prompt_text(Controller $ctl, array $row): string {
 		$user_id_field = (string) ($row["user_id_field"] ?? "");
 		$display_name_field = (string) ($row["display_name_field"] ?? "");
@@ -5628,38 +5840,29 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "LINE用会員データベース作製\n\n" .
-"【イベント】\n" .
-"getting_member\n\n" .
-"【keyword】\n" .
-"[getting_member]\n\n" .
-"【match_type】\n" .
-"data_type\n\n" .
-"【作成する会員テーブル】\n" .
+"【対象テーブル】\n" .
 (string) ($row["tb_name"] ?? "") . "\n\n" .
-"【フィールド対応】\n" .
-"- LINE user_id: " . $user_id_field . "\n" .
-"- 表示名: " . $display_name_field . "\n" .
-"- 名前: " . ($name_field !== "" ? $name_field : "未使用") . "\n" .
-"- 未登録時は必ず新規作成する\n\n" .
-"【処理名】\n" .
-$button_title . "\n\n" .
-"【制作内容】\n" .
-$request_text . "\n\n" .
-"【実装方針】\n" .
+"【必須項目】\n" .
+"- " . $user_id_field . ": LINE user_id\n" .
+"- " . $display_name_field . ": 表示名\n" .
+"- " . ($name_field !== "" ? $name_field : "name") . ": 名前\n" .
+"- 会員種別: member_type (dropdown / member_type_opt)\n" .
+"【要件】\n" .
 "- 会員DBテーブルを新規作成する\n" .
-"- getting_member の webhook_rule / action_class まで実装する\n" .
-"- webhook_rule と webhook_line の流れに沿って getting_member を実装する\n" .
-"- channel は LINE(0) を使用する\n" .
-"- LINE user_id で対象テーブルを検索する\n" .
-"- 必要なら displayname を " . $display_name_field . " へ保存する\n" .
-"- 必要なら name を " . ($name_field !== "" ? $name_field : "未使用") . " へ保存する\n" .
-"- action_class は line_webhook_rule_getting_member 系で提案してよい\n\n" .
+"- constant_array に member_type_opt を追加し、会員=0 / 管理者=1 を定義する\n" .
+"- webhook_line 標準の getting_member 解決処理を前提にする\n" .
+"- getting_member の webhook_rule / action_class は作成しない\n" .
+"- fbp/ 以下は変更しない\n" .
+"- webhook_line 標準 getting_member は既に実装済みとして扱う\n" .
+"- フレームワーク側の追加修正は不要\n" .
+"- 会員テーブルの必要項目は userid / line_name / name / member_type を必須とする\n" .
+"- 未登録時は line_name / userid / name / member_type=0 で新規作成される前提を崩さない\n" .
+"- 管理者通知や manager 検索で webhook_line が member_type=1 を参照している前提を崩さない\n" .
+"- LINE会員テーブル設定では複製アイコンを Hide をデフォルトにする\n\n" .
 $this->build_prompt_policy_block() . "\n\n" .
 "【完了条件】\n" .
-"- webhook_rule の [getting_member] 重複がない\n" .
 "- app_call 成功\n" .
 "- 主要導線を app_check で確認\n\n" .
 "実装後は、変更ファイル一覧・検証コマンド・確認結果を簡潔に報告してください。"
@@ -5671,7 +5874,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "Cron / 定期処理追加\n\n" .
 "【実行タイミング】\n" .
@@ -5707,7 +5909,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "Cron / 定期処理変更\n\n" .
 "【対象Cron ID】\n" .
@@ -5746,7 +5947,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = $this->build_public_pages_common_design_request_text($row);
 		$public_asset_text = trim((string) ($row["public_asset_text"] ?? ""));
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "public_pages / 共通デザイン（ヘッダ・フッタ）作製\n\n" .
 "【対象クラス】\n" .
@@ -5759,10 +5959,13 @@ $this->build_prompt_policy_block() . "\n\n" .
 "- 全公開ページのラップは publicsite_index.tpl を前提にする\n" .
 "- 共通head側の調整は publicsite_header.tpl を優先する\n" .
 "- 共通footer側の調整は publicsite_footer.tpl を優先する\n" .
+"- publicsite_index.tpl は公開ページ共通の骨組みに限定し、ブランド固有文言を固定で持たせない\n" .
+"- ヘッダ内容は publicsite_header.tpl、フッタ内容は publicsite_footer.tpl 側で管理する\n" .
 "- ページ固有の本文テンプレートには共通ヘッダ・フッタを重複実装しない\n" .
 "- show_public_pages() 前提の構造を崩さない\n\n" .
 "【実装配置ルール】\n" .
-	"- 可視ヘッダ・可視フッタのHTML骨格は publicsite_index.tpl 側に置く\n" .
+	"- publicsite_index.tpl 側には header / contents / footer の配置枠だけを置く\n" .
+	"- publicsite_header.tpl / publicsite_footer.tpl が未作成でも壊れないように、必要なら空の class 付き要素で成立する構造にする\n" .
 	"- head内のCSS追加は publicsite_header.tpl 側に置く\n" .
 	"- 末尾scriptや共通JS追加は publicsite_footer.tpl 側に置く\n" .
 	"- 既存scriptや共通DOM責務は publicsite_footer.tpl 側で維持する\n" .
@@ -5834,7 +6037,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$public_asset_text = trim((string) ($row["public_asset_text"] ?? ""));
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "public_pages / 新規ページ追加\n\n" .
 "【ページタイトル】\n" .
@@ -5870,7 +6072,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$public_asset_text = trim((string) ($row["public_asset_text"] ?? ""));
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "public_pages / 既存ページ変更\n\n" .
 "【対象registry ID】\n" .
@@ -5905,7 +6106,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$template_name = trim((string) ($row["template_name"] ?? ""));
 		$public_asset_text = trim((string) ($row["public_asset_text"] ?? ""));
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "public_pages / 既存ページ削除\n\n" .
 "【対象registry ID】\n" .
@@ -5945,7 +6145,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "埋め込みアプリ / 追加\n\n" .
 "【タイトル】\n" .
@@ -5978,7 +6177,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "埋め込みアプリ / 既存変更\n\n" .
 "【対象ID】\n" .
@@ -6014,7 +6212,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$embed_key = trim((string) ($row["embed_key"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "埋め込みアプリ / 削除\n\n" .
 "【対象ID】\n" .
@@ -6051,7 +6248,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "Dashboard / 追加\n\n" .
 "【Dashboard 名】\n" .
@@ -6086,7 +6282,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$request_text = trim((string) ($row["request_text"] ?? ""));
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "Dashboard / 変更\n\n" .
 "【対象ID】\n" .
@@ -6121,7 +6316,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$column_width = (int) ($row["column_width"] ?? 1);
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "Dashboard / 削除\n\n" .
 "【対象ID】\n" .
@@ -6526,7 +6720,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 			$change_lines[] = "- show_icon_on_parent_list: " . (string) ($row["show_icon_on_parent_list_label"] ?? "") . " (" . (string) ($row["show_icon_on_parent_list"] ?? "") . ")";
 		}
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "ノートの設定変更\n\n" .
 "【対象ノート】\n" .
@@ -6562,7 +6755,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 	private function build_note_delete_prompt_text(array $row, array $plan_lines): string {
 		$plan_block = "- " . implode("\n- ", $plan_lines);
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "ノートの削除\n\n" .
 "【対象ノート】\n" .
@@ -6614,7 +6806,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$plan_block = "- " . implode("\n- ", $plan_lines);
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "テーブルの変更 / 項目の追加\n\n" .
 "【対象テーブル】\n" .
@@ -6657,7 +6848,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$plan_block = "- " . implode("\n- ", $plan_lines);
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "テーブルの変更 / 項目の削除\n\n" .
 "【対象テーブル】\n" .
@@ -6697,7 +6887,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$plan_block = "- " . implode("\n- ", $plan_lines);
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "テーブルの変更 / 項目の変更\n\n" .
 "【対象テーブル】\n" .
@@ -6741,7 +6930,6 @@ $this->build_prompt_policy_block() . "\n\n" .
 		$plan_block = "- " . implode("\n- ", $plan_lines);
 
 		return trim(
-"app-framework5で実装してください。\n\n" .
 "【変更種別】\n" .
 "テーブルの変更 / 画面への項目表示設定\n\n" .
 "【対象テーブル】\n" .
@@ -6763,7 +6951,8 @@ $this->build_prompt_policy_block() . "\n\n" .
 
 	private function build_prompt_policy_block(): string {
 		return "【実装方針・制約】\n" .
-			"- AGENTS.md / SKILL.md に従って実装する。";
+			"- AGENTS.md / SKILL.md に従って実装する。\n" .
+			"- fbp/ 以下は変更しない。";
 	}
 
 	private function normalize_field_lines(string $fields_text): array {
