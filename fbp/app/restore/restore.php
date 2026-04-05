@@ -198,7 +198,7 @@ class restore {
 		}
 	}
 
-	private function isExcludedRestorePath($relativePath, $excludedPaths = null) {
+	private function isExcludedRestorePath($relativePath, ?array $excludedPaths = null) {
 		$targetPath = ltrim(str_replace("\\", "/", $relativePath), "/");
 		$excludedList = $excludedPaths ?? [];
 		foreach ($excludedList as $excludedPath) {

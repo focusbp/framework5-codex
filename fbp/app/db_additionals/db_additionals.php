@@ -20,7 +20,7 @@ class db_additionals {
 		$items = $ctl->db("additionals")->getall("id",SORT_DESC);
 		
 		foreach($items as $key=>$item){
-			if($item["class_name"] == "admin"){
+			if(($item["class_name"] ?? "") == "admin"){
 				unset($items[$key]);
 				continue;
 			}
@@ -35,19 +35,24 @@ class db_additionals {
 		
 		$post = $ctl->POST();
 		$post["function_name"] = "run";
-		$post["button_type"] = 0;
+		$post["button_type"] = (int) ($post["button_type"] ?? 0);
 		
-		$db_id = $post["id"];
+		$db_id = (int) ($post["id"] ?? 0);
 		
 		if(!empty($db_id)){
 			$db = $ctl->db("db","db")->get($db_id);
-			$post["tb_name"] = $db["tb_name"];
+			$post["tb_name"] = (string) ($db["tb_name"] ?? "");
 			$ctl->assign("reflesh_db",$db_id);
 		}
 		
 		$database_list = $ctl->db("db", "db")->getall("sort",SORT_ASC);
+		$database_names = [];
 		foreach ($database_list as $d) {
-			$database_names[$d["tb_name"]] = $d["tb_name"];
+			$tb_name = (string) ($d["tb_name"] ?? "");
+			if ($tb_name === "") {
+				continue;
+			}
+			$database_names[$tb_name] = $tb_name;
 		}
 		$ctl->assign("database_names", $database_names);
 		$ctl->assign("post",$post);
@@ -108,10 +113,8 @@ class db_additionals {
 			$save["sort"] = (int)($save["id"] ?? 0);
 			$ctl->db("additionals")->update($save);
 
-			$ctl->reload_work_area();
-			$ctl->reload_side_panel();
-			$ctl->invoke("edit",["id"=>$save["id"]]);
 			$ctl->close_multi_dialog($this->window . "edit");
+			$ctl->invoke("list");
 		} else {
 			//$ctl->show_notification_text("There are errors. Please correct them and try again.", 2, "#950000", "#FFF");
 		}
@@ -119,17 +122,25 @@ class db_additionals {
 
 	function edit(Controller $ctl) {
 		$post = $ctl->POST();
-		$id = $post["id"];
+		$id = (int) ($post["id"] ?? 0);
 		
-		$ctl->assign("reload_db_id",$post["reload_db_id"]);
+		$ctl->assign("reload_db_id", (int) ($post["reload_db_id"] ?? 0));
 
 		$row = $ctl->db("additionals")->get($id);
+		if (!is_array($row)) {
+			$row = [];
+		}
 		
 		$ctl->assign("post", $row);
 
 		$database_list = $ctl->db("db", "db")->getall("sort",SORT_ASC);
+		$database_names = [];
 		foreach ($database_list as $d) {
-			$database_names[$d["tb_name"]] = $d["tb_name"];
+			$tb_name = (string) ($d["tb_name"] ?? "");
+			if ($tb_name === "") {
+				continue;
+			}
+			$database_names[$tb_name] = $tb_name;
 		}
 		$ctl->assign("database_names", $database_names);
 
@@ -139,7 +150,10 @@ class db_additionals {
 	function edit_exe(Controller $ctl) {
 
 		$post = $ctl->POST();
-		$current = $ctl->db("additionals")->get((int)$post["id"]);
+		$current = $ctl->db("additionals")->get((int) ($post["id"] ?? 0));
+		if (!is_array($current)) {
+			$current = [];
+		}
 		$class_name = trim((string)($post["class_name"] ?? ""));
 		$function_name = trim((string)($post["function_name"] ?? ""));
 
@@ -172,15 +186,14 @@ class db_additionals {
 				}
 			$ctl->db("additionals")->update($save);
 
-			if($post["close"] != "false"){
+			if(($post["close"] ?? null) != "false"){
 				$ctl->close_multi_dialog($this->window . "edit");
 			}else{
-				$ctl->invoke("edit",["id"=>$post["id"]]);
+				$ctl->invoke("edit",["id"=>(int) ($post["id"] ?? 0)]);
 			}
 			
-			$ctl->reload_work_area();
-			$ctl->reload_side_panel();
 			$ctl->close_multi_dialog($this->window . "edit");
+			$ctl->ajax("db_additionals","page");
 		} else {
 			$ctl->show_notification_text($ctl->t("db_additionals.validation.fix_errors"), 2, "#950000", "#FFF");
 		}
@@ -188,11 +201,14 @@ class db_additionals {
 
 	function delete(Controller $ctl){
 		$post = $ctl->POST();
-		$id = $post["id"];
+		$id = (int) ($post["id"] ?? 0);
 		
-		$ctl->assign("reload_db_id",$post["reload_db_id"]);
+		$ctl->assign("reload_db_id", (int) ($post["reload_db_id"] ?? 0));
 		
 		$data = $ctl->db("additionals")->get($id);
+		if (!is_array($data)) {
+			$data = [];
+		}
 		$ctl->assign("data",$data);
 		
 		$ctl->close_multi_dialog("edit");
@@ -202,9 +218,12 @@ class db_additionals {
 	
 	function delete_exe(Controller $ctl){
 		$post = $ctl->POST();
-		$id = $post["id"];
+		$id = (int) ($post["id"] ?? 0);
 		
 		$data = $ctl->db("additionals")->get($id);
+		if (!is_array($data)) {
+			$data = [];
+		}
 		$ctl->db("additionals")->delete($id);
 
 		$setting = $ctl->get_setting();

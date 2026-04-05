@@ -61,15 +61,6 @@
 			  {t key="common.save"}
 			</button>
 			
-			<button type="button"
-					class="ajax-link lang"
-					invoke-function="delete"
-					data-id="{$post.id}"
-					data-reload_db_id="{$reload_db_id}"
-					style="background:#860000;"
-			>
-			  {t key="common.delete"}
-			</button>
 			
 		</div>
 

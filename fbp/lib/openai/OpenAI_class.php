@@ -1076,7 +1076,7 @@ class OpenAI_class implements \openai\OpenAI {
 	 * @param string|null $purpose 特定 purpose のみ削除（例: "assistants"）。null なら全件対象。
 	 * @return array { ok: bool, deleted: int, errors: array[] }
 	 */
-	public function delete_all_files(string $purpose = null): array {
+	public function delete_all_files(?string $purpose = null): array {
 		$this->log('delete_all_files: start');
 		$deleted = 0;
 		$errors = [];

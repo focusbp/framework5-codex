@@ -329,15 +329,16 @@ class db {
 	//view edit page
 	function edit(Controller $ctl) {
 		$post = $ctl->POST();
-		$id = $post["id"];
+		$id = (int) ($post["id"] ?? 0);
+		$mode_post = (string) ($post["mode"] ?? "");
+		$screen_name = (string) ($post["screen"] ?? "");
 
-		if ($post["mode"] == "screen") {
+		if ($mode_post === "screen") {
 			$mode = "screen";
-			$screen_name = $post["screen"];
 			$ctl->set_session("db_field_edit_mode", "screen");
 			$ctl->set_session("db_field_edit_screen_name", $screen_name);
 			$ctl->assign("show_reload_button", true);
-		} else if ($post["mode"] == "database") {
+		} else if ($mode_post === "database") {
 			$mode = "database";
 			$ctl->set_session("db_field_edit_mode", null);
 		} else {
@@ -350,6 +351,10 @@ class db {
 		}
 
 		$data = $this->fmt_db->get($id);
+		if (empty($data)) {
+			$ctl->show_notification_text($ctl->t("db.notification.table_not_found") ?: "Table not found.");
+			return;
+		}
 
 		if ($data["list_width"] == 0) {
 			$data["list_width"] = 400;
@@ -421,8 +426,8 @@ class db {
 		$s = 0;
 		foreach ($this->default_screen_list as $name) {
 			$flg = true;
-			foreach ($screen_list as $s) {
-				if ($name == $s["screen_name"]) {
+			foreach ($screen_list as $screen_row) {
+				if ($name == $screen_row["screen_name"]) {
 					$flg = false;
 				}
 			}
@@ -463,11 +468,16 @@ class db {
 			$ctl->invoke("page", ["tb_name" => $data["tb_name"]], "db_additionals");
 		} else {
 
-			$screen = $this->fmt_screen->select(["tb_name", "screen_name"], [$data["tb_name"], $screen_name])[0];
+			$screen_list = $this->fmt_screen->select(["tb_name", "screen_name"], [$data["tb_name"], $screen_name]);
+			$screen = $screen_list[0] ?? null;
+			if ($screen === null) {
+				$ctl->show_notification_text("Screen not found.");
+				return;
+			}
 			$ctl->assign("screen", $screen);
 
-			$ctl->assign("child", $post["child"]);
-			$ctl->assign("parent_id", $post["parent_id"]);
+			$ctl->assign("child", $post["child"] ?? null);
+			$ctl->assign("parent_id", $post["parent_id"] ?? null);
 
 			$ctl->show_multi_dialog("edit_db", "_edit_field.tpl", $ctl->t("db.dialog.edit_setting"), 1200, "_top.tpl", true);
 		}
@@ -486,7 +496,8 @@ class db {
 			return;
 		}
 
-		$data = $this->fmt_db->get($post['id']);
+		$id = (int) ($post['id'] ?? 0);
+		$data = $this->fmt_db->get($id);
 		foreach ($_POST as $key => $value) {
 			$data[$key] = $value;
 		}
@@ -505,27 +516,27 @@ class db {
 		$this->fmt_db->update($data);
 
 		// Add or delete parent_id field.
-		$list = $this->fmt_db_fields->select(["db_id", "parameter_name"], [$post['id'], "parent_id"]);
-		if ($post['parent_tb_id']) {
+		$list = $this->fmt_db_fields->select(["db_id", "parameter_name"], [$id, "parent_id"]);
+		if (!empty($post['parent_tb_id'])) {
 			if (count($list) == 0) {
 				$f = [];
-				$f['db_id'] = $post['id'];
+				$f['db_id'] = $id;
 				$f['type'] = 'number';
 				$f["length"] = $this->type_length[$f["type"]];
 				$f['parameter_name'] = 'parent_id';
 				$f['parameter_title'] = 'Parent ID';
 				$this->fmt_db_fields->insert($f);
 			}
-		} else {
+		} else if (!empty($list)) {
 			$this->fmt_db_fields->delete($list[0]["id"]);
 		}
 
 		// Manual Sort
 		if ($data["list_type"] == 1) {
-			$list2 = $this->fmt_db_fields->select(["db_id", "parameter_name"], [$post['id'], "sort"]);
+			$list2 = $this->fmt_db_fields->select(["db_id", "parameter_name"], [$id, "sort"]);
 			if (count($list2) == 0) {
 				$f = [];
-				$f['db_id'] = $post['id'];
+				$f['db_id'] = $id;
 				$f['type'] = 'number';
 				$f["length"] = $this->type_length[$f["type"]];
 				$f['parameter_name'] = 'sort';
@@ -539,7 +550,7 @@ class db {
 
 		// Weekly Calendar
 		if ($data["list_type"] == 2) {
-			$this->ensure_weekly_calendar_fields((int)$post['id']);
+			$this->ensure_weekly_calendar_fields($id);
 			$this->fmt_db->update($data);
 		}
 
@@ -553,14 +564,15 @@ class db {
 		$ctl->assign('post', $post);
 
 		//validation
-		$data = $this->fmt_db->get($post['id']);
+		$id = (int) ($post['id'] ?? 0);
+		$data = $this->fmt_db->get($id);
 		foreach ($_POST as $key => $value) {
 			$data[$key] = $value;
 		}
 
 		// Scopeがユーザーの場合、api_user_id を追加する
-		if ($post["api_scope"] == "user") {
-			$f_list = $ctl->db("db_fields")->select("db_id", $post["id"]);
+		if (($post["api_scope"] ?? "") == "user") {
+			$f_list = $ctl->db("db_fields")->select("db_id", $id);
 			$check = false;
 			foreach ($f_list as $f) {
 				if ($f["parameter_name"] == "api_user_id") {
@@ -571,7 +583,7 @@ class db {
 
 			if (!$check) {
 				$f = [
-				    "db_id" => $post["id"],
+				    "db_id" => $id,
 				    "parameter_name" => "api_user_id",
 				    "parameter_title" => "API USER ID",
 				    "type" => "number",
@@ -587,9 +599,13 @@ class db {
 	function screen_fields_area(Controller $ctl) {
 		$post = $ctl->POST();
 
-		$screen_id = $post["screen_id"];
+		$screen_id = (int) ($post["screen_id"] ?? 0);
 		$ctl->assign("screen_id", $screen_id);
 		$screen = $this->fmt_screen->get($screen_id);
+		if (empty($screen)) {
+			$ctl->reload_area("#screen_fields_area", "");
+			return;
+		}
 
 		// Put to session
 		$ctl->set_session("screen_name", $screen["screen_name"]);
@@ -615,11 +631,15 @@ class db {
 	function add_to_screen(Controller $ctl) {
 
 		$post = $ctl->POST();
-		$id = $post["id"];
+		$id = (int) ($post["id"] ?? 0);
 		$field = $this->fmt_db_fields->get($id);
+		if (empty($field)) {
+			$ctl->show_notification_text("Field not found.");
+			return;
+		}
 
 		$arr = [
-		    "tb_name" => $post["tb_name"],
+		    "tb_name" => $post["tb_name"] ?? "",
 		    "screen_name" => $ctl->get_session("screen_name"),
 		    "parameter_name" => $field["parameter_name"],
 		    "db_fields_id" => $field["id"],
@@ -655,7 +675,7 @@ class db {
 	function sort_screen_field(Controller $ctl) {
 		$post = $ctl->POST();
 
-		$ex = explode(",", $post["log"]);
+		$ex = explode(",", (string) ($post["log"] ?? ""));
 		$sort = 0;
 		foreach ($ex as $fid) {
 			$f = $this->fmt_screen_fields->get($fid);
@@ -667,7 +687,7 @@ class db {
 
 	function delete_screen_field(Controller $ctl) {
 		$post = $ctl->POST();
-		$id = $post["id"];
+		$id = (int) ($post["id"] ?? 0);
 		$this->fmt_screen_fields->delete($id);
 		$ctl->ajax("db", "screen_fields_area",
 			[
@@ -725,7 +745,7 @@ class db {
 
 	function sort(Controller $ctl) {
 		$post = $ctl->POST();
-		$logArr = explode(',', $post['log']);
+		$logArr = explode(',', (string) ($post['log'] ?? ''));
 		$c = 1;
 		foreach ($logArr as $id) {
 			$d = $this->fmt_db->get($id);
@@ -737,7 +757,7 @@ class db {
 
 	function sort_fields(Controller $ctl) {
 		$post = $ctl->POST();
-		$logArr = explode(',', $post['log']);
+		$logArr = explode(',', (string) ($post['log'] ?? ''));
 		$c = 1;
 		foreach ($logArr as $id) {
 			$d = $this->fmt_db_fields->get($id);

@@ -690,7 +690,7 @@ class fixed_file_manager implements FFM {
 		if ($sortitem != null) {
 			$sortkey = array();
 			foreach ($arr as $key => $d) {
-				$sortkey[$key] = $d[$sortitem];
+				$sortkey[$key] = $d[$sortitem] ?? null;
 			}
 			array_multisort($sortkey, $sort_order, $arr);
 		}
@@ -875,7 +875,7 @@ class fixed_file_manager implements FFM {
 		if ($sortitem != null) {
 			$sortkey = array();
 			foreach ($arr as $key => $d) {
-				$sortkey[$key] = $d[$sortitem];
+				$sortkey[$key] = $d[$sortitem] ?? null;
 			}
 			array_multisort($sortkey, $sort_order, $arr);
 		}
@@ -996,7 +996,7 @@ class fixed_file_manager implements FFM {
 		if ($sortitem != null) {
 			$sortkey = array();
 			foreach ($arr as $key => $d) {
-				$sortkey[$key] = $d[$sortitem];
+				$sortkey[$key] = $d[$sortitem] ?? null;
 			}
 			array_multisort($sortkey, $sort_order, $arr);
 			return $arr;

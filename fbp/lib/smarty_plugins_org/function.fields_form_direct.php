@@ -51,7 +51,7 @@ function smarty_function_fields_form_direct(array $params, Smarty_Internal_Templ
 		}
 
 		// fields 正規化（Smarty配列/JSON/カンマ区切りどれでも）
-		$fieldsList = normalize_fields_list($fields);
+		$fieldsList = normalize_fields_list_for_fields_form_direct($fields);
 		if (empty($fieldsList)) {
 			trigger_error('{fields_edit} "fields" is empty.', E_USER_WARNING);
 			return '';
@@ -143,7 +143,7 @@ function smarty_function_fields_form_direct(array $params, Smarty_Internal_Templ
  * - JSON 文字列 ["a","b"] → decode
  * - カンマ区切り "a,b,c" → explode
  */
-function normalize_fields_list($fields) {
+function normalize_fields_list_for_fields_form_direct($fields) {
 	if (is_array($fields))
 		return array_values($fields);
 

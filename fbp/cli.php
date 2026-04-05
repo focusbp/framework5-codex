@@ -45,7 +45,8 @@ if (!$skip_lock) {
 	});
 }
 
-include "lib_ext/smarty-4.3.1/libs/Smarty.class.php";
+include "lib/SmartyBootstrap.php";
+fbp_include_smarty();
 $smarty = new Smarty();
 
 include("lib/ValueFormatter.php");
@@ -64,7 +65,7 @@ $dir = new Dirs();
 function cli_prepare_smarty(Smarty $smarty) {
 	$smarty->escape_html  = true;
 	$smarty->error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING;
-	$smarty->addPluginsDir(dirname(__FILE__) . "/lib/smarty_plugins_org/");
+	fbp_register_smarty_plugins($smarty, dirname(__FILE__) . "/lib/smarty_plugins_org/");
 	$smarty->registerPlugin('modifier', 'is_numeric', 'is_numeric');
 	$base_template_dir = dirname(__FILE__) . "/Templates";
 	$smarty->assign("base_template_dir", $base_template_dir);

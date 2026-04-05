@@ -10,7 +10,7 @@ interface ctl_db {
 	 * @param string|null $separated_by Used to separate data by login ID or other criteria.
 	 * @return FFM Returns an instance of the FFM interface, allowing data manipulation (retrieval, addition, editing, etc.).
 	 */
-	function db(string $table_name, string $class = null, string $separated_by = null): FFM;
+		function db(string $table_name, ?string $class = null, ?string $separated_by = null): FFM;
 
 
 	/**

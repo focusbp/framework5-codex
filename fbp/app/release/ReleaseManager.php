@@ -22,7 +22,7 @@ class ReleaseManager {
 	private $extractdir;
 	private $public_assets_dir;
 
-	function __construct(string $projectRoot = null, string $zipFile = null) {
+		function __construct(?string $projectRoot = null, ?string $zipFile = null) {
 		if ($projectRoot === null || $projectRoot === "") {
 			$projectRoot = dirname(__FILE__) . "/../../../";
 		}

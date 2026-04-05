@@ -1,16 +1,11 @@
 <?php
 
+if (!function_exists('smarty_function_escape_special_chars')) {
+	require_once __DIR__ . "/../../lib_ext/smarty-5.8.0/src/functions.php";
+}
+
 function smarty_function_html_year_month($params, Smarty_Internal_Template $template)
 {
-    $template->_checkPlugins(
-        array(
-            array(
-                'function' => 'smarty_function_escape_special_chars',
-                'file'     => SMARTY_PLUGINS_DIR . 'shared.escape_special_chars.php'
-            )
-        )
-    );
-
     $value = (string) ($params['value'] ?? '');
     if ($value === '') {
         return '';

@@ -23,7 +23,8 @@ if(isUploadMaxFilesizeExceeded() || isPostMaxSizeExceeded()) {
 	return;
 }
 
-include "lib_ext/smarty-4.3.1/libs/Smarty.class.php";
+include "lib/SmartyBootstrap.php";
+fbp_include_smarty();
 $smarty = new Smarty();
 
 include("lib/fixed_file_manager/fixed_file_manager.php");
@@ -55,8 +56,8 @@ $smarty->escape_html  = true;
 //エラー設定
 $smarty->error_reporting =E_ALL & ~E_NOTICE & ~E_WARNING;
 
-//Add a dir for Original Smarty Plugin
-$smarty->addPluginsDir(dirname(__FILE__) . "/lib/smarty_plugins_org/");
+// Register original Smarty plugins without addPluginsDir() deprecation.
+fbp_register_smarty_plugins($smarty, dirname(__FILE__) . "/lib/smarty_plugins_org/");
 $smarty->registerPlugin('modifier', 'is_numeric', 'is_numeric');
 
 //-----------------------------------------------------
@@ -352,7 +353,7 @@ try{
 				}
 				$appobj->$function($ctl);
 			}else{
-				if($_POST["_call_from"] != "appcon"){
+				if(($_POST["_call_from"] ?? "") != "appcon"){
 					header("HTTP/1.1 404 " . "Class \"$class\" does not have a function \"$function\" in $class/$class.php.");
 				}
 			}
@@ -388,14 +389,14 @@ try{
 }
 
 function show_error($error){
-	if($_POST["_call_from"] == "appcon"){
+	if(($_POST["_call_from"] ?? "") == "appcon"){
 		$md = [];
 		$md["dialog_name"] = "Exception";
 		$md["html"] = "<div class=\"error\">" . $error . "</div>";
 		$md["title"] = "Exception";
 		//$md["testserver"] = $ctl->get_session("testserver");
 		$md["post"] = $_POST;
-		$md["multi_dialog_zindex"] = $_POST["multi_dialog_zindex"];
+		$md["multi_dialog_zindex"] = $_POST["multi_dialog_zindex"] ?? null;
 
 		$mdset[] = $md;
 		$json = json_encode(["multi_dialog"=>$mdset]);

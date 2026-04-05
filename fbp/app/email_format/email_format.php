@@ -14,27 +14,26 @@ class email_format {
 		$post = $ctl->POST();
 		$ctl->assign('post', $post);
 		$max = $ctl->increment_post_value('max', 10);
+		$button = (string) ($post['button'] ?? '');
+		$search_template_name = (string) ($ctl->get_session("search_template_name_em_tmp") ?? '');
+		$posted_search_template_name = trim((string) ($post['search_template_name'] ?? ''));
+		$window = (string) ($post["window"] ?? '');
 
-		if ($post['button'] == "reset") {
+		if ($button === "reset") {
 			$search_template_name = "";
-			$ctl->set_session("search_template_name_em_tmp",
-				$search_template_name);
+			$ctl->set_session("search_template_name_em_tmp", $search_template_name);
 		}
-		if (!empty($ctl->get_session("search_template_name_em_tmp"))) {
-			$search_template_name = $ctl->get_session("search_template_name_em_tmp");
-		}
-		if (!empty($post['search_template_name'])) {
-			$search_template_name = $post['search_template_name'];
-			$ctl->set_session("search_template_name_em_tmp",
-				$search_template_name);
+		if ($posted_search_template_name !== '') {
+			$search_template_name = $posted_search_template_name;
+			$ctl->set_session("search_template_name_em_tmp", $search_template_name);
 		}
 
-		$items = $this->fmt_email_format->filter(["template_name"], [$post["search_template_name"]], false, 'AND', 'sort', SORT_ASC, $max, $is_last);
+		$items = $this->fmt_email_format->filter(["template_name"], [$search_template_name], false, 'AND', 'sort', SORT_ASC, $max, $is_last);
 		$ctl->assign("max", $max);
 		$ctl->assign("is_last", $is_last);
 		$ctl->assign("items", $items);
 
-		if($post["window"] == "window"){
+		if($window === "window"){
 			$ctl->show_multi_dialog("email_format", "index.tpl", $ctl->t("email_format.dialog.index"),1000);
 		}else{
 			$ctl->reload_area("#tabs-mail","index.tpl");
@@ -80,7 +79,8 @@ class email_format {
 	function edit(Controller $ctl) {
 		$post = $ctl->POST();
 		$ctl->assign("post", $post);
-		$data = $this->fmt_email_format->get($post['id']);
+		$id = (int) ($post['id'] ?? 0);
+		$data = $this->fmt_email_format->get($id);
 		$data = array_merge($data, $post);
 		$ctl->assign("data", $data);
 		
@@ -97,11 +97,12 @@ class email_format {
 		
 
 		$ctl->ajax("email_format","database_field_reference");
-		$ctl->show_multi_dialog("edit_email_format_" . $post['id'], "edit.tpl", $ctl->t("email_format.dialog.edit"), 1000, true, true);
+		$ctl->show_multi_dialog("edit_email_format_" . $id, "edit.tpl", $ctl->t("email_format.dialog.edit"), 1000, true, true);
 	}
 	
 	function database_field_reference(Controller $ctl){
 		$post = $ctl->POST();
+		$db_id = (int) ($post["db_id"] ?? 0);
 		
 		// db
 		$ffm_db = $ctl->db("db","db");
@@ -115,13 +116,13 @@ class email_format {
 			$db_opt[$d["id"]] = $d["tb_name"];
 		}
 		$ctl->assign("db_opt",$db_opt);
-		$ctl->assign("db_id",$post["db_id"]);
+		$ctl->assign("db_id",$db_id);
 		
 		// Fields
-		if($post["db_id"]>0){
-			$db = $ffm_db->get($post["db_id"]);
+		if($db_id > 0){
+			$db = $ffm_db->get($db_id);
 			$ctl->assign("db",$db);
-			$field_list = $ffm_field->select("db_id",$post["db_id"],true,"AND","parameter_name",SORT_ASC);
+			$field_list = $ffm_field->select("db_id",$db_id,true,"AND","parameter_name",SORT_ASC);
 			
 			foreach($field_list as $key=>&$f){
 				if(strpos("number/float/textarea/date/time/datetime/year_month",$f["type"]) !== false){
@@ -153,7 +154,8 @@ class email_format {
 			return;
 		}
 
-		$data = $this->fmt_email_format->get($post['id']);
+		$id = (int) ($post['id'] ?? 0);
+		$data = $this->fmt_email_format->get($id);
 		foreach ($_POST as $key => $value) {
 			$data[$key] = $value;
 		}
@@ -161,7 +163,7 @@ class email_format {
 		$data['updated_at'] = time();
 		$this->fmt_email_format->update($data);
 
-		$ctl->close_multi_dialog("edit_email_format_" . $post['id']);
+		$ctl->close_multi_dialog("edit_email_format_" . $id);
 		$this->page($ctl);
 	}
 
@@ -187,7 +189,7 @@ class email_format {
 
 	function sort(Controller $ctl) {
 		$post = $ctl->POST();
-		$logArr = explode(',', $post['log']);
+		$logArr = explode(',', (string) ($post['log'] ?? ''));
 		$c = 0;
 		foreach ($logArr as $id) {
 			$d = $this->fmt_email_format->get($id);
@@ -223,7 +225,8 @@ class email_format {
 	}
 
 	function json_download(Controller $ctl) {
+		$post = $ctl->POST();
 		$email_templates = $this->fmt_email_format->getall();
-		$ctl->res_json($email_templates, $post['filename']);
+		$ctl->res_json($email_templates, (string) ($post['filename'] ?? 'email_template.json'));
 	}
 }

@@ -226,7 +226,7 @@ interface ctl_media {
 	 *
 	 * @return \openai\OpenAI An instance of the OpenAI class.
 	 */
-	function create_openai($model, $assistant,$base_instruction="", \openai\Recorder $message_recorder=null, \openai\StatusManager $status_manager=null,$network_logger=null): \openai\OpenAI_class;
+		function create_openai($model, $assistant,$base_instruction="", ?\openai\Recorder $message_recorder=null, ?\openai\StatusManager $status_manager=null,$network_logger=null): \openai\OpenAI_class;
 	
 	function openai_get_assistant();
 	

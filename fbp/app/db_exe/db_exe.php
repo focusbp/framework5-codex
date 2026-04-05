@@ -12,7 +12,7 @@ class db_exe {
 	private $window_name;
 	private $title;
 
-	private function invoke_post_action_class(Controller $ctl, $data, $post_action_from = "", $source_id = null){
+	private function invoke_post_action_class(Controller $ctl, $data, $post_action_from = "", ?int $source_id = null){
 		if(empty($this->db_setting["post_action_class"])){
 			return;
 		}

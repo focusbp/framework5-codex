@@ -101,6 +101,9 @@ class Controller_class implements Controller {
 	}
 
 	function get_session($key) {
+		if (empty($this->windowcode)) {
+			return null;
+		}
 		if (isset($_SESSION[$this->windowcode][$key])) {
 			return $_SESSION[$this->windowcode][$key];
 		} else {
@@ -134,10 +137,11 @@ class Controller_class implements Controller {
 			return;
 		}
 		if (is_object($this->smarty)) {
-			$this->smarty->template_dir = $this->dirs->get_class_dir($class) . "/Templates/";
-			$this->smarty->compile_dir = $this->dirs->datadir . "/templates_c/" . "$class" . "/";
-			if (!is_dir($this->smarty->compile_dir)) {
-				mkdir($this->smarty->compile_dir, 0777, true);
+			$this->smarty->setTemplateDir($this->dirs->get_class_dir($class) . "/Templates/");
+			$this->smarty->setCompileDir($this->dirs->datadir . "/templates_c/" . "$class" . "/");
+			$compile_dir = $this->smarty->getCompileDir();
+			if (!is_dir($compile_dir)) {
+				mkdir($compile_dir, 0777, true);
 			}
 		}
 	}
@@ -151,7 +155,7 @@ class Controller_class implements Controller {
 	}
 
 	//DBの接続を作成・取得
-	function db($name, $class = null, $separated_by = null): FFM {
+	function db($name, ?string $class = null, ?string $separated_by = null): FFM {
 
 		if ($class == null) {
 			$fdir = $this->dirs->get_class_dir($this->class) . "/fmt";
@@ -266,7 +270,7 @@ class Controller_class implements Controller {
 		$this->smarty->assign("MYSESSION", $_SESSION[$this->windowcode]);
 		$this->smarty->escape_html = false;
 		$_SESSION['pdf_text'] = $this->smarty->fetch($pdf_template);
-		$this->console_log("Template:" . $this->class . "/" . $template, "#CE5C00");
+		$this->console_log("Template:" . $this->class . "/" . $pdf_template, "#CE5C00");
 		$_SESSION["pdf_filename"] = $download_filename;
 
 		$is_smartphone = $this->is_smartphone();
@@ -550,7 +554,7 @@ class Controller_class implements Controller {
 		if ($key == null) {
 			return $_GET;
 		} else {
-			return $_GET[$key];
+			return $_GET[$key] ?? null;
 		}
 	}
 
@@ -1363,7 +1367,7 @@ class Controller_class implements Controller {
 		$md["html"] = $html;
 		$md["width"] = $width;
 		$md["time"] = $time;
-		$md["multi_dialog_zindex"] = $_POST["multi_dialog_zindex"];
+		$md["multi_dialog_zindex"] = $_POST["multi_dialog_zindex"] ?? null;
 		$this->arr["notifications"][] = $md;
 	}
 
@@ -1378,7 +1382,7 @@ class Controller_class implements Controller {
 		$md["width"] = $width;
 		$md["time"] = $time;
 		$md["from"] = $from;
-		$md["multi_dialog_zindex"] = $_POST["multi_dialog_zindex"];
+		$md["multi_dialog_zindex"] = $_POST["multi_dialog_zindex"] ?? null;
 		$this->arr["sidemenu"][] = $md;
 	}
 
@@ -1395,7 +1399,7 @@ class Controller_class implements Controller {
 		$html = '<div class="class_style_' . $this->class . '">' . $tmp . '</div>';
 		$md["html"] = $html;
 		$md["width"] = $width;
-		$md["multi_dialog_zindex"] = $_POST["multi_dialog_zindex"];
+		$md["multi_dialog_zindex"] = $_POST["multi_dialog_zindex"] ?? null;
 		$this->arr["second_work_area"][] = $md;
 	}
 
@@ -1411,7 +1415,7 @@ class Controller_class implements Controller {
 			$this->assign('menu_file', $menu_file);
 		}
 
-		$this->smarty->template_dir = $this->dirs->get_class_dir($this->class) . "/Templates/";
+		$this->smarty->setTemplateDir($this->dirs->get_class_dir($this->class) . "/Templates/");
 		$tmp = $this->smarty->fetch($template);
 		$this->console_log("Template:" . $this->class . "/" . $template, "#CE5C00");
 
@@ -1419,7 +1423,7 @@ class Controller_class implements Controller {
 		$md["html"] = $html;
 		$md["width"] = $width;
 		$md["height"] = $height;
-		$md["multi_dialog_zindex"] = $_POST["multi_dialog_zindex"];
+		$md["multi_dialog_zindex"] = $_POST["multi_dialog_zindex"] ?? null;
 		$this->arr["popup"][] = $md;
 	}
 
@@ -1678,15 +1682,15 @@ class Controller_class implements Controller {
 	}
 
 	function get_login_id() {
-		return $_SESSION[$this->windowcode]["login_id"];
+		return $_SESSION[$this->windowcode]["login_id"] ?? null;
 	}
 
 	function get_login_user_id() {
-		return $_SESSION[$this->windowcode]["user_id"];
+		return $_SESSION[$this->windowcode]["user_id"] ?? null;
 	}
 
 	function get_login_type() {
-		return $_SESSION[$this->windowcode]["type"];
+		return $_SESSION[$this->windowcode]["type"] ?? null;
 	}
 
 	function is_app_admin(): bool {
@@ -1778,15 +1782,15 @@ class Controller_class implements Controller {
 	}
 
 	function get_vimeo_id_uploaded() {
-		return $_POST["vimeo_id"];
+		return $_POST["vimeo_id"] ?? null;
 	}
 
 	function get_vimeo_title_uploaded() {
-		return $_POST["vimeo_title"];
+		return $_POST["vimeo_title"] ?? null;
 	}
 
 	function get_vimeo_description_uploaded() {
-		return $_POST["vimeo_description"];
+		return $_POST["vimeo_description"] ?? null;
 	}
 
 	function get_vimeo_callback_parameter_array() {
@@ -1915,7 +1919,7 @@ class Controller_class implements Controller {
 
 	function square_regist_card($square_customer_id): ?string {
 		try {
-			$nonce = $_POST["nonce"];
+			$nonce = $_POST["nonce"] ?? null;
 			if (!class_exists("mysquare")) {
 				$this->set_square();
 			}
@@ -3134,7 +3138,11 @@ class Controller_class implements Controller {
 			$ffm_constant_array = $this->db("constant_array", "constant_array");
 			$ffm_values = $this->db("values", "constant_array");
 
-			$constant_array = $ffm_constant_array->select(['array_name'], [$array_name])[0];
+			$constant_array_list = $ffm_constant_array->select(['array_name'], [$array_name]);
+			if (empty($constant_array_list)) {
+				return $valuearr;
+			}
+			$constant_array = $constant_array_list[0];
 			$value_array = $ffm_values->select('constant_array_id', $constant_array['id'], true, "AND", "sort", SORT_ASC);
 
 			foreach ($value_array as $key => $value) {
@@ -3155,7 +3163,11 @@ class Controller_class implements Controller {
 			$ffm_constant_array = $this->db("constant_array", "constant_array");
 			$ffm_values = $this->db("values", "constant_array");
 
-			$constant_array = $ffm_constant_array->select(['array_name'], [$array_name])[0];
+			$constant_array_list = $ffm_constant_array->select(['array_name'], [$array_name]);
+			if (empty($constant_array_list)) {
+				return $valuearr;
+			}
+			$constant_array = $constant_array_list[0];
 			$value_array = $ffm_values->select('constant_array_id', $constant_array['id'], true, "AND", "sort", SORT_ASC);
 
 			$valuearr = array();
@@ -3617,7 +3629,7 @@ class Controller_class implements Controller {
 		});
 	}
 
-	function create_openai($model, $assistant, $base_instruction = "", \openai\Recorder $message_recorder = null, \openai\StatusManager $status_manager = null, $network_logger = null): \openai\OpenAI_class {
+	function create_openai($model, $assistant, $base_instruction = "", ?\openai\Recorder $message_recorder = null, ?\openai\StatusManager $status_manager = null, $network_logger = null): \openai\OpenAI_class {
 		$this->include_openai_lib();
 		$setting = $this->get_setting();
 
@@ -3739,7 +3751,7 @@ class Controller_class implements Controller {
 	}
 
 	function get_APP_URL($class = null, $function = null, $params = null) {
-
+		$force_https = false;
 
 		// スキーム判定
 		if ($force_https) {
@@ -4398,7 +4410,7 @@ class Controller_class implements Controller {
 
 	function is_smartphone($ua = null){
 		if ( is_null($ua) ) {
-			$ua = $_SERVER['HTTP_USER_AGENT'];
+			$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
 		}
 
 		if ( preg_match('/iPhone|iPod|iPad|Android/ui', $ua) ) {

@@ -131,7 +131,7 @@ class dashboard {
 		$ctl->show_main_area("index.tpl", $ctl->t("dashboard.title"));
 	}
 
-	private function validate_and_build(Controller $ctl, array $post, array $current = null): array {
+	private function validate_and_build(Controller $ctl, array $post, ?array $current = null): array {
 		$class_name = trim((string)($post["class_name"] ?? ""));
 		$function_name = trim((string)($post["function_name"] ?? ""));
 		$column_width = (int)($post["column_width"] ?? 1);

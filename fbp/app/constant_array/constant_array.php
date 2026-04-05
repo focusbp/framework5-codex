@@ -15,7 +15,9 @@ class constant_array {
 	function page(Controller $ctl) {
 		$post = $ctl->POST();
 		$ctl->assign('post', $post);
-		$items = $this->fmt_constant_array->filter(["array_name"], [$post["search_name"]], false, 'AND', 'id', SORT_DESC, $max, $is_last);
+		$search_name = trim((string) ($post["search_name"] ?? ""));
+		$max = $ctl->increment_post_value('max', 10);
+		$items = $this->fmt_constant_array->filter(["array_name"], [$search_name], false, 'AND', 'id', SORT_DESC, $max, $is_last);
 
 		$ctl->assign("items", $items);
 		$ctl->show_multi_dialog("constant_array", "index.tpl", "Manage Dropdown Options",800);
@@ -50,21 +52,23 @@ class constant_array {
 
 	function validate_array_data(Controller $ctl, $post, $page) {
 		$errors = [];
-		if (empty($post["array_name"])){
+		$array_name = trim((string) ($post["array_name"] ?? ""));
+		$id = (int) ($post["id"] ?? 0);
+		if ($array_name === ""){
 			$errors["array_name"] = "Array name is required!";
 		}else{
 			$endsWith = '_opt';
-			if (!endsWith($post["array_name"], $endsWith)) {
+			if (!endsWith($array_name, $endsWith)) {
 				$errors["array_name"] = "Please create a variable name that ends with '_opt'.";
 			}
 			
-			if (startsWith($post["array_name"],"table_")){
+			if (startsWith($array_name,"table_")){
 				$errors["array_name"] = "Starting with table_ is not accetable.";
 			}
 
-			$validate_duplicate = $ctl->validate_duplicate('constant_array', 'array_name', $post["array_name"], $post["id"], 'constant_array');
+			$validate_duplicate = $ctl->validate_duplicate('constant_array', 'array_name', $array_name, $id, 'constant_array');
 			if (!$validate_duplicate) {
-				$errors["array_name"] = $post["array_name"] . " is already exist!";
+				$errors["array_name"] = $array_name . " is already exist!";
 			}
 		}
 		return $errors;
@@ -80,7 +84,7 @@ class constant_array {
 
 	//view edit page
 
-	function edit(Controller $ctl, $id = null) {
+	function edit(Controller $ctl, ?int $id = null) {
 		if ($id == null)
 			$id = $ctl->POST("id");
 
@@ -188,7 +192,7 @@ class constant_array {
 
 	function sort(Controller $ctl) {
 		$post = $ctl->POST();
-		$logArr = explode(',', $post['log']);
+		$logArr = explode(',', (string) ($post['log'] ?? ''));
 		$c = 0;
 		foreach ($logArr as $id) {
 			$d = $this->fmt_values->get($id);
@@ -239,7 +243,7 @@ class constant_array {
 
 	function edit_values_exe(Controller $ctl) {
 		$data = $ctl->POST();
-		$constant_array_id = $data['constant_array_id'];
+		$constant_array_id = $data['constant_array_id'] ?? null;
 		$data['updated_at'] = time();
 		//validation
 		$errors = $this->validate_values_form($ctl, $data);
@@ -274,24 +278,28 @@ class constant_array {
 	//validation values adding function
 	function validate_values_form(Controller $ctl, $data) {
 		$errors = [];
+		$key = trim((string) ($data['key'] ?? ''));
+		$constant_array_id = (int) ($data["constant_array_id"] ?? 0);
+		$id = (int) ($data["id"] ?? 0);
+		$value = trim((string) ($data['value'] ?? ''));
 
-		if ($data['key'] == null)
+		if ($key === '')
 			$errors['key'] = "Key is required!";
 
-		if ($data['key'] && !is_numeric($data['key'])) {
+		if ($key !== '' && !is_numeric($key)) {
 			$errors['key'] = "Key should be a number.";
 		}
 		//var_dump($data);
 
-		if ($data['key']) {
-			$validate_duplicate = $ctl->validate_duplicate('values', ['key', "constant_array_id"], [$data['key'], $data["constant_array_id"]], $data["id"], 'constant_array');
+		if ($key !== '') {
+			$validate_duplicate = $ctl->validate_duplicate('values', ['key', "constant_array_id"], [$key, $constant_array_id], $id, 'constant_array');
 			//var_dump($is_duplicate);
 			if (!$validate_duplicate) {
-				$errors["key"] = $data['key'] . " is already exist!";
+				$errors["key"] = $key . " is already exist!";
 			}
 		}
 		//die();
-		if (empty($data['value']))
+		if ($value === '')
 			$errors['value'] = "Value is required!";
 
 		return $errors;

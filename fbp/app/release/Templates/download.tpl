@@ -7,8 +7,7 @@
 		<textarea name="memo"></textarea>
 	</form>
 
-	<button class="download-link" data-form="form_{$timestamp}" data-class="release" data-function="download_zip_exe" data-filename="release-{$setting.project_release_code}-{date("Ymd")}.zip">{t key="common.download"}</button>
+	<button class="download-link" data-form="form_{$timestamp}" data-class="release" data-function="download_zip_exe" data-filename="release-{$setting.project_release_code}-{$timestamp|date_format:"%Y%m%d"}.zip">{t key="common.download"}</button>
 {else}
 	<p class="error">{$message}</p>
 {/if}
-

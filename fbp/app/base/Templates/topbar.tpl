@@ -3,7 +3,7 @@
     {if $MYSESSION.testserver}
         <div class="testserver">
             <div class="testserver_title">{$base_i18n.dev_mode}</div>
-			<button class="ajax-link release_button" data-class="release" data-function="download_zip" data-filename="release{date("Ymd")}.zip">{$base_i18n.download_release_file}</button>
+			<button class="ajax-link release_button" data-class="release" data-function="download_zip" data-filename="release{$timestamp|date_format:"%Y%m%d"}.zip">{$base_i18n.download_release_file}</button>
         </div>
     {/if}
 

@@ -27,7 +27,7 @@ interface OpenAI {
 	
 	public function respondStream($messages, array $options = []): void;
 	
-	public function delete_all_files(string $purpose = null): array;
+	public function delete_all_files(?string $purpose = null): array;
 	
 	public function listVectorStoreFileIds(string $vectorStoreId): array;
 	

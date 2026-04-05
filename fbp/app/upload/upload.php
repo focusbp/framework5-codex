@@ -17,7 +17,7 @@ class upload {
 
 	function change_to_vimeo_id(Controller $ctl) {
 		
-		$txt = $_POST["txt"];
+		$txt = $_POST["txt"] ?? "";
 		$vimeo = $ctl->create_vimeo();
 		$vimeo_id = $vimeo->get_vimeo_id_from_URL($txt);
 		if ($vimeo_id === false) {
@@ -31,11 +31,11 @@ class upload {
 		$uploadDir = $ctl->dirs->datadir . "/upload/";
 
 		// Retrieve POST data
-		$partData = base64_decode($_POST["slicedata"]);
-		$filename = $_POST["filename"];
-		$partIndex = $_POST["k"];
-		$totalParts = $_POST["totalParts"];
-		$sliced_file_id = $_POST["sliced_file_id"];
+		$partData = base64_decode((string) ($_POST["slicedata"] ?? ""));
+		$filename = $_POST["filename"] ?? "";
+		$partIndex = (int) ($_POST["k"] ?? 0);
+		$totalParts = (int) ($_POST["totalParts"] ?? 0);
+		$sliced_file_id = $_POST["sliced_file_id"] ?? "";
 		$d = [];
 
 		// Create the file if the first part is being uploaded
