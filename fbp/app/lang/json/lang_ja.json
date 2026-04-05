@@ -14,6 +14,7 @@
   "base.menu.user_management": "ユーザー管理",
   "base.menu.system_setting": "システム設定",
   "base.menu.codex_terminal": "Codex Terminal",
+  "base.empty_state.no_items": "表示できるメニューがありません。",
   "base.record_delete.label": "次のレコードを削除しますか？",
   "base.record_delete.confirm": "この処理を実行すると元に戻せません。削除しますか？",
   "base.record_delete.no": "いいえ",

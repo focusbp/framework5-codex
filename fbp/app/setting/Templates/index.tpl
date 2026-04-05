@@ -23,17 +23,18 @@
 				<div class="setting_tab_inner">
 					<table class="setting_detail_table">
 						<tr>
-							<th rowspan="3">{t key="setting.language"}</th>
+							<th>プロジェクト</th>
+							<td>{t key="setting.project_release_code"}</td>
+							<td><input type="text" name="project_release_code" value="{$setting.project_release_code}"></td>
+						</tr>
+						<tr>
+							<th rowspan="2">{t key="setting.language"}</th>
 							<td>{t key="setting.framework_language_code"}</td>
 							<td>{html_options name="framework_language_code" options=$arr_framework_language_code selected=$setting.framework_language_code}</td>
 						</tr>
 						<tr>
 							<td>{t key="setting.locale_code"}</td>
 							<td>{html_options name="locale_code" options=$arr_locale_code selected=$setting.locale_code}</td>
-						</tr>
-						<tr>
-							<td>{t key="setting.project_release_code"}</td>
-							<td><input type="text" name="project_release_code" value="{$setting.project_release_code}"></td>
 						</tr>
 						<tr>
 							<th>{t key="setting.timezone_section"}</th>

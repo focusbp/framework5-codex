@@ -14,6 +14,7 @@
   "base.menu.user_management": "User Management",
   "base.menu.system_setting": "System Setting",
   "base.menu.codex_terminal": "Codex Terminal",
+  "base.empty_state.no_items": "There are no menus available to display.",
   "base.record_delete.label": "Are you sure to delete the following record?",
   "base.record_delete.confirm": "If you perform this process, it will not be restored. Do you want to process it?",
   "base.record_delete.no": "No",

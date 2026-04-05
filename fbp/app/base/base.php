@@ -77,6 +77,9 @@ class base {
 			"system_setting" => $ctl->t("base.menu.system_setting"),
 			"codex_terminal" => $ctl->t("base.menu.codex_terminal"),
 		]);
+		$ctl->assign("base_empty_i18n", [
+			"no_items" => $ctl->t("base.empty_state.no_items"),
+		]);
 		
 		// 初期のメールテンプレートを入れる
 		$ffm_email_format = $ctl->db("email_format", "email_format");
@@ -97,14 +100,21 @@ class base {
 		}
 
 		// メインエリア自動読み込み
+		$show_empty_main_menu = false;
+		$dashboard_widgets = $ctl->db("dashboard", "dashboard")->getall("sort", SORT_ASC);
+		$has_dashboard = count($dashboard_widgets) > 0;
 		$alma = $ctl->get_session("__AUTO_LOAD_MAIN_AREA");
 		if (!empty($alma)) {
-			$dir = new Dirs();
 			try{
+				$dir = new Dirs();
 				$dir->get_class_dir($alma["class"]);
 				$ctl->ajax($alma["class"], $alma["function"], $alma["parameters"]);
 			} catch (Exception $ex) {
-				// Nothing to do;
+				if ($has_dashboard) {
+					$ctl->ajax("dashboard", "page");
+				} else {
+					$show_empty_main_menu = true;
+				}
 			}
 			
 		}else{
@@ -112,11 +122,26 @@ class base {
 			$class = $setting["startup_class1"];
 			$function = $setting["startup_function1"];
 			if (empty($class) || empty($function)) {
-				// Nothing
+				if ($has_dashboard) {
+					$ctl->ajax("dashboard", "page");
+				} else {
+					$show_empty_main_menu = true;
+				}
 			} else {
-				$ctl->ajax($class, $function);
+				try {
+					$dir = new Dirs();
+					$dir->get_class_dir($class);
+					$ctl->ajax($class, $function);
+				} catch (Exception $ex) {
+					if ($has_dashboard) {
+						$ctl->ajax("dashboard", "page");
+					} else {
+						$show_empty_main_menu = true;
+					}
+				}
 			}
 		}
+		$ctl->assign("show_empty_main_menu", $show_empty_main_menu);
 		
 		// Sliced fileの期限切れを削除
 		$ffm_sliced_file = $ctl->db("sliced_file","upload");
@@ -130,6 +155,7 @@ class base {
 			}
 		}
 		
+		$this->assign_menu($ctl);
 		$ctl->invoke("show_menu");
 		
 
@@ -189,11 +215,91 @@ class base {
 
 		// Dashboard Menu
 		$dashboard_widgets = $ctl->db("dashboard", "dashboard")->getall("sort", SORT_ASC);
-		$ctl->assign("show_dashboard_menu", count($dashboard_widgets) > 0);
+		$show_dashboard_menu = count($dashboard_widgets) > 0;
+		$ctl->assign("show_dashboard_menu", $show_dashboard_menu);
 		
 		// Homepage
 		$root_url = $ctl->get_APP_URL();
 		$ctl->assign("root_url",$root_url);
+
+		$empty_main_sections = [];
+
+		if (count($database_menu) > 0) {
+			$items = [];
+			foreach ($database_menu as $db) {
+				$items[] = [
+					"type" => "ajax",
+					"label" => $db["menu_name"],
+					"class" => "db_exe",
+					"function" => "page",
+					"attributes" => [
+						"data-db_id" => $db["id"],
+					],
+				];
+			}
+			$empty_main_sections[] = [
+				"title" => $ctl->t("base.menu.databases"),
+				"items" => $items,
+			];
+		}
+
+		$admin_items = [];
+		if ($ctl->is_app_admin() || $ctl->has_data_manager_permission()) {
+			$admin_items[] = [
+				"type" => "ajax",
+				"label" => $ctl->t("base.menu.codex_terminal"),
+				"class" => "wizard",
+				"function" => "run",
+				"badge" => "AI",
+				"attributes" => [],
+			];
+		}
+		if ($ctl->is_app_admin() || $ctl->has_developer_permission()) {
+			if ($setting["force_testmode"] == 1 ||
+				($setting["force_testmode"] == 0 && $setting["show_developer_panel"] == 1)) {
+				$admin_items[] = [
+					"type" => "ajax",
+					"label" => $ctl->t("base.menu.development_panel"),
+					"class" => "panel",
+					"function" => "page",
+					"attributes" => [],
+				];
+			}
+		}
+		if ($ctl->is_app_admin() || $ctl->has_data_manager_permission()) {
+			$admin_items[] = [
+				"type" => "ajax",
+				"label" => $ctl->t("base.menu.release_backup"),
+				"class" => "panel",
+				"function" => "release_backup",
+				"attributes" => [],
+			];
+		}
+		if ($ctl->is_app_admin()) {
+			$admin_items[] = [
+				"type" => "ajax",
+				"label" => $ctl->t("base.menu.user_management"),
+				"class" => "user",
+				"function" => "page",
+				"attributes" => [],
+			];
+			$admin_items[] = [
+				"type" => "ajax",
+				"label" => $ctl->t("base.menu.system_setting"),
+				"class" => "setting",
+				"function" => "page",
+				"attributes" => [],
+			];
+		}
+
+		if (count($admin_items) > 0) {
+			$empty_main_sections[] = [
+				"title" => $ctl->t("base.menu.admin_console"),
+				"items" => $admin_items,
+			];
+		}
+
+		$ctl->assign("empty_main_sections", $empty_main_sections);
 	}
 
 	function img(Controller $ctl) {

@@ -150,6 +150,10 @@ function prefix_selector_prelude($prelude, $add_class){
 		if($trimmed === ""){
 			continue;
 		}
+		if(strpos($trimmed, trim($add_class)) === 0){
+			$prefixed[] = $trimmed;
+			continue;
+		}
 		$prefixed[] = $add_class . $trimmed;
 	}
 	if(empty($prefixed)){

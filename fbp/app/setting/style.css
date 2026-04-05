@@ -1,48 +1,10 @@
-.class_style_setting #setting_tabs {
-	border: none;
-	background: transparent;
-	overflow: hidden;
-	padding-bottom: 20px;
-}
-
-.class_style_setting #setting_tabs > ul {
-	position: sticky;
-	top: 0;
-	z-index: 4;
-	padding: 0;
-	border: none;
-	background: linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%);
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	margin-bottom: 20px;
-}
-
-.class_style_setting #setting_tabs > ul li {
-	border-radius: 999px;
-	border: 1px solid #c7d2e0;
-}
-
-.class_style_setting #setting_tabs > ul li a {
-	padding: 10px 16px;
-}
-
-.class_style_setting #setting_tabs > ul .ui-tabs-active {
-	border-color: #2563eb;
-	background: #2563eb;
-}
-
-.class_style_setting #setting_tabs > ul .ui-tabs-active a {
-	color: #ffffff;
-}
-
 .class_style_setting .setting_tab_panel {
 	padding: 0;
 }
 
 .class_style_setting .setting_tab_inner {
-	max-width: 800px;
 	width: 100%;
+	max-width: none;
 }
 
 .class_style_setting .setting_tab_actions {
@@ -97,6 +59,13 @@
 	box-sizing: border-box;
 }
 
+.class_style_setting .setting_detail_table select {
+	display: block;
+	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+}
+
 .class_style_setting .setting_section textarea {
 	min-height: 120px;
 }
@@ -111,12 +80,13 @@
 }
 
 .class_style_setting .setting_page_bar_inner {
-	max-width: 800px;
 	display: flex;
 	gap: 8px;
 	align-items: center;
 	justify-content: flex-end;
 	padding: 10px 0;
+	width: 100%;
+	max-width: none;
 }
 
 .class_style_setting .setting_form_layout {
@@ -139,6 +109,10 @@
 	text-align: left;
 }
 
+.class_style_setting .setting_detail_table td {
+	background: #ffffff;
+}
+
 .class_style_setting .setting_detail_table th {
 	width: 28%;
 	background: #f7f9fc;
@@ -147,7 +121,6 @@
 
 .class_style_setting .setting_detail_table td:nth-child(2) {
 	width: 28%;
-	background: #fbfdff;
 }
 
 .class_style_setting .setting_detail_table td:nth-child(3) {

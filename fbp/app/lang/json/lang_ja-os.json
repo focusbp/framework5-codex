@@ -1,4 +1,5 @@
 {
+  "base.empty_state.no_items": "表示できるメニューがあらへん。",
   "validation.required": "これ入れといてや。",
   "validation.email.invalid": "メールアドレスの形式、おかしいで。",
   "validation.login.failed": "ログインでけへんかったわ。",

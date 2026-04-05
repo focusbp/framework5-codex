@@ -15,8 +15,9 @@
 
 
 				<div id="work_area">
-
-				
+					{if $show_empty_main_menu}
+						{include file="empty_main_menu.tpl"}
+					{/if}
 
 				</div>
 					
