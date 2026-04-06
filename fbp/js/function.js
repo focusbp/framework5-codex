@@ -347,14 +347,17 @@ function get_formdata_with_strtotime(form) {
 			$(this).val(time);
 			$(this).attr("data-before", val);
 		}
-		if ($(this).hasClass("year_month_picker")) {
-			var yearMonthVal = $(this).val();
-			var parsedYearMonth = parse_year_month_by_format(yearMonthVal, get_server_year_month_format());
-			if (parsedYearMonth) {
-				$(this).val(parsedYearMonth.year + parsedYearMonth.month);
+			if ($(this).hasClass("year_month_picker")) {
+				var yearMonthVal = $(this).val();
+				var compactYearMonth = $(this).data("year_month_compact") == "1";
+				if (compactYearMonth) {
+					var parsedYearMonth = parse_year_month_by_format(yearMonthVal, get_server_year_month_format());
+					if (parsedYearMonth) {
+						$(this).val(parsedYearMonth.year + parsedYearMonth.month);
+					}
+				}
+				$(this).attr("data-before-year-month", yearMonthVal);
 			}
-			$(this).attr("data-before-year-month", yearMonthVal);
-		}
 	});
 	var fd = new FormData(form);
 
@@ -3050,7 +3053,7 @@ append_function_dialog("__all__", function (dialog_id, flg_window = false) {
 
 		$(this).prop('readOnly', true);
 		var width = $(this).width();
-		$(this).wrap('<div class="datepicker_area" style="width' + width + 'px;display:block;">');
+			$(this).wrap('<div class="datepicker_area" style="width:' + width + 'px;display:block;">');
 		$(this).after('<div class="datepicker_clear">x</div>');
 		$(this).parent().find(".datepicker_clear").on("click", function () {
 			$(this).parent().find(".datepicker").val("");
@@ -3124,30 +3127,35 @@ append_function_dialog("__all__", function (dialog_id, flg_window = false) {
 			changeMonth: true,
 			changeYear: true,
 			yearRange: "1930:+30",
-			beforeShow: function (input, inst) {
-				var cal = inst.dpDiv;
-				setTimeout(function () {
-					var rect = input.getBoundingClientRect();
-					var top = window.scrollY + rect.bottom;
-					var left = window.scrollX + rect.left;
-					var calendarHeight = cal.outerHeight() || 0;
-					var viewportTop = $(window).scrollTop();
-					var viewportBottom = viewportTop + $(window).innerHeight();
+				beforeShow: function (input, inst) {
+					var cal = inst.dpDiv;
+					setTimeout(function () {
+						var rect = input.getBoundingClientRect();
+						var top = window.scrollY + rect.bottom;
+						var left = window.scrollX + rect.left;
+						var calendarHeight = cal.outerHeight() || 0;
+						var viewportTop = $(window).scrollTop();
+						var viewportBottom = viewportTop + $(window).innerHeight();
+						var dialogZ = parseInt($(input).closest(".multi_dialog").css("z-index"), 10);
+						if (isNaN(dialogZ)) {
+							dialogZ = 10000;
+						}
 
-					if (top + calendarHeight > viewportBottom) {
-						top = window.scrollY + rect.top - calendarHeight;
-					}
-					if (top < viewportTop) {
-						top = viewportTop + 8;
-					}
+						if (top + calendarHeight > viewportBottom) {
+							top = window.scrollY + rect.top - calendarHeight;
+						}
+						if (top < viewportTop) {
+							top = viewportTop + 8;
+						}
 
-					cal.css({
-						'top': top,
-						'left': left
-					});
-				}, 10);
-			}
-		});
+						cal.css({
+							'top': top,
+							'left': left,
+							'z-index': dialogZ + 2
+						});
+					}, 10);
+				}
+			});
 		var c = $(this);
 		setTimeout(function () {
 			c.datepicker("show");

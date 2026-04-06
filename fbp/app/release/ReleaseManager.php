@@ -29,9 +29,9 @@ class ReleaseManager {
 		$projectRoot = rtrim($projectRoot, "/");
 
 		$classesRoot = $projectRoot . "/classes";
-		$this->appdir = realpath($classesRoot . "/app");
-		$this->datadir = realpath($classesRoot . "/data");
-		$this->extractdir = realpath($classesRoot);
+		$this->appdir = $classesRoot . "/app";
+		$this->datadir = $classesRoot . "/data";
+		$this->extractdir = $classesRoot;
 		$this->public_assets_dir = $classesRoot . "/data/public_pages/assets";
 
 		$log_dir = $classesRoot . "/log";
@@ -96,6 +96,7 @@ class ReleaseManager {
 			}
 		}
 
+		$this->addCommonFormatFilesToZip($zip);
 		$this->addDirectoryFilesToZip($zip, $this->public_assets_dir);
 		$zip->close();
 
@@ -168,7 +169,7 @@ class ReleaseManager {
 			unlink($zipFile);
 		}
 
-		$ctl->ajax("db","make_table_format");
+		$this->makeTableFormatServerSide($ctl);
 		$ctl->cron_set();
 	}
 
@@ -223,6 +224,91 @@ class ReleaseManager {
 			$relativePath = substr($filePath, strlen($this->extractdir) + 1);
 			$zip->addFile($filePath, $relativePath);
 		}
+	}
+
+	private function addCommonFormatFilesToZip(ZipArchive $zip): void {
+		$fmtDir = $this->datadir . "/_common/fmt";
+		if (!is_dir($fmtDir)) {
+			return;
+		}
+		$files = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($fmtDir),
+			RecursiveIteratorIterator::LEAVES_ONLY
+		);
+		foreach ($files as $file) {
+			if ($file->isDir()) {
+				continue;
+			}
+			$filePath = $file->getRealPath();
+			if ($filePath === false || !$this->endsWith($filePath, ".fmt")) {
+				continue;
+			}
+			$relativePath = substr($filePath, strlen($this->extractdir) + 1);
+			$zip->addFile($filePath, $relativePath);
+		}
+	}
+
+	private function makeTableFormatServerSide(Controller $ctl): void {
+		$dirs = new Dirs();
+		$ffm_db = $this->openDbForFormatRegeneration($dirs, "db", "db");
+		$ffm_db_fields = $this->openDbForFormatRegeneration($dirs, "db_fields", "db");
+		$fmt_root = $dirs->get_class_dir("common") . "/fmt/";
+
+		if (is_dir($fmt_root)) {
+			$files = glob($fmt_root . '*');
+			foreach ($files as $file) {
+				if (is_file($file)) {
+					unlink($file);
+				}
+			}
+		} else {
+			mkdir($fmt_root, 0777, true);
+		}
+
+		$tables = $ffm_db->getall("sort", SORT_ASC);
+		foreach ($tables as $table) {
+			$db_id = $table["id"];
+			$txt = "id,24,N\n";
+			$fields = $ffm_db_fields->select("db_id", $db_id, true, "AND", "sort", SORT_ASC);
+			foreach ($fields as $field) {
+				$t = "T";
+				if ($field["type"] == "number"
+					|| $field["type"] == "dropdown"
+					|| $field["type"] == "radio"
+					|| $field["type"] == "datetime"
+					|| $field["type"] == "date"
+					|| $field["type"] == "time") {
+					$t = "N";
+				} else if ($field["type"] == "float") {
+					$t = "F";
+				} else if ($field["type"] == "checkbox") {
+					$t = "A";
+				}
+				$txt .= $field["parameter_name"] . "," . $field["length"] . "," . $t . "\n";
+			}
+			file_put_contents($fmt_root . $table["tb_name"] . ".fmt", $txt);
+		}
+
+		$ffm_db->close();
+		$ffm_db_fields->close();
+	}
+
+	private function openDbForFormatRegeneration(Dirs $dirs, string $table, ?string $class = null): fixed_file_manager {
+		if ($class === null || $class === "") {
+			$class = $table;
+		}
+
+		$app_user_fmt = $dirs->appdir_user . "/" . $class . "/fmt/" . $table . ".fmt";
+		if (is_file($app_user_fmt)) {
+			return new fixed_file_manager($table, $dirs->datadir . "/" . $class . "/", $dirs->appdir_user . "/" . $class . "/fmt");
+		}
+
+		$app_fw_fmt = $dirs->appdir_fw . "/" . $class . "/fmt/" . $table . ".fmt";
+		if (is_file($app_fw_fmt)) {
+			return new fixed_file_manager($table, $dirs->datadir . "/" . $class . "/", $dirs->appdir_fw . "/" . $class . "/fmt");
+		}
+
+		return new fixed_file_manager($table, $dirs->datadir . "/common/", $dirs->get_class_dir("common") . "/fmt");
 	}
 
 	private function endsWith(string $haystack, string $needle): bool {

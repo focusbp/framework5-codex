@@ -925,7 +925,8 @@ class db_exe {
 		// Getting unassigned data and show it on the side panel
 		//$list = $this->ffm->select("datetime","","=");
 		foreach($list as &$row){
-			if($row["datetime"] == ""){
+			$status = (string)($row["status"] ?? "");
+			if($row["datetime"] == "" && $status === "0"){
 				$unassigned[]=$row;
 			}
 		}

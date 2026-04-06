@@ -6549,6 +6549,14 @@ $this->build_prompt_policy_block() . "\n\n" .
 				"length" => 24,
 				"parameter_title" => "Travel Time After (min)",
 				"default_value" => 0
+			],
+			[
+				"parameter_name" => "status",
+				"type" => "dropdown",
+				"length" => 24,
+				"parameter_title" => "Status",
+				"default_value" => 0,
+				"constant_array_name" => "workflows"
 			]
 		];
 		foreach ($required as $def) {
@@ -6563,7 +6571,8 @@ $this->build_prompt_policy_block() . "\n\n" .
 				"parameter_name" => $def["parameter_name"],
 				"parameter_title" => $def["parameter_title"],
 				"validation" => 0,
-				"default_value" => $def["default_value"]
+				"default_value" => $def["default_value"],
+				"constant_array_name" => $def["constant_array_name"] ?? ""
 			]);
 		}
 	}

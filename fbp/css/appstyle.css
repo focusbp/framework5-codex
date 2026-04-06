@@ -976,10 +976,10 @@ section {
 }
 
 .year_month_picker_panel .picker_blank, .year_month_picker_panel .picker_set, .year_month_picker_panel .picker_cancel {
-	width: 50px;
     float: right;
     text-align: center;
-    padding: 8px 3px;
+    padding: 8px 12px;
+	white-space: nowrap;
 }
 
 .year_month_picker_panel .picker_error {

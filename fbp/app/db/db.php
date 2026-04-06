@@ -1403,6 +1403,13 @@ class db {
 				"parameter_title" => "Travel Time After (min)",
 				"default_value" => 0,
 			],
+			[
+				"parameter_name" => "status",
+				"type" => "dropdown",
+				"parameter_title" => "Status",
+				"default_value" => 0,
+				"constant_array_name" => "workflows",
+			],
 		];
 
 		foreach ($required as $def) {
@@ -1418,6 +1425,9 @@ class db {
 			$f['parameter_title'] = $def["parameter_title"];
 			$f['validation'] = 0;
 			$f['default_value'] = $def["default_value"];
+			if (!empty($def["constant_array_name"])) {
+				$f['constant_array_name'] = $def["constant_array_name"];
+			}
 			$this->fmt_db_fields->insert($f);
 		}
 	}

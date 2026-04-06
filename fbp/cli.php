@@ -588,6 +588,12 @@ function cli_app_call_execute(array $data, Dirs $dir, Smarty $smarty) {
 		"function" => $function,
 		"session_id" => session_id(),
 		"windowcode" => $windowcode,
+		"request" => [
+			"post" => $post,
+			"get" => $get,
+			"cookies" => $cookies,
+			"files" => $files,
+		],
 	];
 
 	if ($output_file !== "") {
@@ -597,6 +603,12 @@ function cli_app_call_execute(array $data, Dirs $dir, Smarty $smarty) {
 	}
 	if (is_array($response_json)) {
 		$out["response_json"] = $response_json;
+		if (isset($response_json["console_log"])) {
+			$out["console_log"] = $response_json["console_log"];
+		}
+		if (isset($response_json["post"])) {
+			$out["response_post"] = $response_json["post"];
+		}
 	} else if ($output_file === "") {
 		$out["response_text"] = $buffer;
 	}
