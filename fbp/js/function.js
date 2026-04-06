@@ -119,6 +119,7 @@ function get_client_localized_text(key) {
 		year_month_set: {ja: "設定", en: "Set", zh: "设置"},
 		year_month_clear: {ja: "クリア", en: "Clear", zh: "清除"},
 		year_month_error: {ja: "入力エラー", en: "Error", zh: "输入错误"},
+		date_picker_clear: {ja: "クリア", en: "Clear", zh: "清除"},
 		year_month_year: {ja: "年", en: "Year", zh: "年"},
 		year_month_month: {ja: "月", en: "Month", zh: "月"},
 		original_time_hour: {ja: "時", en: "Hour", zh: "小时"},
@@ -386,11 +387,21 @@ function open_original_time_picker_panel(input) {
 
 	var current = input.val();
 	var mode = get_original_time_picker_mode();
-	var minuteStep = "10";
 	var parsed = parse_original_time_value(current, mode);
 	var hourValue = parsed.hour;
 	var minuteValue = parsed.minute;
 	var meridiemValue = parsed.meridiem;
+	var minuteNumber = parseInt(minuteValue, 10);
+	var minuteStep = "10";
+	if (!isNaN(minuteNumber)) {
+		if (minuteNumber % 10 === 0) {
+			minuteStep = "10";
+		} else if (minuteNumber % 5 === 0) {
+			minuteStep = "5";
+		} else {
+			minuteStep = "1";
+		}
+	}
 
 	var hourOptions = "";
 	var hourStart = mode.usesMeridiem ? 1 : 0;
@@ -593,6 +604,11 @@ function open_original_datepicker_panel(input) {
 			daysGrid.append(dayButton);
 		}
 		panel.append(daysGrid);
+		panel.append(
+			'<div style="display:flex;justify-content:flex-end;margin-top:12px;">' +
+				'<button type="button" class="fbp-original-datepicker-clear">' + escapeHtml(get_client_localized_text("date_picker_clear")) + '</button>' +
+			'</div>'
+		);
 	}
 
 	function moveMonth(diff) {
@@ -627,6 +643,10 @@ function open_original_datepicker_panel(input) {
 			viewMonth = parseInt($(this).val(), 10);
 			renderCalendar();
 			bindCalendarEvents();
+		});
+		panel.find(".fbp-original-datepicker-clear").off("click").on("click", function () {
+			input.val("").trigger("change");
+			close_original_datepicker_panel();
 		});
 		panel.find(".fbp-original-datepicker-day").off("click").on("click", function () {
 			var pickedDay = parseInt($(this).attr("data-day"), 10);
@@ -3576,17 +3596,8 @@ append_function_dialog("__all__", function (dialog_id, flg_window = false) {
 
 		input.prop('readOnly', true);
 		if (!input.parent().hasClass("datepicker_area")) {
-			var width = input.outerWidth();
-			input.wrap('<div class="datepicker_area" style="width:' + width + 'px;display:block;">');
+			input.wrap('<div class="datepicker_area" style="display:block;"></div>');
 		}
-		if (input.siblings(".datepicker_clear").length === 0) {
-			input.after('<div class="datepicker_clear">x</div>');
-		}
-		input.parent().find(".datepicker_clear").off("click.datepickerClear").on("click.datepickerClear", function () {
-			$(this).parent().find(".datepicker").val("");
-			$(this).parent().find(".datepicker").trigger("change");
-			close_original_datepicker_panel();
-		});
 	}
 	$(dialog_id).off("click.datepickerInit focus.datepickerInit", ".datepicker")
 		.on("click.datepickerInit focus.datepickerInit", ".datepicker", function () {

@@ -14,7 +14,7 @@
 
 	<div class="orders_picker_test_field orders_picker_test_date" style="display:none;margin-bottom:14px;">
 		<p style="font-weight:bold;margin:0 0 6px 0;">Datepicker</p>
-		<input type="text" name="test_date" class="datepicker" style="padding-left:20px;" placeholder="日付を選択">
+		<input type="text" name="test_date" class="datepicker" placeholder="日付を選択">
 	</div>
 
 	<div class="orders_picker_test_field orders_picker_test_time" style="display:none;margin-bottom:14px;">
