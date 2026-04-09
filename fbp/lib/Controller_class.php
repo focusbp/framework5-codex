@@ -703,6 +703,29 @@ class Controller_class implements Controller {
 		return $_FILES[$post_name]['tmp_name'];
 	}
 
+	function get_filedata_posted($post_name, $key = null) {
+		if (empty($_FILES[$post_name]) || !is_array($_FILES[$post_name])) {
+			return "";
+		}
+
+		if (!is_null($key)) {
+			$path = $_FILES[$post_name]['tmp_name'][$key] ?? "";
+		} else {
+			$path = $_FILES[$post_name]['tmp_name'] ?? "";
+		}
+
+		if ($path === "" || !is_file($path) || !is_readable($path)) {
+			return "";
+		}
+
+		$data = file_get_contents($path);
+		if ($data === false) {
+			return "";
+		}
+
+		return $data;
+	}
+
 	// POSTされたかの確認
 	function is_posted_file($post_name) {
 		// フィールド自体が無い（post_max_size 超過など） or 配列でない

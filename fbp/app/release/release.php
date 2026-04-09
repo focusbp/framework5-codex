@@ -104,5 +104,5 @@ class release {
 
 	function reload(Controller $ctl) {
 		$ctl->res_reload();
-	}bbb
+	}
 }

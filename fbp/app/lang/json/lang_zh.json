@@ -209,6 +209,7 @@
   "setting.framework_language_code": "系统语言",
   "setting.locale_code": "区域设置",
   "setting.releasing": "发布",
+  "setting.project": "项目",
   "setting.project_release_code": "项目发布代码",
   "setting.tab.system": "系统",
   "setting.tab.web": "网站",

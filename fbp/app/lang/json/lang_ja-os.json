@@ -86,6 +86,7 @@
   "wizard.validation.cron_request_required": "自然文で実行内容を入れてや。",
   "wizard.validation.page_title_required": "ページタイトルを入れてな。",
   "login.release_api_help": "リリース受信用の API Key / Secret を入れてな。いったんスキップもできるで。",
+  "setting.project": "プロジェクト",
   "setting.release_api_hmac": "Release API 認証",
   "setting.release_api_key": "Release API Key",
   "setting.release_api_secret": "Release API Secret"

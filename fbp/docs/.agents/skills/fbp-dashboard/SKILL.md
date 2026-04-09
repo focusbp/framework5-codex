@@ -80,3 +80,7 @@ function dashboard(Controller $ctl) {
 - ウィジェット内の file フィールドが 0 バイトでダウンロードされる場合:
   - `fields_view_direct` の file 表示は `download-link` に `data-class`/`data-function=download_file` を付けて呼ぶため、表示元クラスに `download_file(Controller $ctl)` 実装が必要。
   - 実装例: `path` を `decrypt` し、`is_saved_file` で検証後に `res_saved_file` を返す。
+- ウィジェットやウィジェット内ダイアログで DB登録画像を `<img>` 表示する場合:
+  - 保存パスや `public_media` をテンプレートから直接呼ばず、表示元クラスに `view_image(Controller $ctl)` を実装してそこを通す。
+  - `view_image()` では `is_saved_file()` で検証後に `res_saved_image()` を返し、ダウンロードは `download_file()` で `res_saved_file()` を返す。
+  - 画像CSSは原則 `max-width:500px;` を付け、縦サイズは固定しない。

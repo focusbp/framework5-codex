@@ -341,6 +341,7 @@
   "setting.framework_language_code": "Framework Language Code",
   "setting.locale_code": "Locale Code",
   "setting.releasing": "Releasing",
+  "setting.project": "Project",
   "setting.project_release_code": "Project Release Code",
   "setting.tab.system": "System",
   "setting.tab.web": "Web",

@@ -341,6 +341,7 @@
   "setting.framework_language_code": " システム言語",
   "setting.locale_code": "ロケール",
   "setting.releasing": "リリース",
+  "setting.project": "プロジェクト",
   "setting.project_release_code": "プロジェクトリリースコード",
   "setting.tab.system": "システム",
   "setting.tab.web": "WEB",

@@ -23,7 +23,7 @@
 				<div class="setting_tab_inner">
 					<table class="setting_detail_table">
 						<tr>
-							<th>プロジェクト</th>
+							<th>{t key="setting.project"}</th>
 							<td>{t key="setting.project_release_code"}</td>
 							<td><input type="text" name="project_release_code" value="{$setting.project_release_code}"></td>
 						</tr>
