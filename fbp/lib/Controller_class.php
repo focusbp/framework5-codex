@@ -1722,6 +1722,16 @@ class Controller_class implements Controller {
 					"public_url" => "",
 				];
 			}
+			$request_class = (string) ($_GET["class"] ?? $_POST["class"] ?? "");
+			$request_function = (string) ($_GET["function"] ?? $_POST["function"] ?? "");
+			if ($request_class === "" || $request_function === "") {
+				return [
+					"configured" => true,
+					"reported" => false,
+					"id" => null,
+					"public_url" => "",
+				];
+			}
 
 			$payload = [
 				"occurred_at" => date("Y-m-d H:i:s"),
@@ -1730,8 +1740,8 @@ class Controller_class implements Controller {
 				"http_host" => (string) ($_SERVER["HTTP_HOST"] ?? ""),
 				"request_uri" => (string) ($_SERVER["REQUEST_URI"] ?? ""),
 				"request_method" => (string) ($_SERVER["REQUEST_METHOD"] ?? ""),
-				"class_name" => (string) ($this->GET("class") ?? $this->POST("class") ?? ""),
-				"function_name" => (string) ($this->GET("function") ?? $this->POST("function") ?? ""),
+				"class_name" => $request_class,
+				"function_name" => $request_function,
 				"exception_class" => get_class($e),
 				"message" => (string) $e->getMessage(),
 				"file_path" => (string) $e->getFile(),
