@@ -206,10 +206,7 @@
 						</tr>
 						<tr>
 							<td>{t key="setting.mail_password"}</td>
-							<td>
-								<input type="text" name="smtp_password_dummy" value="" autocomplete="username" style="display:none;">
-								<input type="text" name="smtp_password_web" value="" placeholder="{$masked_setting.smtp_password}" autocomplete="off" data-lpignore="true" data-1p-ignore="true" spellcheck="false">
-							</td>
+							<td><input type="text" name="smtp_password" value="{$setting.smtp_password}"></td>
 						</tr>
 						<tr>
 							<td>{t key="setting.smtp_secure"}</td>

@@ -72,9 +72,9 @@ class user {
 			$insert_data["password_reset_token_expires_at"] = 0;
 			$insert_data["password_reset_token_sent_at"] = 0;
 			$id = $this->ffm->insert($insert_data);
-			$this->send_account_invite($ctl, (int) $id);
 			$ctl->close_multi_dialog("user_add");
-			$this->page($ctl);
+			$ctl->ajax("user", "page");
+			$this->show_account_invite_compose_dialog($ctl, (int) $id);
 		} else {
 			$ctl->assign("data", $ctl->POST());
 			$ctl->show_multi_dialog("user_add", "append.tpl", $ctl->t("user.dialog.add"), 800, true, true);
@@ -230,6 +230,38 @@ class user {
 		}
 		$ctl->close_multi_dialog("user_password_reset_" . $id);
 		$ctl->show_notification_text($ctl->t("user.notification.password_setup_link_sent"));
+	}
+
+	function account_invite_send_exe(Controller $ctl) {
+		$post = $ctl->POST();
+		$id = (int) ($post["id"] ?? 0);
+		$dialog_name = (string) ($post["dialog_name"] ?? "");
+		$data = $this->ffm->get($id);
+		if (!is_array($data) || empty($data["id"])) {
+			$ctl->res_error_message("body", $ctl->t("user.validation.user_not_found"));
+			return;
+		}
+		if (empty($data["email"]) || !filter_var((string) $data["email"], FILTER_VALIDATE_EMAIL)) {
+			$ctl->res_error_message("body", $ctl->t("validation.email.invalid"));
+			return;
+		}
+		if (trim((string) ($post["subject"] ?? "")) === "") {
+			$ctl->res_error_message("subject", $ctl->t("validation.required"));
+			return;
+		}
+		if (trim((string) ($post["body"] ?? "")) === "") {
+			$ctl->res_error_message("body", $ctl->t("validation.required"));
+			return;
+		}
+		try {
+			$ctl->send_mail_text((string) $data["email"], (string) $post["subject"], (string) $post["body"], null, true);
+		} catch (Throwable $e) {
+			$ctl->res_error_message("body", $this->get_account_invite_error_message($ctl, $e, $data));
+			return;
+		}
+		if ($dialog_name !== "") {
+			$ctl->close_multi_dialog($dialog_name);
+		}
 	}
 
 	function page(Controller $ctl) {
@@ -412,11 +444,27 @@ class user {
 	}
 
 	private function send_account_invite(Controller $ctl, int $id): void {
+		$mail = $this->build_account_invite_mail($ctl, $id);
+		$ctl->send_mail_text((string) $mail["email"], (string) $mail["subject"], (string) $mail["body"], null, true);
+	}
+
+	private function show_account_invite_compose_dialog(Controller $ctl, int $id): void {
+		$mail = $this->build_account_invite_mail($ctl, $id);
+		$dialog_name = "user_account_invite_" . $id;
+		$ctl->assign("dialog_name", $dialog_name);
+		$ctl->assign("data", $mail["data"]);
+		$ctl->assign("send_to_email", $mail["email"]);
+		$ctl->assign("subject", $mail["subject"]);
+		$ctl->assign("body", $mail["body"]);
+		$ctl->show_multi_dialog($dialog_name, "account_invite_compose.tpl", $ctl->t("user.dialog.account_invite_compose"), 800, true, true);
+	}
+
+	private function build_account_invite_mail(Controller $ctl, int $id): array {
 		$data = $this->ffm->get($id);
 		if (!is_array($data) || empty($data["id"])) {
 			throw new Exception("User not found.");
 		}
-		if (empty($data["email"]) || !filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
+		if (empty($data["email"]) || !filter_var((string) $data["email"], FILTER_VALIDATE_EMAIL)) {
 			throw new Exception("Valid email is required.");
 		}
 
@@ -428,20 +476,20 @@ class user {
 		$data["flg_password_change_required"] = 1;
 		$this->ffm->update($data);
 
-		$setting = $ctl->get_setting();
-		$formatter = $ctl->create_ValueFormatter();
 		$mail_data = $data;
 		$mail_data["reset_url"] = $ctl->get_APP_URL("password_reset", "token_page", ["token" => $token]);
-		$mail_data["reset_expires_at"] = $formatter->format_datetime($expires_at);
+		$mail_data["reset_expires_at"] = $ctl->create_ValueFormatter()->format_datetime($expires_at);
+		$setting = $ctl->get_setting();
 		$ctl->assign("data", $mail_data);
 		$ctl->assign("setting", $setting);
-		$ctl->send_mail_prepared_format(
-			(string) $data["email"],
-			"account_invite",
-			null,
-			$ctl->t("user.email.account_invite_subject"),
-			"default_account_invite.tpl"
-		);
+		$template_path = $ctl->get_class_dir("user") . "/Templates/default_account_invite.tpl";
+
+		return [
+			"data" => $mail_data,
+			"email" => (string) $data["email"],
+			"subject" => $ctl->t("user.email.account_invite_subject"),
+			"body" => $ctl->fetch_string((string) file_get_contents($template_path)),
+		];
 	}
 
 	private function get_account_invite_error_message(Controller $ctl, Throwable $e, array $data = []): string {

@@ -432,6 +432,7 @@ class Controller_class implements Controller {
 	}
 
 	function display($template) {
+		$template = $this->resolve_template_fallback($template);
 		$this->arr["class"] = $this->class;
 		$_SESSION["_DISPLAY_ARR"] = $this->arr;
 
@@ -514,9 +515,21 @@ class Controller_class implements Controller {
 	}
 
 	function fetch($template) {
+		$template = $this->resolve_template_fallback($template);
 		$this->console_log("Template:" . $this->class . "/" . $template, "#CE5C00");
 		$this->smarty->assign("MYSESSION", $_SESSION[$this->windowcode]);
 		return $this->smarty->fetch($template);
+	}
+
+	private function resolve_template_fallback($template) {
+		if ($template !== "index.tpl" || $this->class !== "public_member") {
+			return $template;
+		}
+		$template_dir = $this->dirs->get_class_dir($this->class) . "/Templates/";
+		if (is_file($template_dir . "index.tpl") || !is_file($template_dir . "share.tpl")) {
+			return $template;
+		}
+		return "share.tpl";
 	}
 
 	function list_reset() {
