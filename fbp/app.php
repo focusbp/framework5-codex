@@ -473,7 +473,7 @@ function build_system_error_html($error, $report_result = [], $public_url = "", 
 	}
 
 	$text = $error_text !== "" ? $error_text : trim(strip_tags($error));
-	$html = "<div class=\"error\" style=\"line-height:1.8;padding:12px 8px 4px;max-width:800px;margin:0 auto;border:1px #ccc solid;margin-top:50px;\">";
+	$html = "<div class=\"error\" style=\"line-height:1.8;padding:12px 8px 4px;max-width:800px;margin:0 auto;margin-top:20px;\">";
 	$html .= "<div style=\"padding-top:18px;\">";
 	$html .= "<div style=\"display:flex;align-items:flex-start;gap:28px;\">";
 	$html .= "<div style=\"flex:0 0 220px;padding-left:8px;\">";
