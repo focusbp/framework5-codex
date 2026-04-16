@@ -62,6 +62,42 @@ include("lib/pdfmaker/pdfmaker_class.php");
 
 $dir = new Dirs();
 
+function cli_load_error_report_level(Dirs $dir): string {
+	try {
+		$ffm = new fixed_file_manager("setting", $dir->datadir . "/setting", $dir->get_class_dir("setting") . "/fmt");
+		$setting = $ffm->get(1);
+		$ffm->close();
+	} catch (Throwable $e) {
+		$setting = [];
+	}
+	$level = is_array($setting) ? (string) ($setting["error_report_level"] ?? "legacy_compatible") : "legacy_compatible";
+	if (!in_array($level, ["legacy_compatible", "strict"], true)) {
+		$level = "legacy_compatible";
+	}
+	return $level;
+}
+
+function cli_register_error_handler(string $level): void {
+	set_error_handler(function ($severity, $message, $file, $line) use ($level) {
+		if (!(error_reporting() & $severity)) {
+			return false;
+		}
+		if ($severity === E_RECOVERABLE_ERROR) {
+			throw new ErrorException($message, 0, $severity, $file, $line);
+		}
+		$reportable = [E_NOTICE, E_USER_NOTICE, E_WARNING, E_USER_WARNING, E_DEPRECATED, E_USER_DEPRECATED];
+		if (in_array($severity, $reportable, true)) {
+			if ($level === "strict") {
+				throw new ErrorException($message, 0, $severity, $file, $line);
+			}
+			return true;
+		}
+		throw new ErrorException($message, 0, $severity, $file, $line);
+	});
+}
+
+cli_register_error_handler(cli_load_error_report_level($dir));
+
 function cli_prepare_smarty(Smarty $smarty) {
 	$smarty->escape_html  = true;
 	$smarty->error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING;

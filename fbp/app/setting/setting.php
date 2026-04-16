@@ -31,6 +31,7 @@ class setting {
 	private $arr_ssl = [0=>"http and https","https only"];
 	private $arr_flg_show_lang_on_chat = [0=>"Show",1=>"Hide"];
 	private $arr_show_developer_panel = [0=>"Hide",1=>"Show"];
+	private $arr_error_report_level = [];
 	private $arr_framework_language_code = [];
 	private $arr_locale_code = [];
 	private $currency_list = [];
@@ -57,6 +58,11 @@ class setting {
 		$ctl->assign("arr_ssl",$this->arr_ssl);
 		$ctl->assign("arr_flg_show_lang_on_chat",$this->arr_flg_show_lang_on_chat);
 		$ctl->assign("arr_show_developer_panel",$this->arr_show_developer_panel);
+		$this->arr_error_report_level = [
+			"legacy_compatible" => $ctl->t("setting.error_report_level.option.legacy_compatible"),
+			"strict" => $ctl->t("setting.error_report_level.option.strict"),
+		];
+		$ctl->assign("arr_error_report_level", $this->arr_error_report_level);
 		$ctl->assign("arr_line_forward_unknown_to_manager", $this->get_line_forward_unknown_to_manager_options($ctl));
 		$this->arr_number_decimal_separator = $this->get_number_decimal_separator_options($ctl);
 		$this->arr_number_thousands_separator = $this->get_number_thousands_separator_options($ctl);
@@ -133,6 +139,7 @@ class setting {
 		if (!isset($setting["line_forward_unknown_to_manager"])) {
 			$setting["line_forward_unknown_to_manager"] = 0;
 		}
+		$setting["error_report_level"] = $this->normalize_error_report_level($setting["error_report_level"] ?? "");
 		
 		
 		$this->ffm->update($setting);
@@ -196,6 +203,7 @@ class setting {
 
 		$ctl->generate_api_credentials();
 		$setting = $this->ffm->get(1);
+		$changed = false;
 
 		if (empty($setting["user_type_name0"])) {
 			$setting["user_type_name0"] = "User";
@@ -235,6 +243,14 @@ class setting {
 		}
 		if (!isset($setting["line_forward_unknown_to_manager"])) {
 			$setting["line_forward_unknown_to_manager"] = 0;
+		}
+		$normalized_error_report_level = $this->normalize_error_report_level($setting["error_report_level"] ?? "");
+		if (($setting["error_report_level"] ?? "") !== $normalized_error_report_level) {
+			$changed = true;
+		}
+		$setting["error_report_level"] = $normalized_error_report_level;
+		if ($changed && !empty($setting["id"])) {
+			$this->ffm->update($setting);
 		}
 
 		$ctl->assign("setting", $setting);
@@ -339,6 +355,14 @@ class setting {
 			return "en";
 		}
 		return $code;
+	}
+
+	private function normalize_error_report_level($value): string {
+		$value = trim((string) $value);
+		if (!in_array($value, ["legacy_compatible", "strict"], true)) {
+			return "legacy_compatible";
+		}
+		return $value;
 	}
 
 	private function normalize_locale_code($value, string $framework_language_code): string {

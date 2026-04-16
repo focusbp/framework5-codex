@@ -240,7 +240,7 @@ class db_additionals {
 		$ctl->close_multi_dialog($this->window . "delete");
 		$ctl->close_multi_dialog($this->window . "edit");
 		
-		if($post["reload_db_id"] != ""){
+		if(($post["reload_db_id"] ?? "") != ""){
 			if($data["place"]==2 || $data["place"] ==3){
 				$ctl->reload_side_panel();
 			}else{
@@ -283,8 +283,8 @@ class db_additionals {
 
 	function button_sort(Controller $ctl){
 		$post = $ctl->POST();
-		$tb_name = $post["tb_name"];
-		$place = $post["place"];
+		$tb_name = $post["tb_name"] ?? "";
+		$place = $post["place"] ?? "";
 		
 		$list = $ctl->db("additionals")->select(["tb_name","place"],[$tb_name,$place],true,"AND","sort",SORT_ASC);
 		$ctl->assign("additionals",$list);
@@ -295,7 +295,7 @@ class db_additionals {
 	function button_sort_exe(Controller $ctl){
 		$post = $ctl->POST();
 		
-		$log = $post["log"];
+		$log = $post["log"] ?? "";
 		$ex = explode(",",$log);
 		$s = 0;
 		foreach($ex as $id){
@@ -305,7 +305,7 @@ class db_additionals {
 			$s++;
 		}
 		
-		if($post["place"] == 0 || $post["place"] == 1){
+		if(($post["place"] ?? null) == 0 || ($post["place"] ?? null) == 1){
 			$ctl->reload_work_area();
 		}else{
 			$ctl->reload_side_panel();

@@ -295,7 +295,7 @@ class db_exe {
 			
 			// Save files posted
 			$ctl->save_posted_files($this->table_name, $post);
-			$data = $this->ffm->get($post["id"]);
+			$data = $this->ffm->get($post["id"] ?? null);
 			
 			// Refresh the table and close the window
 			if($this->db_setting["list_type"]==0 || $this->db_setting["list_type"] == 1){
@@ -337,8 +337,9 @@ class db_exe {
 		$post = $ctl->POST();
 		$fields = $ctl->get_field_list($this->table_name, "edit");
 		foreach($fields as $field){
-			if($field["type"] === "checkbox" && !array_key_exists($field["parameter_name"], $post)){
-				$post[$field["parameter_name"]] = [];
+			$parameter_name = $field["parameter_name"] ?? "";
+			if(($field["type"] ?? "") === "checkbox" && $parameter_name !== "" && !array_key_exists($parameter_name, $post)){
+				$post[$parameter_name] = [];
 			}
 		}
 		
@@ -467,7 +468,7 @@ class db_exe {
 	function rows_child(Controller $ctl){
 		$post = $ctl->POST();
 
-		$parent_id = $post["parent_id"];
+		$parent_id = $post["parent_id"] ?? null;
 		$ctl->assign("parent_id",$parent_id);
 		
 		// Create a link to display the previous table
@@ -530,8 +531,8 @@ class db_exe {
 		
 		// reload_side_panel()用にセッションに保存
 		$sidepanel= [
-		    "db_id" => $post["db_id"],
-		    "parent_id" => $post["parent_id"]
+		    "db_id" => $post["db_id"] ?? null,
+		    "parent_id" => $post["parent_id"] ?? null
 		];
 		$ctl->set_session("_side_panel", $sidepanel);
 		
@@ -576,7 +577,7 @@ class db_exe {
 		$ctl->assign_field_settings("group1",$this->table_name, "add", false,false);
 		$row = $ctl->get_default_values($this->table_name);
 		$ctl->assign("row",$row);
-		$ctl->assign("parent_id",$post["parent_id"]);
+		$ctl->assign("parent_id",$post["parent_id"] ?? null);
 
 		if($this->db_setting["edit_width"] == 0){
 			$width=800;
@@ -608,7 +609,7 @@ class db_exe {
 			$this->ffm->update($post);
 			$ctl->save_posted_files($this->table_name, $post);
 			
-			$data = $this->ffm->get($post["id"]);
+			$data = $this->ffm->get($post["id"] ?? null);
 			
 			// Refresh the table and close the window
 			$ctl->invoke("rows_child",["db_id"=>$this->db_setting_id,"parent_id"=>$parent_id]);
@@ -630,7 +631,7 @@ class db_exe {
 		
 		$ctl->assign_field_settings("group1",$this->table_name, "edit", false,false);
 		$ctl->assign("row",$row);
-		$ctl->assign("parent_id",$post["parent_id"]);
+		$ctl->assign("parent_id",$post["parent_id"] ?? null);
 		
 		if($this->db_setting["edit_width"] == 0){
 			$width=800;
@@ -644,13 +645,14 @@ class db_exe {
 		
 		// Getting Post data
 		$post = $ctl->POST();
-		$parent_id = $post["parent_id"];
+		$parent_id = $post["parent_id"] ?? null;
 		
 		// field
 		$fields = $ctl->get_field_list($this->table_name, "edit");
 		foreach($fields as $field){
-			if($field["type"] === "checkbox" && !array_key_exists($field["parameter_name"], $post)){
-				$post[$field["parameter_name"]] = [];
+			$parameter_name = $field["parameter_name"] ?? "";
+			if(($field["type"] ?? "") === "checkbox" && $parameter_name !== "" && !array_key_exists($parameter_name, $post)){
+				$post[$parameter_name] = [];
 			}
 		}
 		
@@ -687,14 +689,14 @@ class db_exe {
 
 		$ctl->assign_field_settings("group1",$this->table_name, "delete", false,false);
 		$ctl->assign("row",$row);
-		$ctl->assign("parent_id",$post["parent_id"]);
+		$ctl->assign("parent_id",$post["parent_id"] ?? null);
 		
 		$ctl->show_multi_dialog($this->window_name, "delete_child.tpl", $ctl->t("common.delete"),600,"_delete_button_child.tpl");
 	}
 	
 	function delete_child_exe(Controller $ctl){
 		$post = $ctl->POST();
-		$parent_id = $post["parent_id"];
+		$parent_id = $post["parent_id"] ?? null;
 		$id = $ctl->decrypt_post("id");
 		$data = $this->ffm->get($id);
 		
@@ -709,7 +711,7 @@ class db_exe {
 	
 	function manual_sort(Controller $ctl){
 		$post = $ctl->POST();
-		$ex = explode(",",$post["log"]);
+		$ex = explode(",", (string) ($post["log"] ?? ""));
 		$c=1;
 		foreach($ex as $id){
 			$d = $this->ffm->get($id);
@@ -949,13 +951,13 @@ class db_exe {
 	
 	function download_file(Controller $ctl){
 		$post = $ctl->POST();
-		$path = $ctl->decrypt($post["path"]);
+		$path = $ctl->decrypt((string) ($post["path"] ?? ""));
 		$ctl->res_saved_file($path);
 	}
 	
 	function view_image(Controller $ctl){
 		$get = $ctl->GET();
-		$path = $ctl->decrypt($get["path"]);
+		$path = $ctl->decrypt((string) ($get["path"] ?? ""));
 		$ctl->res_saved_image($path,true,3600,true);
 	}
 	

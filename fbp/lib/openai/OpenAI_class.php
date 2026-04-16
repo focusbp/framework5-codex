@@ -624,9 +624,8 @@ class OpenAI_class implements \openai\OpenAI {
 						// 必要に応じて他のフィールド
 					];
 
-					curl_multi_remove_handle($mh, $ch);
-					curl_close($ch);
-					unset($handles[(int) $ch]);
+						curl_multi_remove_handle($mh, $ch);
+						unset($handles[(int) $ch]);
 					$active--;
 
 					// 追加投入
@@ -761,15 +760,13 @@ class OpenAI_class implements \openai\OpenAI {
 		session_start();
 
 		if ($raw === false) {
-			$err = curl_error($ch);
-			curl_close($ch);
-			throw new \RuntimeException('cURL error: ' . $err);
-		}
+				$err = curl_error($ch);
+				throw new \RuntimeException('cURL error: ' . $err);
+			}
 
-		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		curl_close($ch);
+			$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-		$resp = json_decode($raw, true);
+			$resp = json_decode($raw, true);
 
 		// ---- 受信ログ（JSONが取れればJSON、なければ文字列）
 		$this->log([
@@ -1029,8 +1026,7 @@ class OpenAI_class implements \openai\OpenAI {
 		    },
 		    CURLOPT_TIMEOUT => 0,
 		]);
-		curl_exec($ch);
-		curl_close($ch);
+			curl_exec($ch);
 	}
 
 	private function extractFunctionCalls(array $resp): array {

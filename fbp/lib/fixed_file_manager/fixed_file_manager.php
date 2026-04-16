@@ -26,6 +26,18 @@ class fixed_file_manager implements FFM {
 	private $info_tablename;
 	private $ctl;
 
+	private function is_empty_filter_itemname($iname): bool {
+		if (is_array($iname)) {
+			foreach ($iname as $name) {
+				if (!$this->is_empty_filter_itemname($name)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return trim((string) $iname) === "";
+	}
+
 	/*
 	 * デバッグ用
 	 */
@@ -476,6 +488,16 @@ class fixed_file_manager implements FFM {
 		$itemname = array_values($itemname);
 		$value = array_values($value);
 
+		// 空の項目名は条件として扱わない
+		foreach ($itemname as $key => $iname) {
+			if ($this->is_empty_filter_itemname($iname)) {
+				unset($itemname[$key]);
+				unset($value[$key]);
+			}
+		}
+		$itemname = array_values($itemname);
+		$value = array_values($value);
+
 		// 空白の値を排除
 		if ($this->flg_filter_zero) {
 			// 0 を１つの値とする
@@ -575,6 +597,9 @@ class fixed_file_manager implements FFM {
 										// 空白文字で分割(or)
 										$ex = preg_split("/[\s,]+/", $vc);
 										foreach ($ex as $vcc) {
+											if ($vcc === "") {
+												continue;
+											}
 											if (strpos($v, $vcc) !== false) {
 												$check = true;
 											}
@@ -611,6 +636,9 @@ class fixed_file_manager implements FFM {
 									// 空白文字で分割(or)
 									$ex = preg_split("/[\s,]+/", $vc);
 									foreach ($ex as $vcc) {
+										if ($vcc === "") {
+											continue;
+										}
 										if (strpos($v, $vcc) !== false) {
 											$check = true;
 										}
@@ -729,6 +757,28 @@ class fixed_file_manager implements FFM {
 			$value = [$value];
 		}
 
+		$itemname = array_values($itemname);
+		$value = array_values($value);
+		if (is_array($match_patterns)) {
+			$match_patterns = array_values($match_patterns);
+		}
+
+		// 空の項目名は条件として扱わない
+		foreach ($itemname as $key => $iname) {
+			if ($this->is_empty_filter_itemname($iname)) {
+				unset($itemname[$key]);
+				unset($value[$key]);
+				if (is_array($match_patterns)) {
+					unset($match_patterns[$key]);
+				}
+			}
+		}
+		$itemname = array_values($itemname);
+		$value = array_values($value);
+		if (is_array($match_patterns)) {
+			$match_patterns = array_values($match_patterns);
+		}
+
 		if ($sort_order == null) {
 			$sort_order = SORT_DESC;
 		}
@@ -769,7 +819,7 @@ class fixed_file_manager implements FFM {
 		}
 
 		if (count($itemname) == 0) {
-			throw new Exception("itemname is required. To get rows without an itemname, please use the filter() function.");
+			return $this->getall($sortitem, $sort_order);
 		}
 
 		$is_last = true;
@@ -1120,11 +1170,11 @@ class fixed_file_manager implements FFM {
 					$this->readdata($arr);
 
 					// 暗号化を入れる
-					$ctl = Controller_class::getInstance();
-					if ($ctl != null) {
-						// 
-						$arr["_id_enc"] = $ctl->encrypt($arr["id"]);
-					}
+						$ctl = Controller_class::getInstance();
+						if ($ctl != null && !($this->info_classname === "setting" && $this->info_tablename === "setting")) {
+							// 
+							$arr["_id_enc"] = $ctl->encrypt($arr["id"]);
+						}
 
 					return $arr;
 				} else {

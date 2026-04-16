@@ -1248,11 +1248,10 @@ function Image($file, $x=null, $y=null, $w=0, $h=0, $type='', $link='',$onlychec
 		}
 		
 		//ファイルタイプを取得
-		$img_data = file_get_contents($file);
-		$finfo = finfo_open(FILEINFO_MIME_TYPE);
-		$mimetype = finfo_buffer($finfo, $img_data);
-		finfo_close($finfo);
-		$extension_array = array(
+			$img_data = file_get_contents($file);
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			$mimetype = finfo_buffer($finfo, $img_data);
+			$extension_array = array(
             'image/gif' => 'gif',
             'image/jpeg' => 'jpg',
             'image/png' => 'png'
@@ -1304,6 +1303,10 @@ function Image($file, $x=null, $y=null, $w=0, $h=0, $type='', $link='',$onlychec
 
 		if($x===null)
 			$x = $this->x;
+		$w = (float) $w;
+		$h = (float) $h;
+		$x = (float) $x;
+		$y = (float) $y;
 
 			$this->_out(sprintf('q %.2F 0 0 %.2F %.2F %.2F cm /I%d Do Q',$w*$this->k,$h*$this->k,$x*$this->k,($this->h-($y+$h))*$this->k,$info['i']));
 

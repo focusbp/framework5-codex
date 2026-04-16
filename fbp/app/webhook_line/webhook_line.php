@@ -115,8 +115,8 @@ class webhook_line {
 
 	public function resolve_channel_from_request(Controller $ctl): string {
 		$channel = trim((string) ($ctl->POST("channel") ?? ""));
-		if ($channel === "" && isset($_GET["channel"])) {
-			$channel = trim((string) $_GET["channel"]);
+		if ($channel === "") {
+			$channel = trim((string) ($ctl->GET("channel") ?? ""));
 		}
 		return $this->normalize_channel($channel);
 	}

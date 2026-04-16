@@ -104,7 +104,7 @@ class embed_app {
 
 	function sort(Controller $ctl) {
 		$post = $ctl->POST();
-		$logArr = explode(',', (string) $post["log"]);
+		$logArr = explode(',', (string) ($post["log"] ?? ""));
 		$c = 0;
 		foreach ($logArr as $id) {
 			$id = (int) $id;

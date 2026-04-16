@@ -45,7 +45,7 @@ class lang {
 			//read each line as csv
 			$txt = "";
 			$counter = 0;
-			while ($row = fgetcsv($fp)) {
+			while (($row = fgetcsv($fp, 0, ",", "\"", "")) !== false) {
 				$clist = $this->ffm->select(["en"], [$row[0]], true);
 				if (count($clist) > 0) {
 					$counter++;
@@ -102,7 +102,7 @@ class lang {
 	function search(Controller $ctl) {
 		$post = $ctl->POST();
 
-		$ctl->set_session("lang_search", $post["lang_search"]);
+		$ctl->set_session("lang_search", $post["lang_search"] ?? null);
 
 		$ctl->ajax("lang", "showlist");
 	}
@@ -194,7 +194,7 @@ class lang {
 
 	function open_edit_dialog(Controller $ctl) {
 		$post = $ctl->POST();
-		$data = json_decode($post["data"], true);
+		$data = json_decode((string) ($post["data"] ?? ""), true);
 
 		$arr = [];
 		foreach ($data as $d) {

@@ -58,7 +58,7 @@ $pdfmaker = new pdfmaker_class();
 //	echo $t . ":" . bin2hex($t) . "<br>";
 //}
 
-if ($_GET["cmd"] == "download") {
+if (($_GET["cmd"] ?? "") == "download") {
 	if (is_smartphone() && (!is_line_inapp_browser($ua))) {
 		$pdfmaker->makepdf($txt, $imgdir, $pdf_filename, "D");
 	} else {

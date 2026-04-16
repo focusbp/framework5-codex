@@ -531,11 +531,7 @@ class Controller_class implements Controller {
 		if ($key == null) {
 			return $post;
 		} else {
-			if (isset($post[$key])) {
-				return $post[$key];
-			} else {
-				return null;
-			}
+			return $post[$key] ?? null;
 		}
 	}
 
@@ -1670,10 +1666,32 @@ class Controller_class implements Controller {
 	}
 
 	function get_setting() {
-		return $_SESSION[$this->windowcode]["setting"];
+		$setting = $_SESSION[$this->windowcode]["setting"] ?? null;
+		if (is_array($setting)) {
+			if (empty($setting["error_report_level"])) {
+				$setting["error_report_level"] = "legacy_compatible";
+				$_SESSION[$this->windowcode]["setting"] = $setting;
+			}
+			return $setting;
+		}
+		$setting = $this->db("setting", "setting")->get(1);
+		if (!is_array($setting)) {
+			$setting = [];
+		}
+		if (empty($setting["error_report_level"])) {
+			$setting["error_report_level"] = "legacy_compatible";
+		}
+		$_SESSION[$this->windowcode]["setting"] = $setting;
+		return $setting;
 	}
 
 	function save_setting($setting) {
+		if (!is_array($setting)) {
+			$setting = [];
+		}
+		if (empty($setting["error_report_level"])) {
+			$setting["error_report_level"] = "legacy_compatible";
+		}
 		$_SESSION[$this->windowcode]["setting"] = $setting;
 		$this->db("setting", "setting")->update($setting);
 	}
@@ -1860,8 +1878,7 @@ class Controller_class implements Controller {
 				curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 			}
 
-			$response = curl_exec($curl);
-			curl_close($curl);
+				$response = curl_exec($curl);
 			$response_data = json_decode((string) $response, true);
 			return [
 				"configured" => true,
@@ -2091,8 +2108,9 @@ class Controller_class implements Controller {
 	}
 
 	function get_vimeo_callback_parameter_array() {
-		if (!empty($_POST["callback_parameter_array"])) {
-			return json_decode(base64_decode($_POST["callback_parameter_array"]), true);
+		$callback_parameter_array = $_POST["callback_parameter_array"] ?? "";
+		if ($callback_parameter_array !== "") {
+			return json_decode(base64_decode($callback_parameter_array), true);
 		} else {
 			return null;
 		}
@@ -2260,8 +2278,9 @@ class Controller_class implements Controller {
 	}
 
 	function get_square_callback_parameter_array() {
-		if (!empty($_POST["callback_parameter_array"])) {
-			return json_decode(base64_decode($_POST["callback_parameter_array"]), true);
+		$callback_parameter_array = $_POST["callback_parameter_array"] ?? "";
+		if ($callback_parameter_array !== "") {
+			return json_decode(base64_decode($callback_parameter_array), true);
 		} else {
 			return null;
 		}
@@ -2338,7 +2357,8 @@ class Controller_class implements Controller {
 	function send_mail_string($from, $to, $subject, $body, $attachment_files = null, $throw_on_error = false) {
 
 		$this->console_log("### MAIL ###");
-		$this->console_log("To:" . $to);
+		$to_log = is_array($to) ? implode(", ", array_values($to)) : (string) $to;
+		$this->console_log("To:" . $to_log);
 		$this->console_log("Subject:" . $subject);
 		$this->console_log($body);
 
@@ -2862,8 +2882,7 @@ class Controller_class implements Controller {
 			])
 		);
 		$response = curl_exec($handle);
-		$responseDecoded = json_decode($response, true);
-		curl_close($handle);
+			$responseDecoded = json_decode($response, true);
 		if ($responseDecoded['audioContent']) {
 			$speech_data = $responseDecoded['audioContent'];
 
@@ -2980,9 +2999,8 @@ class Controller_class implements Controller {
 
 		$response1 = curl_exec($curl);
 		if ($response1 === false) {
-			$curl_error = curl_error($curl);
-			$curl_errno = curl_errno($curl);
-			curl_close($curl);
+				$curl_error = curl_error($curl);
+				$curl_errno = curl_errno($curl);
 			$message = $api_name . "(): curl error(" . $curl_errno . "): " . $curl_error;
 			$this->console_log(strtoupper($api_name) . " ERROR", "#D20000");
 			$this->console_log($message, "#D20000");
@@ -2991,16 +3009,14 @@ class Controller_class implements Controller {
 
 		$response2 = json_decode($response1, true);
 		if (!is_array($response2)) {
-			$json_error = json_last_error_msg();
-			curl_close($curl);
+				$json_error = json_last_error_msg();
 			$message = $api_name . "(): invalid JSON response: " . $json_error;
 			$this->console_log(strtoupper($api_name) . " ERROR", "#D20000");
 			$this->console_log($message, "#D20000");
 			$this->console_log($response1, "#D20000");
 			return $message;
 		}
-		$generated_text = $response2['choices'][0]['message']['content'] ?? null;
-		curl_close($curl);
+			$generated_text = $response2['choices'][0]['message']['content'] ?? null;
 
 		if ($generated_text == null) {
 			if (isset($response2["error"]) && is_array($response2["error"])) {
@@ -3133,9 +3149,8 @@ class Controller_class implements Controller {
 		]);
 		curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
 
-		$this->close_all_db();
-		$response1 = curl_exec($curl);
-		curl_close($curl);
+			$this->close_all_db();
+			$response1 = curl_exec($curl);
 
 		$response2 = json_decode($response1, true);
 
@@ -4127,10 +4142,11 @@ class Controller_class implements Controller {
 
 		// Validate
 		foreach ($fields as $f) {
-			if ($f["validation"] == 1) {
-				$pname = $f["parameter_name"];
+			if (($f["validation"] ?? 0) == 1) {
+				$pname = $f["parameter_name"] ?? "";
 				if ($pname != "parent_id") {
-					if ($f["type"] == "file" || $f["type"] == "image") {
+					$field_type = $f["type"] ?? "";
+					if ($field_type == "file" || $field_type == "image") {
 						if ($validate_upload_field) {
 							if (!$this->is_posted_file($pname)) {
 								$this->res_error_message($pname, "Required");
@@ -4138,7 +4154,7 @@ class Controller_class implements Controller {
 							}
 						}
 					} else {
-						if ($post[$pname] == "") {
+						if (($post[$pname] ?? "") == "") {
 							$this->res_error_message($pname, "Required");
 							$error_fields[] = $pname;
 						}
@@ -4149,19 +4165,21 @@ class Controller_class implements Controller {
 
 		// Duplicate
 		foreach ($fields as $f) {
-			if ($f["duplicate_check"] == 1) {
-				$pname = $f["parameter_name"];
+			if (($f["duplicate_check"] ?? 0) == 1) {
+				$pname = $f["parameter_name"] ?? "";
 				if ($pname != "parent_id") {
 					if (!in_array($pname, $error_fields)) {
-						if ($f["type"] == "text" || $f["type"] == "number" || $f["type"] == "year_month") {
+						$field_type = $f["type"] ?? "";
+						if ($field_type == "text" || $field_type == "number" || $field_type == "year_month") {
 
-							if (is_numeric($post["id"])) {
-								$id = $post["id"];
+							$post_id = $post["id"] ?? "";
+							if (is_numeric($post_id)) {
+								$id = $post_id;
 							} else {
-								$id = $this->decrypt($post["id"]);
+								$id = $this->decrypt($post_id);
 							}
 
-							$res = $this->validate_duplicate($table_name, [$pname], [$post[$pname]], $id);
+							$res = $this->validate_duplicate($table_name, [$pname], [$post[$pname] ?? ""], $id);
 							if (!$res) {
 								$this->res_error_message($pname, "Duplicated");
 								$error_fields[] = $pname;
@@ -4188,13 +4206,14 @@ class Controller_class implements Controller {
 		    'password_hard' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/'
 		];
 		foreach ($fields as $f) {
-			if (!empty($format_check_opt[$f["format_check"]])) {
-				$pname = $f["parameter_name"];
-				if ($pname != "parent_id") {
-					if (!empty($post[$pname])) {
-						if (!in_array($pname, $error_fields)) {
-							if ($f["type"] == "text") {
-								$res = preg_match($format_check_opt[$f["format_check"]], $post[$pname]);
+			$format_check = $f["format_check"] ?? "none";
+			if (!empty($format_check_opt[$format_check])) {
+				$pname = $f["parameter_name"] ?? "";
+					if ($pname != "parent_id") {
+							if (!empty($post[$pname] ?? null)) {
+								if (!in_array($pname, $error_fields)) {
+									if (($f["type"] ?? "") == "text") {
+										$res = preg_match($format_check_opt[$format_check], $post[$pname] ?? "");
 								if (!$res) {
 									$this->res_error_message($pname, "Format Error");
 									$error_fields[] = $pname;

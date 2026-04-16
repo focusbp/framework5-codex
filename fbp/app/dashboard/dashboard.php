@@ -52,7 +52,7 @@ class dashboard {
 
 	function edit_exe(Controller $ctl) {
 		$post = $ctl->POST();
-		$current = $ctl->db("dashboard")->get((int)$post["id"]);
+		$current = $ctl->db("dashboard")->get((int) ($post["id"] ?? 0));
 		$save = $this->validate_and_build($ctl, $post, $current);
 		if ($ctl->count_res_error_message() > 0) {
 			return;

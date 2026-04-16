@@ -218,8 +218,7 @@ class Linebot_class implements linebot {
 			$this->log("[GET ERROR] $url : $err");
 			$resp = '';
 		}
-		curl_close($ch);
-		return [$status, $resp];
+			return [$status, $resp];
 	}
 
 	private function postJson(string $url, array $payload): array {
@@ -244,8 +243,7 @@ class Linebot_class implements linebot {
 			$this->log("[POST ERROR] $url : $err");
 			$resp = '';
 		}
-		curl_close($ch);
-		return [$status, $resp];
+			return [$status, $resp];
 	}
 
 	public function send_push(string $userId): bool {

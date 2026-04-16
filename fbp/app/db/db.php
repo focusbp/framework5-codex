@@ -281,7 +281,7 @@ class db {
 
 		$id = $this->fmt_db->insert($post);
 
-		if ($post['parent_tb_id']) {
+		if (!empty($post['parent_tb_id'])) {
 			$data['db_id'] = $id;
 			$data['type'] = 'number';
 			$data["length"] = $this->type_length[$data["type"]];
@@ -304,20 +304,22 @@ class db {
 	//validation
 	function validate_db_data(Controller $ctl, $post, $page) {
 		$errors = [];
+		$tb_name = $post["tb_name"] ?? "";
+		$post_id = $post["id"] ?? null;
 
-		if (empty($post["tb_name"])) {
+		if ($tb_name === "") {
 			$errors["tb_name"] = $ctl->t("db.validation.table_name_required");
 		}
 
-		if (!preg_match('/^[a-z0-9_]+$/', $post["tb_name"])) {
+		if ($tb_name !== "" && !preg_match('/^[a-z0-9_]+$/', $tb_name)) {
 			$errors["tb_name"] = $ctl->t("db.validation.table_name_format");
 		}
 
 		// Duplicate error check
 		$list = $this->fmt_db->getall();
 		foreach ($list as $d) {
-			if ($post["tb_name"] == $d["tb_name"]) {
-				if ($post["id"] != $d["id"]) {
+			if ($tb_name == ($d["tb_name"] ?? "")) {
+				if ($post_id != ($d["id"] ?? null)) {
 					$errors["tb_name"] = $ctl->t("db.validation.table_name_duplicated");
 				}
 			}
@@ -783,31 +785,34 @@ class db {
 	function add_fields_exe(Controller $ctl) {
 		$post = $ctl->POST();
 		$ctl->assign('post', $post);
+		$parameter_name = $post["parameter_name"] ?? "";
+		$db_id = $post["db_id"] ?? null;
+		$type = $post["type"] ?? "";
 
 		//validation
-		if (empty($post["parameter_name"])) {
+		if ($parameter_name === "") {
 			$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_required"));
 		}
 
-		if (!preg_match('/^[a-z0-9_]+$/', $post["parameter_name"])) {
+		if ($parameter_name !== "" && !preg_match('/^[a-z0-9_]+$/', $parameter_name)) {
 			$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_format"));
 		}
 
 		// Duplicate error check
-		$list = $this->fmt_db_fields->select("db_id", $post['db_id']);
+		$list = $this->fmt_db_fields->select("db_id", $db_id);
 		foreach ($list as $d) {
-			if ($post["parameter_name"] == $d["parameter_name"]) {
+			if ($parameter_name == ($d["parameter_name"] ?? "")) {
 				$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_duplicate"));
 			}
 		}
 
-		if ($post["parameter_name"] == "api_user_id") {
+		if ($parameter_name == "api_user_id") {
 			$ctl->res_error_message("parameter_name", $ctl->t("db.validation.api_user_id_prohibited"));
 		}
 
 		// check prohibition_item_name
 		foreach (array_merge($this->fmt_db_fields->get_prohibition_items(), ["id"]) as $name) {
-			if ($post["parameter_name"] == $name) {
+			if ($parameter_name == $name) {
 				$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_prohibited"));
 			}
 		}
@@ -825,7 +830,7 @@ class db {
 			$ex = explode("/", $table_and_field);
 			$is_table_only = (count($ex) === 1);
 		}
-		if ($is_table_only && in_array($post["type"], ["dropdown", "checkbox", "radio"], true)) {
+		if ($is_table_only && in_array($type, ["dropdown", "checkbox", "radio"], true)) {
 			if ($display_fields_for_dropdown === "") {
 				$ctl->res_error_message("display_fields_for_dropdown", $ctl->t("db.validation.display_fields_required"));
 			}
@@ -837,11 +842,11 @@ class db {
 
 
 		// Set default length
-		$post["length"] = $this->type_length[$post["type"]];
-		$post["display_format"] = $this->normalize_display_format((string) $post["type"], $post["display_format"] ?? 0);
+		$post["length"] = $this->type_length[$type];
+		$post["display_format"] = $this->normalize_display_format((string) $type, $post["display_format"] ?? 0);
 
 		// sortを調べる
-		$db_id = $post["db_id"];
+			$db_id = $post["db_id"] ?? null;
 		$list = $this->fmt_db_fields->select("db_id", $db_id);
 		$sort = 0;
 		foreach ($list as $f) {
@@ -857,16 +862,16 @@ class db {
 
 		$this->fmt_db_fields->insert($post);
 
-		$ctl->set_session("title_color", $post["title_color"]);
+			$ctl->set_session("title_color", $post["title_color"] ?? null);
 
 		//close adding page
 		$ctl->close_multi_dialog("add_db_fields");
-		$ctl->ajax("db", "edit", ["id" => $post['db_id']]);
+		$ctl->ajax("db", "edit", ["id" => $db_id]);
 	}
 
 	function add_login_fields(Controller $ctl) {
 		$post = $ctl->POST();
-		$db_id = $post["id"];
+		$db_id = $post["id"] ?? null;
 		$sort = 100;
 		$arr = [];
 		$arr[] = [
@@ -943,7 +948,7 @@ class db {
 		$post = $ctl->POST();
 		$ctl->assign("post", $post);
 
-		$data = $this->fmt_db_fields->get($post['id']);
+		$data = $this->fmt_db_fields->get($post['id'] ?? null);
 
 		if ($data["parameter_name"] == "api_user_id") {
 			$ctl->show_notification_text($ctl->t("db.notification.api_user_id_edit_forbidden"));
@@ -960,21 +965,25 @@ class db {
 	function edit_fields_exe(Controller $ctl) {
 		$post = $ctl->POST();
 		$ctl->assign('post', $post);
+		$parameter_name = $post["parameter_name"] ?? "";
+		$db_id = $post["db_id"] ?? null;
+		$post_id = $post["id"] ?? null;
+		$type = $post["type"] ?? "";
 
 		//validation
-		if (empty($post["parameter_name"])) {
+		if ($parameter_name === "") {
 			$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_required"));
 		}
 
-		if (!preg_match('/^[a-z0-9_]+$/', $post["parameter_name"])) {
+		if ($parameter_name !== "" && !preg_match('/^[a-z0-9_]+$/', $parameter_name)) {
 			$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_format"));
 		}
 
 		// Duplicate error check
-		$list = $this->fmt_db_fields->select("db_id", $post['db_id']);
+		$list = $this->fmt_db_fields->select("db_id", $db_id);
 		foreach ($list as $d) {
-			if ($post["parameter_name"] == $d["parameter_name"]) {
-				if ($post["id"] != $d["id"]) {
+			if ($parameter_name == ($d["parameter_name"] ?? "")) {
+				if ($post_id != ($d["id"] ?? null)) {
 					$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_duplicate"));
 				}
 			}
@@ -982,7 +991,7 @@ class db {
 
 		// check prohibition_item_name
 		foreach ($this->fmt_db_fields->get_prohibition_items() as $name) {
-			if ($post["parameter_name"] == $name) {
+			if ($parameter_name == $name) {
 				$ctl->res_error_message("parameter_name", $ctl->t("db.validation.parameter_name_prohibited"));
 			}
 		}
@@ -1000,7 +1009,7 @@ class db {
 			$ex = explode("/", $table_and_field);
 			$is_table_only = (count($ex) === 1);
 		}
-		if ($is_table_only && in_array($post["type"], ["dropdown", "checkbox", "radio"], true)) {
+		if ($is_table_only && in_array($type, ["dropdown", "checkbox", "radio"], true)) {
 			if ($display_fields_for_dropdown === "") {
 				$ctl->res_error_message("display_fields_for_dropdown", $ctl->t("db.validation.display_fields_required"));
 			}
@@ -1015,13 +1024,13 @@ class db {
 			return;
 		}
 
-		$data = $this->fmt_db_fields->get($post['id']);
+		$data = $this->fmt_db_fields->get($post_id);
 		foreach ($_POST as $key => $value) {
 			$data[$key] = $value;
 		}
 		$data["display_format"] = $this->normalize_display_format((string) ($data["type"] ?? ""), $post["display_format"] ?? 0);
 
-		if (!in_array($post["type"], ["dropdown", "checkbox", "radio"])) {
+		if (!in_array($type, ["dropdown", "checkbox", "radio"])) {
 			$data["constant_array_name"] = "";
 		}
 
@@ -1134,12 +1143,12 @@ class db {
 		$post = $ctl->POST();
 
 		if (!empty($post["screen_name"])) {
-			$screen_list = $this->fmt_screen->select(["tb_name", "screen_name"], [$post["tb_name"], $post["screen_name"]]);
+			$screen_list = $this->fmt_screen->select(["tb_name", "screen_name"], [$post["tb_name"] ?? "", $post["screen_name"] ?? ""]);
 			if (count($screen_list) > 0) {
 				$ctl->res_error_message("screen_name", $ctl->t("db.validation.screen_name_duplicate"));
 			}
 
-			if (!preg_match('/^[a-z0-9_]+$/', $post["screen_name"])) {
+			if (!preg_match('/^[a-z0-9_]+$/', $post["screen_name"] ?? "")) {
 				$ctl->res_error_message("screen_name", $ctl->t("db.validation.screen_name_format"));
 			}
 
@@ -1149,13 +1158,13 @@ class db {
 
 			// Add the screen name to the table
 			$screen = [];
-			$screen["tb_name"] = $post["tb_name"];
-			$screen["screen_name"] = $post["screen_name"];
+			$screen["tb_name"] = $post["tb_name"] ?? "";
+			$screen["screen_name"] = $post["screen_name"] ?? "";
 			$this->fmt_screen->insert($screen);
 
 			// reload
 			$arr = [
-			    "id" => $post["db_id"],
+			    "id" => $post["db_id"] ?? null,
 			    "screen_id" => $screen["id"]
 			];
 			$ctl->ajax("db", "edit", $arr);
@@ -1168,7 +1177,7 @@ class db {
 	function delete_screen(Controller $ctl) {
 		$post = $ctl->POST();
 
-		$screen_id = $post["screen_id"];
+		$screen_id = $post["screen_id"] ?? null;
 
 		$d = $this->fmt_screen->get($screen_id);
 
@@ -1181,7 +1190,7 @@ class db {
 	function delete_screen_exe(Controller $ctl) {
 		$post = $ctl->POST();
 
-		$screen_id = $post["screen_id"];
+		$screen_id = $post["screen_id"] ?? null;
 
 		$d = $this->fmt_screen->get($screen_id);
 		$screen_name = $d["screen_name"];
@@ -1203,7 +1212,7 @@ class db {
 
 		// reload
 		$arr = [
-		    "id" => $post["db_id"],
+		    "id" => $post["db_id"] ?? null,
 		    "screen_id" => null
 		];
 		$ctl->ajax("db", "edit", $arr);
@@ -1224,8 +1233,8 @@ class db {
 	function update_api_access_policy(Controller $ctl) {
 		$post = $ctl->POST();
 
-		$id = $post["id"];
-		$api_access_policy_arr = $post["api_access_policy"];
+		$id = $post["id"] ?? null;
+		$api_access_policy_arr = $post["api_access_policy"] ?? [];
 
 		// ["0"=>"add"] を ["add"] に変換
 		$api_access_policy = [];
@@ -1242,8 +1251,8 @@ class db {
 
 	function set_all_field(Controller $ctl) {
 		$post = $ctl->POST();
-		$screen_id = $post["screen_id"];
-		$id = $post["id"];
+		$screen_id = $post["screen_id"] ?? null;
+		$id = $post["id"] ?? null;
 
 		$db = $ctl->db("db")->get($id);
 		$screen = $ctl->db("screen")->get($screen_id);
@@ -1284,7 +1293,7 @@ class db {
 
 	function text_fields(Controller $ctl) {
 		$post = $ctl->POST();
-		$id = $post["id"];
+		$id = $post["id"] ?? null;
 
 		$db = $ctl->db("db")->get($id);
 
@@ -1298,7 +1307,7 @@ class db {
 
 	function pdf_fields(Controller $ctl) {
 		$post = $ctl->POST();
-		$id = $post["id"];
+		$id = $post["id"] ?? null;
 
 		$db = $ctl->db("db")->get($id);
 

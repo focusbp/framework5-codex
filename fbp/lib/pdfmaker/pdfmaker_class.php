@@ -136,10 +136,12 @@ class pdfmaker_class {
 			if (substr($line, 0, 3) == "---") {
 				$paramline = substr($line, 3);
 				$param = $this->parseParameterLine($paramline);
+				$align = $param["align"] ?? "L";
+				$param["align"] = $align;
 				$c++;
 				$parameter[$c] = $param;
 
-				if ($param["align"] == "I") {
+				if ($align == "I") {
 					$c++;
 					$parameter[$c] = array();
 				}
@@ -319,11 +321,12 @@ class pdfmaker_class {
 		//--------------
 		for ($c = 1; $c <= count($parameter); $c++) {
 
-			// パラメーターをセット
-			$set = $this->setParameter($pdf, $parameter[$c], $default);
+				// パラメーターをセット
+				$set = $this->setParameter($pdf, $parameter[$c], $default);
+				$set["align"] = $set["align"] ?? "L";
 
-			// フォーム除外
-			if (($set["print"] ?? null) == "false") {
+				// フォーム除外
+				if (($set["print"] ?? null) == "false") {
 				continue;
 			}
 
@@ -342,9 +345,9 @@ class pdfmaker_class {
 				}
 
 				// 表のデータの処理
-				$datatxt = $body[$c];
+				$datatxt = $body[$c] ?? "";
 				if (!is_array($datatxt)) {
-					$lines = explode("\n", $datatxt);
+					$lines = explode("\n", (string)$datatxt);
 					$datalist = array();
 					foreach ($lines as $line) {
 						if ($line != "") {
@@ -414,7 +417,7 @@ class pdfmaker_class {
 				}
 
 				// カラム毎の右寄せ・左寄せの指定
-				$aligntxt = $set["columnalign"];
+					$aligntxt = $set["columnalign"] ?? "";
 				if (!is_array($aligntxt)) {
 					$aligns = explode(",", $aligntxt);
 				} else {
@@ -463,35 +466,38 @@ class pdfmaker_class {
 							$y = $set["y"];
 						}
 
-						if ($set["width"] > 0 && $set["height"] > 0) {
+						$width = (float) ($set["width"] ?? 0);
+						$height = (float) ($set["height"] ?? 0);
+
+						if ($width > 0 && $height > 0) {
 							$original = getimagesize($img);
 							$original_w = $original[0];
 							$original_h = $original[1];
 
 							if ($original_w > 0) {
-								$is_h_auto = ($set["width"] / $original_w) * $original_h;
+								$is_h_auto = ($width / $original_w) * $original_h;
 
-								if ($is_h_auto < $set["height"]) {
-									$w = $set["width"];
-									$h = 'auto';
+								if ($is_h_auto < $height) {
+									$w = $width;
+									$h = 0;
 								} else {
-									$w = 'auto';
-									$h = $set["height"];
+									$w = 0;
+									$h = $height;
 								}
 							} else {
 								// オリジナルの画像サイズが取得できない場合がある
-								$w = $set["width"];
-								$h = 'auto';
+								$w = $width;
+								$h = 0;
 							}
-						} elseif ($set["width"] > 0) {
-							$w = $set["width"];
-							$h = 'auto';
-						} elseif ($set["height"] > 0) {
-							$w = 'auto';
-							$h = $set["height"];
+						} elseif ($width > 0) {
+							$w = $width;
+							$h = 0;
+						} elseif ($height > 0) {
+							$w = 0;
+							$h = $height;
 						} else {
-							$w = 'auto';
-							$h = 'auto';
+							$w = 0;
+							$h = 0;
 						}
 
 						if (!empty($set["image_align"])) {
@@ -551,7 +557,7 @@ class pdfmaker_class {
 				//-----------
 				// テキスト
 				//-----------
-				$item = $body[$c];
+				$item = $body[$c] ?? "";
 				$item = str_replace('\n', "\n", $item);
 
 				// X,Y指定
@@ -733,6 +739,9 @@ class pdfmaker_class {
 				$set["width"] = 0;
 			}
 		}
+		if (!isset($set["height"])) {
+			$set["height"] = 0;
+		}
 		if (!isset($set["marginright"])) {
 			$set["marginright"] = 0;
 		}
@@ -746,6 +755,9 @@ class pdfmaker_class {
 		// lineheight
 		if (!isset($set["lineheight"])) {
 			$set["lineheight"] = $default["lineheight"];
+		}
+		if (!isset($set["align"])) {
+			$set["align"] = "L";
 		}
 
 		// border

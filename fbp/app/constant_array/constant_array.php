@@ -225,8 +225,9 @@ class constant_array {
 		$data['updated_at'] = time();
 		$this->fmt_values->insert($data);
 
-		$ctl->close_multi_dialog("add_values" . $data['constant_array_id']);
-		$this->edit($ctl, $data['constant_array_id']);
+		$constant_array_id = $data['constant_array_id'] ?? null;
+		$ctl->close_multi_dialog("add_values" . $constant_array_id);
+		$this->edit($ctl, $constant_array_id);
 	}
 
 	function edit_values(Controller $ctl) {
@@ -255,7 +256,7 @@ class constant_array {
 
 		$this->fmt_values->update($data);
 
-		$ctl->close_multi_dialog("edit_values" . $data['id']);
+		$ctl->close_multi_dialog("edit_values" . ($data['id'] ?? ""));
 		$this->edit($ctl, $constant_array_id);
 	}
 

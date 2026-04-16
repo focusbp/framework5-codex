@@ -61,9 +61,8 @@ class Vimeo_class implements Vimeo {
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
-		$response = curl_exec($ch);
-		$error = curl_error($ch);
-		curl_close($ch);
+			$response = curl_exec($ch);
+			$error = curl_error($ch);
 
 		if ($error) {
 			return "cURL Error: " . $error;
@@ -104,10 +103,7 @@ class Vimeo_class implements Vimeo {
 			}
 		}
 
-		// CURLのリソースを閉じる
-		curl_close($curl);
-
-		return $size;
+			return $size;
 	}
 
 	function edit($vimeo_id, $title, $description): bool {
@@ -192,9 +188,8 @@ class Vimeo_class implements Vimeo {
 
 	private function check_error_and_close_curl($ch) {
 		// Execute the cURL session
-		$response = curl_exec($ch);
-		$error = curl_error($ch);
-		curl_close($ch);
+			$response = curl_exec($ch);
+			$error = curl_error($ch);
 
 		// Handle cURL error
 		if ($error) {

@@ -4,16 +4,6 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL & ~E_NOTICE);
 mb_internal_encoding("UTF-8");
 
-set_error_handler(function ($severity, $message, $file, $line) {
-	if (!(error_reporting() & $severity)) {
-		return false;
-	}
-	if (in_array($severity, [E_WARNING, E_USER_WARNING, E_RECOVERABLE_ERROR], true)) {
-		throw new ErrorException($message, 0, $severity, $file, $line);
-	}
-	return false;
-});
-
 // ブラウザによる途中中断禁止
 ignore_user_abort(true);
 
@@ -55,6 +45,40 @@ include("interface/linebot/linebot.php");
 include("lib/linebot/Linebot_class.php");
 include("lib/pdfmaker/pdfmaker_class.php");
 
+function fbp_load_error_report_level(Dirs $dir): string {
+	try {
+		$ffm = new fixed_file_manager("setting", $dir->datadir . "/setting", $dir->get_class_dir("setting") . "/fmt");
+		$setting = $ffm->get(1);
+		$ffm->close();
+	} catch (Throwable $e) {
+		$setting = [];
+	}
+	$level = is_array($setting) ? (string) ($setting["error_report_level"] ?? "legacy_compatible") : "legacy_compatible";
+	if (!in_array($level, ["legacy_compatible", "strict"], true)) {
+		$level = "legacy_compatible";
+	}
+	return $level;
+}
+
+function fbp_register_error_handler(string $level): void {
+	set_error_handler(function ($severity, $message, $file, $line) use ($level) {
+		if (!(error_reporting() & $severity)) {
+			return false;
+		}
+		if ($severity === E_RECOVERABLE_ERROR) {
+			throw new ErrorException($message, 0, $severity, $file, $line);
+		}
+		$reportable = [E_NOTICE, E_USER_NOTICE, E_WARNING, E_USER_WARNING, E_DEPRECATED, E_USER_DEPRECATED];
+		if (in_array($severity, $reportable, true)) {
+			if ($level === "strict") {
+				throw new ErrorException($message, 0, $severity, $file, $line);
+			}
+			return true;
+		}
+		throw new ErrorException($message, 0, $severity, $file, $line);
+	});
+}
+
 header("Cache-Control:no-cache,no-store,must-revalidate,max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma:no-cache");
@@ -74,6 +98,7 @@ $smarty->registerPlugin('modifier', 'is_numeric', 'is_numeric');
 // DIRS
 //-----------------------------------------------------
 $dir = new Dirs();
+fbp_register_error_handler(fbp_load_error_report_level($dir));
 
 //------------
 // windowcodeのパラメーターのあるものは除く（過去の仕様）
@@ -112,7 +137,7 @@ if(isset($_GET["function"])){
 	$function="";
 }
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
-	$class = $_GET["class"];
+	$class = $_GET["class"] ?? "";
 	if(!empty($_GET["function"])){
 		$function = $_GET["function"];
 	}else{
@@ -120,10 +145,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 	}
 }else{
 	if(empty($class)){
-		$class = $_POST["class"];
+		$class = $_POST["class"] ?? "";
 	}
 	if(empty($function)){
-		$function = $_POST["function"];
+		$function = $_POST["function"] ?? "";
 	}
 }
 if(empty($class) || empty($function)){
@@ -624,9 +649,8 @@ function report_bootstrap_error(Throwable $e, $class, $function) {
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 	}
-	$response = curl_exec($curl);
-	curl_close($curl);
-	$response_data = json_decode((string) $response, true);
+		$response = curl_exec($curl);
+		$response_data = json_decode((string) $response, true);
 	return [
 		"configured" => true,
 		"reported" => is_array($response_data) && !empty($response_data["ok"]),

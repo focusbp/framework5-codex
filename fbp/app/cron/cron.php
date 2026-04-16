@@ -140,7 +140,7 @@ class cron {
 	//view edit page
 	function edit(Controller $ctl) {
 		$post = $ctl->POST();
-		$id = $post["id"];
+		$id = $post["id"] ?? null;
 
 		$data = $this->ffm_cron->get($id);		
 		$ctl->assign("data", $data);
@@ -158,7 +158,7 @@ class cron {
 		$post["month"] = $post["month"] ?? [];
 		$post["weekday"] = $post["weekday"] ?? [];
 		
-		$d = $this->ffm_cron->get($post["id"]);
+		$d = $this->ffm_cron->get($post["id"] ?? null);
 		foreach($post as $key=>$val){
 			$d[$key] = $post[$key];
 		}
@@ -194,7 +194,7 @@ class cron {
 
 	function sort(Controller $ctl) {
 		$post = $ctl->POST();
-		$logArr = explode(',', $post['log']);
+		$logArr = explode(',', (string) ($post['log'] ?? ''));
 		$c = 1;
 		foreach ($logArr as $id) {
 			$d = $this->ffm_cron->get($id);

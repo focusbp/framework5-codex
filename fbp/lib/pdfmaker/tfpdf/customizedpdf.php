@@ -299,18 +299,20 @@ class CustomizedPDF extends tFPDF {
 
 			// write the content and remember the height of the highest col
 			foreach($data AS $col => $txt) {
+				$col_align = $this->tablealigns[$col] ?? "L";
+				$col_width = $this->tablewidths[$col] ?? ($this->tablewidths[count($this->tablewidths) - 1] ?? 0);
 				$this->page = $currpage;
 				$this->SetXY($l,$h);
 				if($fill){
-					$this->filled_text[] = [$this->tablewidths[$col],$lineheight,$txt,0,$this->tablealigns[$col],$l,$h,$this->page,$set["span_x"],$set["span_y"]];
+					$this->filled_text[] = [$col_width,$lineheight,$txt,0,$col_align,$l,$h,$this->page,$set["span_x"],$set["span_y"]];
 				}
-				$this->MultiCell($this->tablewidths[$col],$lineheight,$txt,0,$this->tablealigns[$col],false,$set["span_x"],$set["span_y"]);
+				$this->MultiCell($col_width,$lineheight,$txt,0,$col_align,false,$set["span_x"],$set["span_y"]);
 				
 				if($set["span_x"] > 0 || $set["span_y"] > 0){
-					$cell_rect_row[] = [$l+$set["span_x"], $h+$set["span_y"], $this->tablewidths[$col] - $set["span_x"]*2,$this->y - $h - $set["span_y"] *2,$this->page];
+					$cell_rect_row[] = [$l+$set["span_x"], $h+$set["span_y"], $col_width - $set["span_x"]*2,$this->y - $h - $set["span_y"] *2,$this->page];
 				}
 				
-				$l += $this->tablewidths[$col];
+				$l += $col_width;
 				
 				if($this->page > $maxpage){
 					$maxpage = $this->page;
@@ -336,18 +338,20 @@ class CustomizedPDF extends tFPDF {
 						$l = $this->lMargin + $marginleft;
 					}
 					foreach($data AS $col => $txt) {
+						$col_align = $this->tablealigns[$col] ?? "L";
+						$col_width = $this->tablewidths[$col] ?? ($this->tablewidths[count($this->tablewidths) - 1] ?? 0);
 						$this->SetXY($l,$h);
 						if($fill){
-							$this->filled_text[] = [$this->tablewidths[$col],$lineheight,$txt,0,$this->tablealigns[$col],false,$set["span_x"],$set["span_y"],$this->page,$set["span_x"],$set["span_y"]];
+							$this->filled_text[] = [$col_width,$lineheight,$txt,0,$col_align,false,$set["span_x"],$set["span_y"],$this->page,$set["span_x"],$set["span_y"]];
 						}
-						$this->MultiCell($this->tablewidths[$col],$lineheight,$txt,0,$this->tablealigns[$col],false,$set["span_x"],$set["span_y"]);
+						$this->MultiCell($col_width,$lineheight,$txt,0,$col_align,false,$set["span_x"],$set["span_y"]);
 
 						
 						if($set["span_x"] > 0 || $set["span_y"] > 0){
-							$cell_rect_row[] = [$l+$set["span_x"], $h+$set["span_y"], $this->tablewidths[$col] - $set["span_x"]*2,$this->y - $h - $set["span_y"] *2,$this->page];
+							$cell_rect_row[] = [$l+$set["span_x"], $h+$set["span_y"], $col_width - $set["span_x"]*2,$this->y - $h - $set["span_y"] *2,$this->page];
 						}
 						$this->cell_rect[] = $cell_rect_row;
-						$l += $this->tablewidths[$col];					
+						$l += $col_width;					
 					}
 
 				}

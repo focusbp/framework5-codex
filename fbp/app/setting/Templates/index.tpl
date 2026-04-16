@@ -86,13 +86,17 @@
 							<td><input type="text" name="currency_decimal_digits" value="{$setting.currency_decimal_digits}"></td>
 						</tr>
 						<tr>
-							<th rowspan="3">{t key="setting.mode"}</th>
+							<th rowspan="4">{t key="setting.mode"}</th>
 							<td>{t key="setting.mode"}</td>
 							<td>{html_options name="force_testmode" options=$arr_force_testmode selected=$setting.force_testmode}</td>
 						</tr>
 						<tr>
 							<td>{t key="setting.developer_panel"}</td>
 							<td>{html_options name="show_developer_panel" options=$arr_show_developer_panel selected=$setting.show_developer_panel}</td>
+						</tr>
+						<tr>
+							<td>{t key="setting.error_report_level"}</td>
+							<td>{html_options name="error_report_level" options=$arr_error_report_level selected=$setting.error_report_level}</td>
 						</tr>
 						<tr>
 							<td>{t key="setting.show_homepage_link"}</td>
