@@ -158,6 +158,7 @@ class pdfmaker_class {
 		$parameter = array();
 		$body = array();
 		$default = array();
+		$text = $this->remove_utf8_emoji($text);
 
 		// 一旦tempファイルに落とす
 		$temp = tmpfile();
