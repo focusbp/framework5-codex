@@ -119,20 +119,15 @@ interface ctl_media {
 	function delete_vimeo($vimeo_id);
 
 	/**
-	 * Generates a QR code containing the user's vCard information.
-	 *
-	 * @param array $user An array containing the user's contact details, including name and phone number.
-	 * @return string The file name of the generated QR code image.
-	 */
-	function qrcode_vcard($user);
-
-	/**
-	 * Generates a QR code containing the specified text.
+	 * Generates QR code PNG binary data for in-memory usage.
 	 *
 	 * @param string $text The text to be encoded into the QR code.
-	 * @return string The file name of the generated QR code image.
+	 * @param string $level Error correction level.
+	 * @param int $size Pixel size.
+	 * @param int $margin Margin size.
+	 * @return string PNG binary data.
 	 */
-	function qrcode_text($text,$return=false);
+	function qrcode_text_binary($text, $level = 'L', $size = 3, $margin = 4);
 
 	/**
 	 * Generates a Google Calendar event link based on the provided details.

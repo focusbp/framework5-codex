@@ -1085,6 +1085,7 @@ class Controller_class implements Controller {
 			$this->blank_image();
 			return;
 		}
+		$delete_after_output = $this->is_temporary_qrcode_file($filename);
 
 		// MIME
 		$mimetype = 'application/octet-stream';
@@ -1137,6 +1138,9 @@ class Controller_class implements Controller {
 				header('Content-Length: ' . $size);
 
 			readfile($filepath);
+			if ($delete_after_output && is_file($filepath)) {
+				unlink($filepath);
+			}
 			exit();
 		} else {
 			// キャッシュ不可
@@ -1150,8 +1154,15 @@ class Controller_class implements Controller {
 			header('Expires: 0');
 
 			readfile($filepath);
+			if ($delete_after_output && is_file($filepath)) {
+				unlink($filepath);
+			}
 			exit();
 		}
+	}
+
+	private function is_temporary_qrcode_file($filename) {
+		return preg_match('/^qr-code(?:-text)?-?[a-f0-9]+\.png$/', $filename) === 1;
 	}
 
 	function res_saved_file($filename) {
@@ -2632,64 +2643,52 @@ class Controller_class implements Controller {
 		$this->arr["add_tab"][] = $md;
 	}
 
-	function qrcode_vcard($user) {
+	function qrcode_text_binary($text, $level = 'L', $size = 3, $margin = 4) {
 
 		require_once __DIR__ . '/../lib_ext/phpqrcode/qrlib.php';
+		// Remove old qr-code-text*.png files for a while after the migration, then delete this cleanup.
+		$this->cleanup_legacy_qrcode_text_files();
 
-		//file upload path
-		$target = $this->dirs->datadir . "/upload/";
-		$filename = 'qr-code-' . uniqid() . '.png';
-		$filePath = $target . '' . $filename;
+		ob_start();
+		QRcode::png($text, false, $level, $size, $margin);
+		$image_data = ob_get_clean();
 
-		// Contact details
-		$name = $user['name'];
-		$phone = $user['phone'];
-		// QR code content with VACARD
-		$qrCode = 'BEGIN:VCARD' . "\n";
-		$qrCode .= 'FN:' . $name . "\n";
-		$qrCode .= 'TEL;WORK;VOICE:' . $phone . "\n";
-		$qrCode .= 'END:VCARD';
-		// Attaching VCARD to QR code
-		if (!file_exists($filePath)) {
-			QRcode::png($qrCode, $filePath, QR_ECLEVEL_L, 3);
+		if ($image_data === false) {
+			return "";
 		}
-		return $filename;
+
+		return $image_data;
 	}
 
-	function qrcode_text($text, $return = false) {
-
-		require_once __DIR__ . '/../lib_ext/phpqrcode/qrlib.php';
-
-		//file upload path
-		$target = $this->dirs->datadir . "/upload/";
-		$filename = 'qr-code-text' . uniqid() . '.png';
-		$filePath = $target . '' . $filename;
-
-		// Attach the phone to text
-		$qrContent = $text;
-
-		// generating
-		QRcode::png($qrContent, $filePath, QR_ECLEVEL_L, 3);
-
-		if (!$return) {
-			header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-			header('Pragma: no-cache');
-			header('Expires: 0');
-
-			header("Content-Type: image/png");
-			header('X-Content-Type-Options: nosniff');
-
-			// Content-Length（任意）
-			$size = filesize($filePath);
-			if ($size !== false) {
-				header('Content-Length: ' . $size);
-			}
-
-			echo file_get_contents($filePath);
-			unlink($filePath);
-		} else {
-			return $filename;
+	private function cleanup_legacy_qrcode_text_files() {
+		$upload_dir = $this->dirs->datadir . "/upload";
+		if (!is_dir($upload_dir)) {
+			return;
 		}
+
+		foreach (glob($upload_dir . "/qr-code-text*.png") as $file) {
+			if (is_file($file)) {
+				unlink($file);
+			}
+		}
+	}
+
+	private function save_qrcode_png($content, $prefix, $level = 'L', $size = 3) {
+		require_once __DIR__ . '/../lib_ext/phpqrcode/qrlib.php';
+		$upload_dir = $this->dirs->datadir . "/upload";
+
+		if (!is_dir($upload_dir)) {
+			mkdir($upload_dir);
+		}
+
+		$filename = $prefix . hash('sha256', $content) . '.png';
+		$filePath = $upload_dir . "/" . $filename;
+
+		if (!file_exists($filePath)) {
+			QRcode::png($content, $filePath, $level, $size);
+		}
+
+		return $filename;
 	}
 
 	function res_json($array) {

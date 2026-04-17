@@ -7,6 +7,7 @@ class CustomizedPDF extends tFPDF {
 	
 	protected $totalPageNumber;
 	protected $pagecountflg;
+	protected $memoryImageTypes = [];
 	
 	protected $hidefooter = false;
 	
@@ -212,11 +213,89 @@ class CustomizedPDF extends tFPDF {
 					$this->Cell(0,10,'' . $tpn,0,0,'C');
 					//$this->Cell(0,10,'Page '.$this->PageNo().'/{nb}',0,0,'C');
 					// set footerset
-					$this->footerset[$this->page] = true;
-					$this->SetFont($tmp_fontfamily,$tmp_fontstyle,$tmp_fontsize);
+						$this->footerset[$this->page] = true;
+						$this->SetFont($tmp_fontfamily,$tmp_fontstyle,$tmp_fontsize);
+					}
 				}
 			}
 		}
+
+	function registerMemoryImage($key, $data, $type = "png") {
+		if (isset($this->images[$key])) {
+			return;
+		}
+
+		$type = strtolower((string) $type);
+		if ($type !== "png") {
+			$this->Error('Unsupported memory image type: ' . $type);
+		}
+
+		$f = fopen('php://temp', 'rb+');
+		if (!$f) {
+			$this->Error('Unable to open temporary memory stream');
+		}
+
+		fwrite($f, $data);
+		rewind($f);
+		$info = $this->_parsepngstream($f, $key);
+		fclose($f);
+
+		$info['i'] = count($this->images) + 1;
+		$this->images[$key] = $info;
+		$this->memoryImageTypes[$key] = $type;
+	}
+
+	function ImageMemory($key, $x = null, $y = null, $w = 0, $h = 0, $link = '', $onlycheck = false) {
+		if (!isset($this->images[$key])) {
+			$this->Error('Unknown memory image key: ' . $key);
+		}
+
+		$info = $this->images[$key];
+
+		if ($w == 0 && $h == 0) {
+			$w = -96;
+			$h = -96;
+		}
+		if ($w < 0) {
+			$w = -$info['w'] * 72 / $w / $this->k;
+		}
+		if ($h < 0) {
+			$h = -$info['h'] * 72 / $h / $this->k;
+		}
+		if ($w == 0) {
+			$w = $h * $info['w'] / $info['h'];
+		}
+		if ($h == 0) {
+			$h = $w * $info['h'] / $info['w'];
+		}
+
+		if (!$onlycheck) {
+			if ($y === null) {
+				if ($this->y + $h > $this->PageBreakTrigger && !$this->InHeader && !$this->InFooter && $this->AcceptPageBreak()) {
+					$x2 = $this->x;
+					$this->AddPage($this->CurOrientation, $this->CurPageSize);
+					$this->x = $x2;
+				}
+				$y = $this->y;
+				$this->y += $h;
+			}
+
+			if ($x === null) {
+				$x = $this->x;
+			}
+			$w = (float) $w;
+			$h = (float) $h;
+			$x = (float) $x;
+			$y = (float) $y;
+
+			$this->_out(sprintf('q %.2F 0 0 %.2F %.2F %.2F cm /I%d Do Q', $w * $this->k, $h * $this->k, $x * $this->k, ($this->h - ($y + $h)) * $this->k, $info['i']));
+
+			if ($link) {
+				$this->Link($x, $y, $w, $h, $link);
+			}
+		}
+
+		return ["h" => $h];
 	}
 	
 	function pagebreak_for_morepagestable(){

@@ -22,6 +22,8 @@ class pdfmaker_class {
 	private $newpage=false;
 	private $blank=true;
 	private $ctl;
+	private $memory_images = [];
+	private $memory_image_index = 1;
 	
 	function set_controller(Controller $ctl){
 		$this->ctl = $ctl;
@@ -91,6 +93,42 @@ class pdfmaker_class {
 		$this->body[$this->c] = ""; // empty
 		$this->c++;
 		$this->blank = false;
+	}
+
+	function addMemoryImage($key, $layout = []) {
+		$layout["align"] = "IM";
+		$layout["memory_image_key"] = $key;
+		if($this->newpage){
+			$layout["newpage"] = true;
+			$this->newpage = false;
+		}
+		$this->parameter[$this->c] = $layout;
+		$this->body[$this->c] = "";
+		$this->c++;
+		$this->blank = false;
+	}
+
+	function addQrCode($text, $layout = []) {
+		if (!($this->ctl instanceof Controller)) {
+			throw new Exception("Controller is required for addQrCode().");
+		}
+
+		$level = $layout["qr_level"] ?? 'L';
+		$size = $layout["qr_size"] ?? 3;
+		$margin = $layout["qr_margin"] ?? 4;
+		$data = $this->ctl->qrcode_text_binary($text, $level, $size, $margin);
+		$key = "qr-memory-" . $this->memory_image_index++;
+		$this->registerMemoryImage($key, $data, "png");
+
+		unset($layout["qr_level"], $layout["qr_size"], $layout["qr_margin"]);
+		$this->addMemoryImage($key, $layout);
+	}
+
+	private function registerMemoryImage($key, $data, $type = "png") {
+		$this->memory_images[$key] = [
+			"data" => $data,
+			"type" => strtolower((string) $type),
+		];
 	}
 
 	function create_pdf() {
@@ -264,6 +302,9 @@ class pdfmaker_class {
 
 		// 画像ディレクトリセット
 		$pdf->imgdir = $imgdir;
+		foreach ($this->memory_images as $key => $image) {
+			$pdf->registerMemoryImage($key, $image["data"], $image["type"]);
+		}
 
 		// フッター非表示
 		if ($pagenumberflg != "on") {
@@ -522,6 +563,69 @@ class pdfmaker_class {
 						break;
 					}
 				}
+				$previous_data="image";
+			} else if ($set["align"] == "IM") {
+				if($from_object){
+					if($previous_data=="text"){
+						$pdf->SetY($pdf->GetY() + $set["lineheight"]);
+					}
+				}
+
+				if (empty($set["x"])) {
+					$x = null;
+				} else {
+					$x = $set["x"];
+				}
+
+				if (empty($set["y"])) {
+					$y = null;
+				} else {
+					$y = $set["y"];
+				}
+
+				$width = (float) ($set["width"] ?? 0);
+				$height = (float) ($set["height"] ?? 0);
+				$image_key = $set["memory_image_key"] ?? "";
+
+				if ($width > 0 && $height > 0) {
+					$ret = $pdf->ImageMemory($image_key, 0, 0, $width, 0, "", true);
+					$original_h = $ret["h"];
+
+					if ($original_h > 0) {
+						if ($original_h < $height) {
+							$w = $width;
+							$h = 0;
+						} else {
+							$w = 0;
+							$h = $height;
+						}
+					} else {
+						$w = $width;
+						$h = 0;
+					}
+				} elseif ($width > 0) {
+					$w = $width;
+					$h = 0;
+				} elseif ($height > 0) {
+					$w = 0;
+					$h = $height;
+				} else {
+					$w = 0;
+					$h = 0;
+				}
+
+				if (!empty($set["image_align"])) {
+					if ($set["image_align"] == "R") {
+						$pw = $pdf->GetPageWidth();
+						$x += $pw - $w - $rMargin;
+					}
+					if ($set["image_align"] == "C") {
+						$pw = $pdf->GetPageWidth();
+						$x += ($pw) / 2 - $w / 2;
+					}
+				}
+
+				$pdf->ImageMemory($image_key, $x, $y, $w, $h);
 				$previous_data="image";
 			} else if ($set["align"] == "RECT") {
 				//----------
