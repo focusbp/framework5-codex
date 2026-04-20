@@ -467,6 +467,8 @@
   "common.reload_browser": "Reload this browser",
   "common.search": "Search",
   "common.upload": "Upload",
+  "common.unselected": "Unselected",
+  "common.none_selected": "None selected",
   "common.search_field_not_supported": "This field cannot be used as a search condition.",
   "common.submit": "Send",
   "common.close_dialog": "Close this dialog",

@@ -1,4 +1,3 @@
-
 <table style="margin-top:10px;">
 <tbody>
 {foreach $rows as $row}

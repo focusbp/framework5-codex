@@ -467,6 +467,8 @@
   "common.reload_browser": "このブラウザを再読み込み",
   "common.search": "検索",
   "common.upload": "アップロード",
+  "common.unselected": "すべて表示",
+  "common.none_selected": "選択なし",
   "common.search_field_not_supported": "この項目は検索条件に使用できません。",
   "common.submit": "送信",
   "common.close_dialog": "このダイアログを閉じる",

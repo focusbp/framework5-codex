@@ -1,14 +1,29 @@
 ---
 name: fbp-server-error-autofix
-description: Use when handling server_error_autofix tasks that claim one server error as an anchor, inspect related server-error reports yourself, repair the real root cause in NetBeansProjects, sync to web, run only the minimum necessary verification, and return a single JSON result.
+description: Use when handling server errors from a `[ServerError:123]` prompt or server_error_autofix work, inspect related errors yourself, propose a fix first, then repair the real root cause in NetBeansProjects after user approval, sync to web, and verify minimally.
 ---
 
 # fbp-server-error-autofix
 
 ## trigger conditions
+- ユーザーが `[ServerError:74]` のように server error ID を明示して調査・対応を依頼した
 - `server_error_autofix.sh` で Codex に 1 件の server error を修正させる
 - `claim` 済みの server error をもとに、最小確認で素早く結果 JSON を返したい
 - `file_path` / `http_host` だけでは framework か app かを決めきれず、修正実態ベースで `app_name` を決めたい
+
+## manual flow for `[ServerError:xxxx]`
+1. ユーザーが `[ServerError:74]` のように server error ID を伝える。
+2. Codex はまず `/home/nakama/scripts/server_error.sh get 74` で単票を取得し、必要に応じて `list|get|search|raw_get` で related errors を確認する。
+3. `app_name`、`file_path`、`http_host` だけで対象を決め打ちせず、必要なら `/home/nakama/scripts/sftp_api.sh get app-xxx` で source/test/release 情報を解決する。
+4. この段階ではコード変更を始めず、server error の要約、想定 root cause、修正対象（Framework か app か）、最小確認方法をユーザーへ提案する。
+5. ユーザー承認後にだけ実装し、`copy_to_web.sh` でテスト環境へ反映し、最小検証 1 回だけ行う。
+6. ユーザー確認後にだけ本番反映、server error のステータス更新、関連コメントや完了処理へ進む。
+
+## manual flow notes
+- `[ServerError:74]` のような short prompt だけで来た場合の停止ポイントは「単票取得」「対象解決」「対応提案」までとする。
+- ユーザー承認前はコード変更、`copy_to_web.sh` 実行、本番反映、ステータス更新を行わない。
+- ユーザー確認前は本番反映や完了処理を行わない。
+- 自動 claim や自動実装を前提にしない。手動で prompt に貼り付けて進める運用を正本とする。
 
 ## workflow
 1. claim 済み 1 件は起点にすぎない。`/home/nakama/scripts/server_error.sh list|get|search|raw_get` を使って related errors を自分で集め、同根原因かどうかを判断する。
@@ -34,6 +49,7 @@ description: Use when handling server_error_autofix tasks that claim one server 
 - コード変更が不要なら `app_name` は空でもよい
 
 ## result JSON
+- この JSON 返却ルールは `server_error_autofix.sh` の wrapper 実行時にだけ使う。
 - 最後の回答は前置きなしの JSON 1 個だけにする
 - 形式:
 

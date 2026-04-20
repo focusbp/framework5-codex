@@ -676,6 +676,8 @@ class fixed_file_manager implements FFM {
 								}
 								$check = ($matched === count($search_value));
 							}
+						} else if ($search_value === "__EMPTY__") {
+							$check = count($field_value) === 0;
 						} else if ($search_value === "" || $search_value === null) {
 							$check = true;
 						} else {

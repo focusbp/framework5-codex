@@ -67,6 +67,7 @@ description: Build and operate public_pages with login-free entry points, secure
 - URL発行側と受け側で、クラス名・関数名・パラメータキー（例: `id`）を必ず一致させる。
 - URLの基本形は `/<class>*<function>`。例: `public_pages -> lp` の場合は `/public_pages*lp`。
 - クエリ付き例: `$ctl->get_APP_URL("public_pages", "lp", ["id" => $id_enc])` は `/public_pages*lp?id=<encrypted>` 形式になる。
+- このフレームワークでは `/<class>*<function>&key=value` や `/<class>*<function>?key=value` を公開URLの正常系として扱う。`*` による class/function 表記や、先頭が `?class=` でないこと自体を異常扱いしない。
 
 ## constraints
 - 公開導線でも `_buttons_prompt_form.tpl` の allowlist に従う。

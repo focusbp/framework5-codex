@@ -20,6 +20,7 @@ secret,255,T
 iv,255,T
 robots,1000,T
 display_errors,1,N
+error_report_level,30,T
 api_key_map,255,T
 lang_priority,1,N
 lang_default,2,T

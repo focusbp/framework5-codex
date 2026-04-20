@@ -46,6 +46,8 @@
   "common.reload_browser": "重新加载此浏览器",
   "common.search": "搜索",
   "common.upload": "上传",
+  "common.unselected": "未选择",
+  "common.none_selected": "无选择",
   "common.search_field_not_supported": "此字段不能作为搜索条件。",
   "common.submit": "发送",
   "common.close_dialog": "关闭此对话框",

@@ -49,11 +49,18 @@ $row : array of the values.
 	{/if}
 	
 {else if $type == "dropdown"}
-	{html_options name=$name options=$field["options"] selected=$row[$name]}
+	<select name="{$name}">
+		{foreach $field["options"] as $key=>$option}
+			{assign var=option_value value=$key|cat:''}
+			{assign var=selected_value value=$row[$name]|default:''|cat:''}
+			<option value="{$option_value|escape}" {if $selected_value === $option_value}selected{/if}>{if $option_value === ''}{t key="common.unselected"}{else}{$option}{/if}</option>
+		{/foreach}
+	</select>
 
 {else if $type == "checkbox"}
 	<select name="{$name}">
-		<option value="" {if $row[$name]|default:'' == ''}selected{/if}></option>
+		<option value="" {if $row[$name]|default:'' == ''}selected{/if}>{t key="common.unselected"}</option>
+		<option value="__EMPTY__" {if $row[$name]|default:'' == '__EMPTY__'}selected{/if}>{t key="common.none_selected"}</option>
 		{foreach $field["options"] as $key=>$option}
 			<option value="{$key|escape}" {if $row[$name]|default:null !== null && $row[$name]|cat:'' === $key|cat:''}selected{/if}>{$option}</option>
 		{/foreach}
@@ -71,7 +78,12 @@ $row : array of the values.
 	<input type="text" name="{$name}" value="{html_year_month value=$row.$name}" class="year_month_picker" data-search-name="{$name|escape}" data-search-title="{$title|escape}" data-search-type="{$type|escape}">	
 			
 {else if $type == "radio"}
-	{html_radios name="{$name}" options=$field["options"] selected=$row[$name] class="checkboxradio"}
+	<select name="{$name}">
+		<option value="" {if $row[$name]|default:'' == ''}selected{/if}>{t key="common.unselected"}</option>
+		{foreach $field["options"] as $key=>$option}
+			<option value="{$key|escape}" {if $row[$name]|default:null !== null && $row[$name]|cat:'' === $key|cat:''}selected{/if}>{$option}</option>
+		{/foreach}
+	</select>
 	
 {else if $type == "color"}
 	

@@ -267,9 +267,11 @@ class Controller_class implements Controller {
 		} else {
 			$_SESSION["pdf_imgdir"] = $this->get_session("appdir") . "/" . $this->get_session("class") . "/" . $imgdir . "/";
 		}
+		$this->set_session("pdf_source_class", (string) $this->class);
+		$this->set_session("pdf_source_function", (string) $this->get_called_function());
 		$this->smarty->assign("MYSESSION", $_SESSION[$this->windowcode]);
 		$this->smarty->escape_html = false;
-		$_SESSION['pdf_text'] = $this->smarty->fetch($pdf_template);
+		$_SESSION['pdf_text'] = $this->fetch_pdf_template_with_sanitized_vars($pdf_template);
 		$this->console_log("Template:" . $this->class . "/" . $pdf_template, "#CE5C00");
 		$_SESSION["pdf_filename"] = $download_filename;
 
@@ -286,9 +288,11 @@ class Controller_class implements Controller {
 		$root_url = $this->get_APP_URL();
 		$this->assign("root_url", $root_url);
 
+		$this->set_session("pdf_source_class", (string) $this->class);
+		$this->set_session("pdf_source_function", (string) $this->get_called_function());
 		$this->smarty->assign("MYSESSION", $_SESSION[$this->windowcode]);
 		$this->smarty->escape_html = false;
-		$_SESSION['pdf_text'] = $this->smarty->fetch($pdf_template);
+		$_SESSION['pdf_text'] = $this->fetch_pdf_template_with_sanitized_vars($pdf_template);
 		$this->console_log("Template:" . $this->class . "/" . $template, "#CE5C00");
 		$_SESSION["pdf_filename"] = $download_filename;
 		$_SESSION["pdf_imgdir"] = [$this->dirs->get_class_dir($this->class) . "/images/", $this->dirs->datadir . "/upload/"];
@@ -313,11 +317,38 @@ class Controller_class implements Controller {
 
 		$imgdir = $this->dirs->datadir . "/upload/";
 
-		$txt = $this->smarty->fetch($pdf_template);
+		$txt = $this->fetch_pdf_template_with_sanitized_vars($pdf_template);
 		$this->console_log("Template:" . $this->class . "/" . $template, "#CE5C00");
 
 		$pdfmaker = new pdfmaker_class();
 		$pdfmaker->makepdf($txt, $imgdir, $this->dirs->datadir . "/upload/" . $pdf_filename, "F");
+	}
+
+	private function fetch_pdf_template_with_sanitized_vars(string $pdf_template): string {
+		$original_vars = $this->smarty->getTemplateVars();
+		foreach ($original_vars as $key => $value) {
+			$this->smarty->assign($key, $this->sanitize_pdf_template_var($value));
+		}
+		try {
+			return $this->smarty->fetch($pdf_template);
+		} finally {
+			foreach ($original_vars as $key => $value) {
+				$this->smarty->assign($key, $value);
+			}
+		}
+	}
+
+	private function sanitize_pdf_template_var($value) {
+		if (is_string($value)) {
+			return preg_replace('/(^|\\R)---/u', '$1 ---', $value);
+		}
+		if (is_array($value)) {
+			foreach ($value as $key => $item) {
+				$value[$key] = $this->sanitize_pdf_template_var($item);
+			}
+			return $value;
+		}
+		return $value;
 	}
 
 	//レスポンス
