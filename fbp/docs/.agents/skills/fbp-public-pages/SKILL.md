@@ -22,6 +22,65 @@ description: Build and operate public_pages with login-free entry points, secure
 7. `app_call` / `app_check` で公開導線を検証し、更新系は `data_get` / `data_list` で反映確認する。
 8. 公開入口の識別子は初回だけ受け、復号後は session に保存して以後の内部導線では再送しない。
 9. 公開検索や絞り込みで URL に出したくない値は、`GET` ではなく `POST -> session` で保持し、表示時に復元する。
+10. 公開側で `ajax-auto` によるスクロール追加を行う場合、初回表示関数と追加読込関数を分ける。初回は `show_public_pages()` で全体表示し、追加読込は一覧部分専用の関数から `reload_area()` で部分テンプレートだけを返す。
+
+## infinite scroll / ajax-auto
+- `ajax-auto` の呼び先に、初回表示と同じ `show_public_pages()` 関数をそのまま使わない。公開ページ全体の HTML が返り、一覧末尾に誤挿入される。
+- 一覧本体は `_list.tpl` のような部分テンプレートへ切り出し、本文テンプレート側では `<div id="list_area">{include file="./_list.tpl"}</div>` のように包む。
+- 追加読込用の関数では、初回表示と同じ一覧データを組み立てた上で `reload_area("#list_area", "_list.tpl")` を返す。
+- `ajax-auto` は部分テンプレートの末尾に置き、追加読込関数を `data-function` に指定する。
+- `max` の増分管理は `increment_post_value("max", <page size>)` を使い、初回・追加読込で同じロジックを共有する。
+- 実装後は `app_call` で、初回関数が `response_text` の全体 HTML、追加読込関数が `response_json.reloadarea` を返すことを確認する。
+
+### sample
+```php
+function news(Controller $ctl) {
+	$this->assign_news_list($ctl);
+	$ctl->assign("page_title", "お知らせ");
+	$ctl->show_public_pages("news.tpl");
+}
+
+function news_more(Controller $ctl) {
+	$this->assign_news_list($ctl);
+	$ctl->reload_area("#news_list_area", "_news_list.tpl");
+}
+
+private function assign_news_list(Controller $ctl) {
+	$max = $ctl->increment_post_value("max", 20);
+	$list = array_values($this->ffm_news->getall("id", SORT_DESC));
+	$total = count($list);
+	$is_last = $total <= $max;
+	if (!$is_last) {
+		$list = array_slice($list, 0, $max);
+	}
+	$ctl->assign("list", $list);
+	$ctl->assign("max", $max);
+	$ctl->assign("is_last", $is_last);
+}
+```
+
+```smarty
+{* news.tpl *}
+<div class="news-page">
+	<h1>{$page_title|escape}</h1>
+	<div id="news_list_area">
+		{include file="./_news_list.tpl"}
+	</div>
+</div>
+```
+
+```smarty
+{* _news_list.tpl *}
+<div class="news-list moredata">
+	{foreach $list as $row}
+		<div class="news-row">{$row.title|escape}</div>
+	{/foreach}
+</div>
+
+{if !$is_last}
+	<div class="ajax-auto" data-class="public_pages" data-function="news_more" data-max="{$max}"></div>
+{/if}
+```
 
 ## Public Assets
 - `public_pages` で固定画像を使う場合は、`Public Assets` 管理で登録された `asset_key` を使う。

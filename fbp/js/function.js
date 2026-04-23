@@ -1405,6 +1405,84 @@ $("body").on("click", ".ajax-link", function (event) {
 	}
 });
 
+$("body").on("click", ".screen_debug_copy_icon", function (event) {
+	event.preventDefault();
+	event.stopPropagation();
+	var $box = $(this).closest(".screen_debug_captured");
+	var code = String($box.attr("data-screen_debug_code") || "").trim();
+	if (code === "") {
+		return;
+	}
+	var copyText = code;
+	var copied = function () {
+		$(event.currentTarget).addClass("copied");
+		setTimeout(function () {
+			$(event.currentTarget).removeClass("copied");
+		}, 700);
+	};
+	if (navigator.clipboard && navigator.clipboard.writeText) {
+		navigator.clipboard.writeText(copyText).then(copied).catch(function () {
+			copyTextFallback(copyText);
+			copied();
+		});
+		return;
+	}
+	copyTextFallback(copyText);
+	copied();
+});
+
+function copyTextFallback(text) {
+	var ta = document.createElement("textarea");
+	ta.value = text;
+	ta.style.position = "fixed";
+	ta.style.left = "-9999px";
+	document.body.appendChild(ta);
+	ta.focus();
+	ta.select();
+	try {
+		document.execCommand("copy");
+	} catch (err) {
+		// noop
+	}
+	document.body.removeChild(ta);
+}
+
+function renderScreenDebugLogCaptured(payload) {
+	var screenKey = String(payload["screen_key"] || "").trim();
+	var code = String(payload["code"] || "").trim();
+	var label = String(payload["label"] || "Screen ID").trim();
+	var copyTitle = String(payload["copy_title"] || "Copy").trim();
+	if (screenKey === "" || code === "") {
+		return;
+	}
+	$(".screen_debug_icon").filter(function () {
+		return String($(this).attr("data-screen_key") || "").trim() === screenKey;
+	}).each(function () {
+		var $icon = $(this);
+		var $scope = $icon.closest(".multi_dialog");
+		if ($scope.length === 0) {
+			$scope = $icon.closest(".work_area");
+		}
+		$icon.removeClass("ajax-link");
+		$icon.addClass("screen_debug_captured");
+		$icon.removeAttr("data-class");
+		$icon.removeAttr("data-function");
+		$icon.removeAttr("data-screen_key");
+		$icon.attr("data-screen_debug_code", code);
+		$icon.attr("title", label + ": " + code);
+		$icon.empty();
+		$("<span>").addClass("screen_debug_captured_text").text(label + ": " + code).appendTo($icon);
+		$("<span>").addClass("material-symbols-outlined screen_debug_copy_icon").attr("title", copyTitle).text("content_copy").appendTo($icon);
+		$scope.find(".screen_debug_id_value").each(function () {
+			if ($(this).is("input, textarea")) {
+				$(this).val(code);
+			} else {
+				$(this).text(code);
+			}
+		});
+	});
+}
+
 // ajax-formボタン
 $("body").on("click", ".form_button", function (event) {
 
@@ -1755,6 +1833,18 @@ function parse_date_string_to_timestamp(value, format) {
 function parse_year_month_by_format(value, format) {
 	var parts = extract_date_parts_by_format(value, format);
 	if (!parts || !parts.Y) {
+		var normalized = String(value || "").replace(/[^0-9]/g, "");
+		if (normalized.length >= 6) {
+			var fallbackYear = normalized.slice(0, 4);
+			var fallbackMonth = normalized.slice(4, 6);
+			var fallbackMonthNumber = parseInt(fallbackMonth, 10);
+			if (!Number.isNaN(fallbackMonthNumber) && fallbackMonthNumber >= 1 && fallbackMonthNumber <= 12) {
+				return {
+					year: fallbackYear,
+					month: ('0' + fallbackMonthNumber).slice(-2)
+				};
+			}
+		}
 		return null;
 	}
 	var month = parts.m || parts.n;
@@ -2145,6 +2235,10 @@ function appcon(url, fd, nextfunction) {
 				}
 			}
 
+			if (res["screen_debug_log_captured"] != null) {
+				renderScreenDebugLogCaptured(res["screen_debug_log_captured"]);
+			}
+
 			// 通知(notification)
 			if (res["notifications"] != null) {
 				for (var md of res["notifications"]) {
@@ -2405,6 +2499,7 @@ function appcon(url, fd, nextfunction) {
 						var forcopy = md["forcopy"];
 						var fixed_bar = md["fixed_bar"];
 						var options = md["options"];
+						var screen_debug_key = md["screen_debug_key"] || "";
 
 					if (cmd == "close") {
 						classname = md["class"];
@@ -2419,7 +2514,7 @@ function appcon(url, fd, nextfunction) {
 								mdx = multi_dialog_zindex;
 							}
 							ensureClassStylesheet(classname);
-							multi_dialog(dialog_name, html, title, width, classname, testserver, mdx, fixed_bar, options, fadeflg, forcopy);
+							multi_dialog(dialog_name, html, title, width, classname, testserver, mdx, fixed_bar, options, fadeflg, forcopy, screen_debug_key);
 							multi_dialog_zindex++;
 					}
 				}
@@ -2481,6 +2576,7 @@ function appcon(url, fd, nextfunction) {
 				var dialog_name = md["dialog_name"];
 				var html = md["html"];
 				var title = md["title"];
+				var screen_debug_key = md["screen_debug_key"] || "";
 				var classname = res["class"];
 				var testserver = md["testserver"];
 				var post_arr = md["post_arr"];
@@ -2490,7 +2586,12 @@ function appcon(url, fd, nextfunction) {
 				$(multi_dialog_tag).attr("data-classname", classname);
 				$(multi_dialog_tag).addClass("lang_check_area");
 				$(multi_dialog_tag).addClass("getting_dialog_id");
-				$(multi_dialog_tag).append('<div class="work_area_title lang">' + title + '</div>');
+				var $workTitle = $('<div class="work_area_title lang"></div>');
+				$workTitle.append($('<span class="work_area_title_text"></span>').text(title));
+				if (screen_debug_key !== "") {
+					$workTitle.append($('<p class="ajax-link screen_debug_icon screen_debug_icon_workarea" data-class="screen_debug_log" data-function="capture" title="お問い合わせ用の画面IDを取得"><span class="material-symbols-outlined">screenshot_monitor</span></p>').attr("data-screen_key", screen_debug_key));
+				}
+				$(multi_dialog_tag).append($workTitle);
 				$(multi_dialog_tag).append(html);
 				$("#work_area").hide().html("").append(multi_dialog_tag).show();
 
@@ -2867,7 +2968,7 @@ function refresh_multi_dialog_modal_cover() {
 	});
 }
 
-function multi_dialog(dialog_name, contents, title, width, getclassname, testserver, mdz, fixed_bar = "", options = [], fadeflg = true, forcopy = "") {
+function multi_dialog(dialog_name, contents, title, width, getclassname, testserver, mdz, fixed_bar = "", options = [], fadeflg = true, forcopy = "", screen_debug_key = "") {
 
 
 	var exe_classname = getclassname;
@@ -2908,6 +3009,30 @@ function multi_dialog(dialog_name, contents, title, width, getclassname, testser
 		$copy.attr("data-copy-value", value);
 	}
 
+	function syncScreenDebugButton($dlg, screenKey) {
+		var $titleArea = $dlg.find(".multi_dialog_title_area").first();
+		if ($titleArea.length === 0) {
+			return;
+		}
+		var key = String(screenKey || "").trim();
+		var $icon = $titleArea.find(".screen_debug_icon").first();
+		if (key === "") {
+			$icon.remove();
+			return;
+		}
+		if ($icon.length === 0) {
+			$icon = $('<p class="ajax-link screen_debug_icon" data-class="screen_debug_log" data-function="capture" title="お問い合わせ用の画面IDを取得"><span class="material-symbols-outlined">screenshot_monitor</span></p>');
+			var $close = $titleArea.find(".multi_dialog_close").first();
+			if ($close.length > 0) {
+				$close.after($icon);
+			} else {
+				$titleArea.append($icon);
+			}
+		}
+		$icon.attr("data-screen_key", key);
+		$icon.data("screen_key", key);
+	}
+
 	if ($(dialog_id).length) {
 
 		// 一旦非表示(更新してから３以内は非表示にしない)
@@ -2936,7 +3061,8 @@ function multi_dialog(dialog_name, contents, title, width, getclassname, testser
 				if ($titleArea.length > 0) {
 					var $closeButton = $titleArea.find(".multi_dialog_close").first();
 					var $copyButton = $titleArea.find(".multi_dialog_copy_title").first();
-					$titleArea.contents().not($closeButton).not($copyButton).remove();
+					var $screenDebugButton = $titleArea.find(".screen_debug_icon").first();
+					$titleArea.contents().not($closeButton).not($copyButton).not($screenDebugButton).remove();
 					$titleArea.prepend(title_display);
 				}
 			}
@@ -2949,11 +3075,13 @@ function multi_dialog(dialog_name, contents, title, width, getclassname, testser
 				if ($titleAreaHide.length > 0) {
 					var $closeButtonHide = $titleAreaHide.find(".multi_dialog_close").first();
 					var $copyButtonHide = $titleAreaHide.find(".multi_dialog_copy_title").first();
-					$titleAreaHide.contents().not($closeButtonHide).not($copyButtonHide).remove();
+					var $screenDebugButtonHide = $titleAreaHide.find(".screen_debug_icon").first();
+					$titleAreaHide.contents().not($closeButtonHide).not($copyButtonHide).not($screenDebugButtonHide).remove();
 				}
 			}
 		}
 		syncCopyButton($(dialog_id), testserver, forcopy);
+		syncScreenDebugButton($(dialog_id), screen_debug_key);
 
 		// z-indexの設定
 		$(dialog_id).css("z-index", mdz);
@@ -3024,6 +3152,7 @@ function multi_dialog(dialog_name, contents, title, width, getclassname, testser
 
 		// HTMLに入れる
 		$("#multi_dialog").append(multi_dialog_tag);
+		syncScreenDebugButton($(multi_dialog_tag), screen_debug_key);
 
 		// Draggable
 		$(multi_dialog_tag).draggable({
@@ -4058,46 +4187,9 @@ $(function () {
 	Cookies.set("lang", "jp", cookieOpt());
 
 	if ($("#testserver").html() == "true") {
-
-		// 古いcheck_langを削除
-		$(".check_lang").remove();
-
-		// check_langを左画面下に追加
-		$("BODY").append('<div class="check_lang">Edit Translation of this page</div>');
-
 	}
 
 	translate();
-
-	// 翻訳の編集画面表示
-	// 画面から .langを検索して、リストをサーバーに送付
-	$("body").on("click", ".check_lang", function (e) {
-
-		var data = [];
-		$("body").find(".lang").each(function () {
-
-			var en = $(this).attr("lang_en");
-
-			if ($(this).attr("lang_en") === undefined) {
-				en = $(this).html();
-				en = en.trim();
-			}
-			var parent = $(this).parents(".lang_check_area");
-			if (parent.length !== 0) {
-				data.push({
-					"classname": parent.data("classname"),
-					"en": en,
-				});
-			}
-		});
-
-		var fd = new FormData();
-		fd.append("class", "lang");
-		fd.append("function", "open_edit_dialog");
-		fd.append("data", JSON.stringify(data));
-		appcon("app.php", fd);
-
-	});
 });
 
 

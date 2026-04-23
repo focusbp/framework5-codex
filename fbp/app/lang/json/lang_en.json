@@ -1245,5 +1245,9 @@
   "orders_picker_test.show_all": "Show All",
   "orders_picker_test.large_dropdown": "Large Dropdown",
   "orders_picker_test.large_dropdown_description": "Show a dropdown with more than 10 options after display and verify searchable filtering behavior.",
-  "orders_picker_test.unselected": "Unselected"
+  "orders_picker_test.unselected": "Unselected",
+  "screen_debug_log.context_not_found": "Screen information could not be retrieved. Please reload the screen.",
+  "screen_debug_log.captured": "Inquiry ID: {code}",
+  "screen_debug_log.screen_id": "Screen ID",
+  "screen_debug_log.copy_screen_id": "Copy screen ID"
 }

@@ -169,6 +169,55 @@ class db_exe {
 		return $names;
 	}
 
+	private function normalize_year_month_value($value) {
+		$value = trim((string) $value);
+		if ($value === "") {
+			return "";
+		}
+
+		if (preg_match('/^(\d{4})[\/-](\d{1,2})$/', $value, $m)) {
+			$month = (int) $m[2];
+			if ($month >= 1 && $month <= 12) {
+				return sprintf('%s/%02d', $m[1], $month);
+			}
+			return $value;
+		}
+
+		if (preg_match('/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/', $value, $m)) {
+			$month = (int) $m[2];
+			if ($month >= 1 && $month <= 12) {
+				return sprintf('%s/%02d', $m[1], $month);
+			}
+			return $value;
+		}
+
+		$normalized = preg_replace('/[^0-9]/', '', $value);
+		if (strlen($normalized) >= 6) {
+			$year = substr($normalized, 0, 4);
+			$month = (int) substr($normalized, 4, 2);
+			if ($month >= 1 && $month <= 12) {
+				return sprintf('%s/%02d', $year, $month);
+			}
+		}
+
+		return $value;
+	}
+
+	private function normalize_year_month_post_fields(Controller $ctl, string $screen_name, array $post): array {
+		$fields = $ctl->get_field_list($this->table_name, $screen_name);
+		foreach ($fields as $field) {
+			if (($field["type"] ?? "") !== "year_month") {
+				continue;
+			}
+			$parameter_name = $field["parameter_name"] ?? "";
+			if ($parameter_name === "" || !array_key_exists($parameter_name, $post)) {
+				continue;
+			}
+			$post[$parameter_name] = $this->normalize_year_month_value($post[$parameter_name]);
+		}
+		return $post;
+	}
+
 	function search_child(Controller $ctl){
 		$post = $ctl->POST();
 		$parent_id = isset($post["parent_id"]) ? (int)$post["parent_id"] : 0;
@@ -284,6 +333,7 @@ class db_exe {
 		
 		// Getting Post data
 		$post = $ctl->POST();
+		$post = $this->normalize_year_month_post_fields($ctl, "add", $post);
 		
 		// Validate
 		$ctl->validate($this->table_name, "add", $post);
@@ -335,6 +385,7 @@ class db_exe {
 		
 		// Getting Post data
 		$post = $ctl->POST();
+		$post = $this->normalize_year_month_post_fields($ctl, "edit", $post);
 		$fields = $ctl->get_field_list($this->table_name, "edit");
 		foreach($fields as $field){
 			$parameter_name = $field["parameter_name"] ?? "";

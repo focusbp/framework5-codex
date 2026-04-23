@@ -1245,5 +1245,9 @@
   "orders_picker_test.show_all": "すべて表示",
   "orders_picker_test.large_dropdown": "Large Dropdown",
   "orders_picker_test.large_dropdown_description": "11件以上の候補を持つ dropdown を後表示し、検索付きの挙動を確認します。",
-  "orders_picker_test.unselected": "未選択"
+  "orders_picker_test.unselected": "未選択",
+  "screen_debug_log.context_not_found": "画面情報が取得できませんでした。再表示してください。",
+  "screen_debug_log.captured": "お問い合わせ番号: {code}",
+  "screen_debug_log.screen_id": "画面ID",
+  "screen_debug_log.copy_screen_id": "画面IDをコピー"
 }

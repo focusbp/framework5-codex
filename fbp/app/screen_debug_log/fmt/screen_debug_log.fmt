@@ -1,0 +1,16 @@
+id,24,N
+public_code,32,T
+screen_key,32,T
+appcode,255,T
+app_class,255,T
+app_function,255,T
+template,255,T
+dialog_id,255,T
+url,2000,T
+get_json,60000,T
+post_json,60000,T
+files_json,20000,T
+user_id,255,T
+user_name,255,T
+user_agent,1000,T
+created_at,255,T

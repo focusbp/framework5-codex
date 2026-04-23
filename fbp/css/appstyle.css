@@ -647,6 +647,101 @@ section {
 	background: #2E7D32;
 }
 
+.multi_dialog .multi_dialog_title_area .screen_debug_icon {
+	display: inline-flex;
+	float: right;
+	align-items: center;
+	justify-content: center;
+	margin: 3px 5px 0 0;
+	padding: 0;
+	height: 20px;
+	width: 20px;
+	border-radius: 5px;
+	cursor: pointer;
+	color: #FFF;
+	line-height: 1;
+	user-select: none;
+}
+
+.multi_dialog .multi_dialog_title_area .screen_debug_icon .material-symbols-outlined {
+	font-size: 18px;
+	line-height: 20px;
+	width: 20px;
+	height: 20px;
+	overflow: hidden;
+}
+
+.multi_dialog .multi_dialog_title_area .screen_debug_icon:hover {
+	background: #4BA3FF;
+}
+
+.multi_dialog .multi_dialog_title_area .screen_debug_icon.screen_debug_captured {
+	width: auto;
+	max-width: 260px;
+	gap: 4px;
+	padding: 0 5px;
+	font-size: 12px;
+}
+
+.multi_dialog .multi_dialog_title_area .screen_debug_captured_text {
+	display: inline-block;
+	max-width: 220px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	line-height: 20px;
+	color: #0f4c81;
+}
+
+.multi_dialog .multi_dialog_title_area .screen_debug_copy_icon {
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.multi_dialog .multi_dialog_title_area .screen_debug_copy_icon:hover,
+.multi_dialog .multi_dialog_title_area .screen_debug_copy_icon.copied {
+	background: #2E7D32;
+}
+
+.publicsite_screen_debug_icon {
+	position: fixed;
+	left: 18px;
+	bottom: 18px;
+	z-index: 2500;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 5px 10px;
+	border-radius: 999px;
+	color: #FFF;
+	cursor: pointer;
+}
+
+.publicsite_screen_debug_icon .material-symbols-outlined {
+	font-size: 15px;
+	line-height: 1;
+	width: 15px;
+	color: #0f4c81;
+}
+
+.publicsite_screen_debug_icon:hover {
+	opacity: 0.85;
+}
+
+.publicsite_screen_debug_icon.screen_debug_captured {
+	width: auto;
+	max-width: calc(100vw - 36px);
+	gap: 4px;
+	padding: 8px 10px;
+	border-radius: 12px;
+	font-size: 12px;
+}
+
+.publicsite_screen_debug_icon.screen_debug_captured .screen_debug_captured_text {
+	color: #0f4c81;
+}
+
 .multi_dialog .multi_dialog_title {
 	width:calc(100% - 30px);
 	float:left
@@ -764,20 +859,6 @@ section {
     padding: 20px;
     margin-top: 10px;
 	background: #ffffff7d;
-}
-
-.check_lang {
-	background: #FFF;
-    position: fixed;
-    left: 10px;
-    bottom: 8px;
-    color: #1974d2;
-    z-index: 10000;
-    text-align: center;
-    border-radius: 10px;
-	cursor: pointer;
-	font-size:12px;
-	padding:1px 10px;
 }
 
 .remove_check {
@@ -1483,6 +1564,12 @@ form p {
 	float:left;
 	width:10%;
 	padding-bottom:5px;
+}
+
+.search_right .search-btn {
+	margin-left: 0;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .download-btn-file {

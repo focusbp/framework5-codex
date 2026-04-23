@@ -709,8 +709,11 @@ class db {
 	//delete data form database
 	function delete_exe(Controller $ctl) {
 		$id = $ctl->POST("id");
-		//file delete
 		$data = $this->fmt_db->get($id);
+		$tb_name = (string) ($data["tb_name"] ?? "");
+		if ($tb_name !== "") {
+			$this->archive_table_dat_file($ctl, $tb_name);
+		}
 
 		$this->fmt_db->delete($id);
 
@@ -732,6 +735,12 @@ class db {
 			$this->fmt_screen_fields->delete($d["id"]);
 		}
 
+		//delete db_additionals
+		$list = $ctl->db("additionals", "db_additionals")->select("tb_name", $tb_name);
+		foreach ($list as $d) {
+			$ctl->db("additionals", "db_additionals")->delete($d["id"]);
+		}
+
 		// Set 0 parent_tb_id
 		$list = $this->fmt_db->select("parent_tb_id", $id);
 		foreach ($list as $d) {
@@ -743,6 +752,24 @@ class db {
 
 		$ctl->close_multi_dialog("delete");
 		$this->page($ctl);
+	}
+
+	private function archive_table_dat_file(Controller $ctl, string $tb_name): void {
+		$dat_path = $ctl->dirs->datadir . "/common/" . $tb_name . ".dat";
+		if (!is_file($dat_path)) {
+			return;
+		}
+
+		$bak_path = $ctl->dirs->datadir . "/common/" . $tb_name . "-" . date("Ymd_His") . ".bak";
+		$seq = 2;
+		while (is_file($bak_path)) {
+			$bak_path = $ctl->dirs->datadir . "/common/" . $tb_name . "-" . date("Ymd_His") . "_" . $seq . ".bak";
+			$seq++;
+		}
+
+		if (!rename($dat_path, $bak_path)) {
+			throw new Exception("Failed to archive dat file: " . $dat_path);
+		}
 	}
 
 	function sort(Controller $ctl) {
