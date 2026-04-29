@@ -18,6 +18,7 @@ edit_width,4,N
 start_hour,2,N
 end_hour,2,N
 show_id,1,N
+show_search_id,1,N
 show_duplicate,1,N
 api_allow_domain,255,T
 api_thanks_html,1000,T

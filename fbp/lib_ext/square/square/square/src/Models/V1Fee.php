@@ -274,6 +274,7 @@ class V1Fee implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

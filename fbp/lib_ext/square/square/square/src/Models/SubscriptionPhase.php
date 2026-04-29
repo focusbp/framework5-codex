@@ -181,6 +181,7 @@ class SubscriptionPhase implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

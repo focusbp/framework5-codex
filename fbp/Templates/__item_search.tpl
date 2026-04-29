@@ -22,6 +22,8 @@ $row : array of the values.
 	{if $name != "id"}
 		
 		<input type="text" name="{$name}" value="{$row.$name}" data-search-name="{$name|escape}" data-search-title="{$title|escape}" data-search-type="{$type|escape}">
+	{else}
+		<input type="text" name="{$name}" value="{$row.$name}" data-search-name="{$name|escape}" data-search-title="{$title|escape}" data-search-type="{$type|escape}">
 	{/if}
 	
 {else if $type == "float"}
@@ -67,11 +69,32 @@ $row : array of the values.
 	</select>
 	
 {else if $type == "date"}
-	
-	{html_input_date name="{$name}" value="{$row.$name}"}
+	{assign var="from_name" value=$name|cat:"_from"}
+	{assign var="to_name" value=$name|cat:"_to"}
+	<div class="search_date_range" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:nowrap;">
+		<div style="display:flex;align-items:center;gap:6px;flex:1 1 0;min-width:0;">
+			<p style="margin:0;font-size:11px;color:#64748b;white-space:nowrap;">From</p>
+			{html_input_date name=$from_name value=$row[$from_name]|default:''}
+		</div>
+		<div style="display:flex;align-items:center;gap:6px;flex:1 1 0;min-width:0;">
+			<p style="margin:0;font-size:11px;color:#64748b;white-space:nowrap;">To</p>
+			{html_input_date name=$to_name value=$row[$to_name]|default:''}
+		</div>
+	</div>
 	
 {else if $type == "datetime"}
-	<input type="text" name="{$name}" value="{$row.$name}" class="world_datetime" data-search-name="{$name|escape}" data-search-title="{$title|escape}" data-search-type="{$type|escape}">
+	{assign var="from_name" value=$name|cat:"_from"}
+	{assign var="to_name" value=$name|cat:"_to"}
+	<div class="search_datetime_range" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:nowrap;">
+		<div style="display:flex;align-items:center;gap:6px;flex:1 1 0;min-width:0;">
+			<p style="margin:0;font-size:11px;color:#64748b;white-space:nowrap;">From</p>
+			<input type="text" name="{$from_name}" value="{$row[$from_name]|default:''}" class="world_datetime" data-search-name="{$from_name|escape}" data-search-title="{$title|escape} From" data-search-type="{$type|escape}">
+		</div>
+		<div style="display:flex;align-items:center;gap:6px;flex:1 1 0;min-width:0;">
+			<p style="margin:0;font-size:11px;color:#64748b;white-space:nowrap;">To</p>
+			<input type="text" name="{$to_name}" value="{$row[$to_name]|default:''}" class="world_datetime" data-search-name="{$to_name|escape}" data-search-title="{$title|escape} To" data-search-type="{$type|escape}">
+		</div>
+	</div>
 	
 {else if $type == "year_month"}
 	

@@ -54,6 +54,7 @@ class CancelInvoiceRequest implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

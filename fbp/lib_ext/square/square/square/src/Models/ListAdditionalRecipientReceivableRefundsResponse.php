@@ -116,6 +116,7 @@ class ListAdditionalRecipientReceivableRefundsResponse implements \JsonSerializa
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

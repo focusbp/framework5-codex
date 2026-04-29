@@ -1,24 +1,63 @@
-<button class="ajax-link" data-class="{$class}" data-function="add" >{t key="db_additionals.add_button"}</button>
-<div style="clear:both;"></div>
-<table style="margin-top:20px;">
-	<tr>
-		<th>{t key="db_additionals.button_title"}</th>
-		<th>{t key="db_additionals.action_name"}</th>
-		<th>{t key="db_additionals.function_name"}</th>
-		<th>{t key="db_additionals.place"}</th>
-		<th></th>
-	</tr>
-	{foreach $items as $d}
-		<tr>
-			<td>{$d.button_title}</td>
-			<td class="code_td">{$d.class_name}</td>
-			<td class="code_td">{$d.function_name}</td>
-			<td class="code_td">{$place_opt[$d.place]}</td>
-			<td>
-				<button class="ajax-link listbutton" data-class="{$class}" data-function="delete" data-id="{$d.id}" style="float:right;color:black;margin-right:5px;"><span class="ui-icon ui-icon-trash"></span></button>
-
-				<button class="ajax-link listbutton" data-class="{$class}" data-function="edit" data-id="{$d.id}" style="float:right;color:black;"><span class="ui-icon ui-icon-pencil"></span></button>
-			</td>
-		</tr>
+{if $tb_name != ""}
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:12px;">
+	{foreach $place_opt as $place=>$place_label}
+	<div style="border:1px solid #d7dce5;border-radius:8px;background:#fafbfc;padding:12px;">
+		<div style="font-weight:bold;margin-bottom:10px;">
+			{$place_label|escape}
+		</div>
+		<div class="db-additional-sort-area" data-place="{$place}" id="db_additional_sort_place_{$place}" style="min-height:120px;border:1px dashed #c7ced9;border-radius:6px;background:#fff;padding:8px;">
+			{foreach $grouped_items[$place] as $a}
+				<div class="db-additional-sort-item" id="{$a.id}" style="cursor:move;padding:10px 12px;margin-bottom:8px;border:1px solid #d7dce5;border-radius:6px;background:#f5f8fc;">
+					{$a.button_title|escape}
+				</div>
+			{/foreach}
+		</div>
+	</div>
 	{/foreach}
-</table>
+</div>
+
+<script>
+	(function () {
+		var syncDbAdditionalSort = function () {
+			var groups = {};
+			$(".db-additional-sort-area").each(function () {
+				var place = String($(this).data("place"));
+				groups[place] = $(this).sortable("toArray");
+			});
+			var fd = new FormData();
+			fd.append("class", "db_additionals");
+			fd.append("function", "button_sort_exe");
+			fd.append("tb_name", "{$tb_name|escape}");
+			fd.append("target_area", "{$target_area|escape}");
+			fd.append("reload_db_id", "{$reload_db_id}");
+			fd.append("groups_json", JSON.stringify(groups));
+			appcon("app.php", fd);
+		};
+
+		$(".db-additional-sort-area").sortable({
+			connectWith: ".db-additional-sort-area",
+			items: ".db-additional-sort-item",
+			tolerance: "pointer",
+			helper: "clone",
+			placeholder: "db-additional-sort-placeholder",
+			forcePlaceholderSize: true,
+			update: function (event, ui) {
+				if (this !== ui.item.parent()[0]) {
+					return;
+				}
+				syncDbAdditionalSort();
+			}
+		});
+	})();
+</script>
+
+<style>
+	.db-additional-sort-placeholder {
+		height: 42px;
+		margin-bottom: 8px;
+		border: 1px dashed #8aa4c1;
+		border-radius: 6px;
+		background: #eef5ff;
+	}
+</style>
+{/if}

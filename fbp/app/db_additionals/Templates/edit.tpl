@@ -2,6 +2,8 @@
 	<form id="database_list">
 
 		<input type="hidden" name="id" value="{$post.id}">
+		<input type="hidden" name="target_area" value="{$target_area|default:''}">
+		<input type="hidden" name="reload_db_id" value="{$reload_db_id|default:0}">
 		
 		
 		<div class="form-row">

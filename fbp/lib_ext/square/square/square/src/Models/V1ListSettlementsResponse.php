@@ -38,6 +38,7 @@ class V1ListSettlementsResponse implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

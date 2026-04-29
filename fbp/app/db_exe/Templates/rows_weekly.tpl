@@ -15,7 +15,7 @@
 			<form id="form_{$timestamp}" class="search_form_flex">
 				<input type="hidden" name="db_id" value="{$db_id}">
 				{foreach $search_group as $field}
-					<div class="search_form_item">
+					<div class="search_form_item field_type_{$field.type|escape}" data-parameter-name="{$field.parameter_name|escape}" data-parameter-title="{$field.parameter_title|escape}" data-field-type="{$field.type|escape}">
 						{include file="{$base_template_dir}/__item_search.tpl"}
 						<p class="error_message error_{$field["parameter_name"]}" style="margin-top:0px;"></p>
 						{assign var="search_field_list" value=$search_field_list|cat:$field.parameter_name}

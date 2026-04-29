@@ -37,6 +37,7 @@ class UpdateLocationRequest implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

@@ -16,6 +16,43 @@ description: Implement FBP dialog-based UI flows with ajax-link/invoke-function,
 3. バリデーション時は `res_error_message()` を設定し `return`。
 4. 必要なら `app_call` でHTMLに `error_*` 要素があるか確認。
 
+## validation samples
+- `world_datetime` は見た目は日時入力でも、POST値は基本的に timestamp として扱う。`date("Y/m/d H:i:s")` のような表示文字列を初期値・検証前提にしない。
+- `world_datetime` の初期値は原則 `time()` または既存 timestamp をそのまま入れる。
+- 日付バリデーションは「数値 timestamp を最優先、文字列は補助的に変換」の順で組む。
+- 例:
+```php
+private function normalize_datetime_input($value): string
+{
+    if ($value === null || $value === "") {
+        return (string) time();
+    }
+    $value = trim((string) $value);
+    if (ctype_digit($value)) {
+        return strlen($value) >= 13
+                ? (string) floor(((int) $value) / 1000)
+                : $value;
+    }
+    $timestamp = strtotime($value);
+    return $timestamp === false ? $value : (string) $timestamp;
+}
+
+private function normalize_datetime_to_timestamp($value): int
+{
+    $value = trim((string) $value);
+    if ($value === "") {
+        return 0;
+    }
+    if (ctype_digit($value)) {
+        $number = (int) $value;
+        return strlen($value) >= 13 ? (int) floor($number / 1000) : $number;
+    }
+    $timestamp = strtotime($value);
+    return $timestamp === false ? 0 : (int) $timestamp;
+}
+```
+- `res_error_message("moved_at", "日時を正しく入力してください")` のような検証は、表示文字列ではなく hidden で返る timestamp 値を正本として判定する。
+
 ## dialog layout policy
 - `show_multi_dialog($dialog_name, $template, $title, $width, $fixed_bar_template, $options)` の引数役割を明確に使い分ける。
 - ダイアログ上部タイトルは第3引数 `title` で指定する（テンプレート内に重複タイトルを増やさない）。
@@ -26,6 +63,9 @@ description: Implement FBP dialog-based UI flows with ajax-link/invoke-function,
 
 ## constraints
 - エラー時の再描画（`show_multi_dialog` 再実行、`reload_area`）を禁止。
+- ダイアログ本文内の `閉じる` ボタンは、ユーザーから明示指定がある場合を除いて置かない。標準のダイアログクローズUIを使う。
+- 保存成功後や callback 後に別画面へ進めるとき、`$this->other_function($ctl)` のように別関数を直接呼んで画面遷移しない。ダイアログ状態や class 解決、共通レイアウトが崩れやすい。
+- ダイアログ起点の成功後遷移は `close_multi_dialog()` の後に `invoke()` / `reload_area()` / `reload_work_area()` / `res_redirect()` を使って行う。
 - `fields_form_direct` 使用時は項目ごとに `error_項目名` を用意する。
 - `fields_form_original` / 手書きinput / checkbox / textarea を含む、POST対象の全入力項目にも `error_項目名` を必ず配置する。
 - 実装完了前に「`res_error_message(field, ...)` の `field` 名」と「テンプレート上の `error_field` クラス」が1対1で存在することを確認する（不足がある状態で完了扱いにしない）。

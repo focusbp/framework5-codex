@@ -2,6 +2,7 @@
   <ul>
     <li><a href="#tabs-1">{t key="db.fields_settings"}</a></li>
     <li><a href="#tabs-2">{t key="db.table_settings"}</a></li>
+    <li><a href="#tabs-3">{t key="db.edit_tab.button_sort"}</a></li>
   </ul>
   <div id="tabs-1">
 	  {include file="_edit_field.tpl"}
@@ -9,6 +10,9 @@
 	
   <div id="tabs-2">
 	  {include file="_edit_table.tpl"}
+  </div>
+  <div id="tabs-3">
+	  <div id="db_additionals_area"></div>
   </div>
 
 </div>

@@ -13,7 +13,7 @@
 
 		<section class="public_main_section">
 			<div class="publicsite-main-inner">
-				<div id="multi_dialog_{$class}" class="getting_dialog_id publicsite-content">
+				<div id="multi_dialog_{$class}" class="publicsite-content">
 {$contents nofilter}
 				</div>
 			</div>

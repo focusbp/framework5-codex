@@ -94,6 +94,7 @@ class V1ListOrdersRequest implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

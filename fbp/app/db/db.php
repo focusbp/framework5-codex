@@ -154,7 +154,8 @@ class db {
 				if ($parameter_name === "" || $parameter_name === "id" || $parameter_name === "_id_enc") {
 					continue;
 				}
-				$candidates[$table_name][$parameter_name] = $parameter_name;
+				$parameter_title = trim((string) ($field["parameter_title"] ?? ""));
+				$candidates[$table_name][$parameter_name] = ($parameter_title !== "") ? $parameter_title : $parameter_name;
 			}
 		}
 		return $candidates;
@@ -365,6 +366,9 @@ class db {
 		if ($data["side_list_type"] === "" || $data["side_list_type"] === null) {
 			$data["side_list_type"] = 0;
 		}
+		if ($data["show_search_id"] === "" || $data["show_search_id"] === null) {
+			$data["show_search_id"] = 0;
+		}
 		if ($data["menu_visibility"] === "" || $data["menu_visibility"] === null) {
 			$data["menu_visibility"] = 0;
 		}
@@ -467,7 +471,7 @@ class db {
 
 		if ($mode == "database") {
 			$ctl->show_multi_dialog("edit_db", "edit.tpl", $ctl->t("db.dialog.edit_setting"), 1200, "_top.tpl", true);
-			$ctl->invoke("page", ["tb_name" => $data["tb_name"]], "db_additionals");
+			$ctl->invoke("list", ["tb_name" => $data["tb_name"], "target_area" => "#db_additionals_area", "reload_db_id" => $data["id"]], "db_additionals");
 		} else {
 
 			$screen_list = $this->fmt_screen->select(["tb_name", "screen_name"], [$data["tb_name"], $screen_name]);

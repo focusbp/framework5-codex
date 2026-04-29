@@ -501,6 +501,7 @@ class V1CashDrawerShift implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

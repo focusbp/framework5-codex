@@ -55,6 +55,8 @@
 		{html_options id="side_list_type" name="side_list_type" options=$side_list_type_opt selected=$data["side_list_type"]}
 		<p class="lang">{t key="db.show_id_on_list"}</p>
 		{html_options id="show_id" name="show_id" options=$show_id_opt selected=$data["show_id"]}
+		<p class="lang">{t key="db.show_id_on_search"}</p>
+		{html_options id="show_search_id" name="show_search_id" options=$show_id_opt selected=$data["show_search_id"]}
 		<p class="lang">{t key="db.duplicate_icon"}</p>
 		{html_options id="show_duplicate" name="show_duplicate" options=$show_duplicate_opt selected=$data["show_duplicate"]}
 		<p class="lang">{t key="db.show_icon_on_parent_list"}</p>

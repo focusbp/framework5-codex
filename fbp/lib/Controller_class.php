@@ -487,6 +487,10 @@ class Controller_class implements Controller {
 	}
 
 	function show_public_pages($contents_template, $header_template = null, $contents_header_template = null, $contents_footer_template = null) {
+		$current_class = trim((string) $this->get_classname());
+		if ($current_class !== "") {
+			$this->assign("class", $current_class);
+		}
 		$screen_debug_key = $this->register_screen_debug_context("publicsite", $contents_template);
 		$this->assign("screen_debug_key", $screen_debug_key);
 		$contents = $this->fetch($contents_template);
@@ -2112,7 +2116,7 @@ class Controller_class implements Controller {
 	}
 
 	function get_login_name() {
-		return $_SESSION[$this->windowcode]["name"];
+		return $_SESSION[$this->windowcode]["name"] ?? null;
 	}
 
 	function get_login_id() {
@@ -2285,14 +2289,15 @@ class Controller_class implements Controller {
 	}
 
 	function show_square_dialog($callback_class_name, $callback_function_name, $callback_parameter_array, $error_msg = "", $amount = "") {
+		$dialog_name = "SQUARE_DIALOG";
 
 		if (!class_exists("mysquare")) {
 			$this->set_square();
 		}
 
-		$this->smarty->assign("name", $callback_parameter_array["name"]);
-		$this->smarty->assign("email", $callback_parameter_array["email"]);
-		$this->smarty->assign("address", $callback_parameter_array["address"]);
+		$this->smarty->assign("name", $callback_parameter_array["name"] ?? "");
+		$this->smarty->assign("email", $callback_parameter_array["email"] ?? "");
+		$this->smarty->assign("address", $callback_parameter_array["address"] ?? "");
 
 		$this->smarty->assign("dialog_name", $dialog_name);
 		$this->smarty->assign("square_application_id", $this->square_application_id);
@@ -2309,7 +2314,7 @@ class Controller_class implements Controller {
 		$this->smarty->assign("amount", $amount);
 		$this->smarty->assign("public", $this->POST("public"));
 
-		$this->show_multi_dialog("SQUARE_DIALOG", dirname(__FILE__) . "/../Templates/square.tpl", "SQUARE");
+		$this->show_multi_dialog($dialog_name, dirname(__FILE__) . "/../Templates/square.tpl", "SQUARE");
 	}
 
 	function square_show_dialog($amount, $callback_function, $error_message = "") {
@@ -2338,14 +2343,14 @@ class Controller_class implements Controller {
 		$this->close_multi_dialog("SQUARE_DIALOG");
 	}
 
-	function square_regist_customer($name, $mail, $address, $locality = "Japan", $country = "JP"): ?string {
+	function square_regist_customer($name, $email, $address, $locality = "Japan", $country = "JP"): ?string {
 		try {
 			if (!class_exists("mysquare")) {
 				$this->set_square();
 			}
 
 			$mysquare = new mysquare($this->square_access_token, $this->get_session("testserver"));
-			return $mysquare->regist_customer($name, $mail, $address, $locality, $country);
+			return $mysquare->regist_customer($name, $email, $address, $locality, $country);
 		} catch (Exception $e) {
 			$this->square_error = $e->getMessage();
 			return null;
@@ -3560,7 +3565,7 @@ class Controller_class implements Controller {
 			if (count($ex) == 2) {
 				// Making database dynamic
 				$ffm = $this->db($ex[0], "common");
-				$list = $ffm->getall("id", SORT_DESC);
+				$list = $this->get_table_dropdown_rows($ex[0], $ffm);
 				foreach ($list as $d) {
 					$valuearr[$d["id"]] = $d[$ex[1]];
 				}
@@ -3689,6 +3694,7 @@ class Controller_class implements Controller {
 				}
 				$dropdown_item_display_type = $db_parent["dropdown_item_display_type"] ?? "field";
 				$dropdown_item_template = trim((string) ($db_parent["dropdown_item_template"] ?? ""));
+				$parent_field_map = $this->get_db_field_map_by_db_id((int) ($db_parent["id"] ?? 0));
 				$fmt_parent = $this->db($db_parent["tb_name"], "common");
 				$list = $fmt_parent->getall($db_parent["sortkey"], $db_parent["sort_order"]);
 				$option_arr = [];
@@ -3697,7 +3703,7 @@ class Controller_class implements Controller {
 				}
 				foreach ($list as $p) {
 					if ($dropdown_item_display_type === "template" && $dropdown_item_template !== "") {
-						$option_arr[$p["id"]] = $this->build_label_from_template($dropdown_item_template, $p);
+						$option_arr[$p["id"]] = $this->build_label_from_template($dropdown_item_template, $p, $parent_field_map);
 					} else {
 						if (!is_array($p[$dropdown_item])) {
 							$option_arr[$p["id"]] = $p[$dropdown_item];
@@ -3795,10 +3801,11 @@ class Controller_class implements Controller {
 		}
 
 		$ffm = $this->db($table_name, "common");
-		$list = $ffm->getall("id", SORT_DESC);
+		$field_map = $this->get_db_field_map_by_table_name($table_name);
+		$list = $this->get_table_dropdown_rows($table_name, $ffm);
 		foreach ($list as $d) {
 			if ($display_template !== "") {
-				$label = $this->build_label_from_template($display_template, $d);
+				$label = $this->build_label_from_template($display_template, $d, $field_map);
 			} else {
 				if ($default_field !== "" && isset($d[$default_field])) {
 					$label = $d[$default_field];
@@ -3812,15 +3819,64 @@ class Controller_class implements Controller {
 		return $option_arr;
 	}
 
-	private function build_label_from_template($template, $row) {
+	private function get_table_dropdown_rows($table_name, $ffm) {
+		$fmt_db = $this->db("db", "db");
+		$fmt_fields = $this->db("db_fields", "db");
+		$db_list = $fmt_db->select("tb_name", $table_name);
+		if (count($db_list) > 0) {
+			$db_id = (int) ($db_list[0]["id"] ?? 0);
+			if ($db_id > 0) {
+				$sort_fields = $fmt_fields->select(["db_id", "parameter_name"], [$db_id, "sort"], true, "AND", "id", SORT_ASC);
+				if (count($sort_fields) > 0) {
+					return $ffm->getall("sort", SORT_ASC);
+				}
+			}
+		}
+		return $ffm->getall("id", SORT_DESC);
+	}
+
+	private function get_db_field_map_by_table_name(string $table_name): array {
+		if ($table_name === "") {
+			return [];
+		}
+		$fmt_db = $this->db("db", "db");
+		$db_list = $fmt_db->select("tb_name", $table_name);
+		if (count($db_list) === 0) {
+			return [];
+		}
+		return $this->get_db_field_map_by_db_id((int) ($db_list[0]["id"] ?? 0));
+	}
+
+	private function get_db_field_map_by_db_id(int $db_id): array {
+		if ($db_id <= 0) {
+			return [];
+		}
+		$fmt_fields = $this->db("db_fields", "db");
+		$field_map = [];
+		$field_list = $fmt_fields->select("db_id", $db_id, true, "AND", "sort", SORT_ASC);
+		foreach ($field_list as $field) {
+			$parameter_name = (string) ($field["parameter_name"] ?? "");
+			if ($parameter_name === "") {
+				continue;
+			}
+			$field_map[$parameter_name] = $field;
+		}
+		return $field_map;
+	}
+
+	private function build_label_from_template($template, $row, array $field_map = []) {
 		if ($template === "") {
 			return "";
 		}
-		return preg_replace_callback('/{\$([a-zA-Z0-9_]+)}/', function ($m) use ($row) {
+		$formatter = $this->create_ValueFormatter();
+		return preg_replace_callback('/{\$([a-zA-Z0-9_]+)}/', function ($m) use ($row, $field_map, $formatter) {
 			$key = $m[1];
 			$val = $row[$key] ?? "";
 			if (is_array($val)) {
 				return "";
+			}
+			if (isset($field_map[$key]) && is_array($field_map[$key])) {
+				return $formatter->format_for_field($field_map[$key], $val);
 			}
 			return (string) $val;
 		}, $template);

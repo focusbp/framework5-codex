@@ -33,10 +33,22 @@ description: Manage FBP DB schema using CLI (db tables/fields), relation setup, 
   - 項目数・情報量が多い: `1200`
 - `9` などの1桁/異常に小さい値は入力・更新しない。既存値が異常な場合は `600` 以上へ補正してから作業を継続する。
 
+## list type policy
+- 新規テーブル作成時、`sort` 項目で手動並び替えを運用するテーブルは、`一覧タイプ` を `Manual Sort` に設定する。
+- CLI では `db_tables_add` / `db_tables_edit` の `list_type=1` を使う。
+- `sort` 項目があっても手動並び替え用途でない場合だけ、通常の `Search and Table` を選ぶ。
+- `Manual Sort` を使うテーブルでは、`sort` 項目を `screen_fields` に入れない。
+- 並び替えは画面の `Manual Sort` 操作で行う前提とし、`list` / `add` / `edit` / `search` に `sort` を出さない。
+
 ## date field policy
 - 日付項目（年月日を表す項目）は `db_fields.type = date` を必須とする。
 - `text + format_check=date_yyyy_mm_dd` での日付実装は新規作成で禁止する。
 - 既存が `text` の場合は、改修時に `date` へ移行可否を確認し、不可の場合のみ理由を作業ログに明記して暫定維持する。
+
+## table dropdown policy
+- `constant_array_name` に `table/<tb_name>` を使う項目では、`display_fields_for_dropdown` を必ず設定する。
+- テンプレート記法は Smarty 形式の `{$name}`、`{$order_no}` を使う。
+- `{{name}}` のような mustache 形式は使わない。
 
 ## constraints
 - DB追加後の画面反映漏れを禁止。

@@ -1,5 +1,7 @@
 <div style="display: block;overflow: hidden;">
 	<form>
+		<input type="hidden" name="target_area" value="{$post.target_area|default:''}">
+		<input type="hidden" name="reload_db_id" value="{$post.reload_db_id|default:0}">
 
 		<div class="form-row">
 			<p class="lang" style="font-weight:bold;">{t key="db_additionals.button_title"}</p>

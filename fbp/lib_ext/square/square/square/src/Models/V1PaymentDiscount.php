@@ -93,6 +93,7 @@ class V1PaymentDiscount implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

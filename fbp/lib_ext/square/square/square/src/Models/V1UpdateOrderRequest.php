@@ -154,6 +154,7 @@ class V1UpdateOrderRequest implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

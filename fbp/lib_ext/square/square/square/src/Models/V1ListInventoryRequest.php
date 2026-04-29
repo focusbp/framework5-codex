@@ -69,6 +69,7 @@ class V1ListInventoryRequest implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

@@ -42,6 +42,7 @@ class TerminalRefundQuerySort implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

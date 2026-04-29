@@ -92,6 +92,7 @@ class SearchLoyaltyAccountsRequestLoyaltyAccountQuery implements \JsonSerializab
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

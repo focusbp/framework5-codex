@@ -8,6 +8,25 @@ class db_additionals {
 	private $show_button_opt = [0=>"Show",1=>"Hide"];
 	private $window="db_additionals";
 
+	private function get_target_area(Controller $ctl): string {
+		$post = $ctl->POST();
+		$target_area = trim((string) ($post["target_area"] ?? ""));
+		if ($target_area === "") {
+			$target_area = "#tabs-buttons";
+		}
+		return $target_area;
+	}
+
+	private function reload_list_area(Controller $ctl, string $tb_name = "", string $target_area = "#tabs-buttons", int $reload_db_id = 0): void {
+		$post = [
+			"tb_name" => $tb_name,
+			"target_area" => $target_area,
+		];
+		if ($reload_db_id > 0) {
+			$post["reload_db_id"] = $reload_db_id;
+		}
+		$ctl->ajax("db_additionals", "list", $post);
+	}
 
 	function __construct(Controller $ctl) {
 		$ctl->assign("place_opt", $this->place_opt);
@@ -16,8 +35,16 @@ class db_additionals {
 	}
 
 	function list(Controller $ctl) {
+		$post = $ctl->POST();
+		$tb_name = trim((string) ($post["tb_name"] ?? ""));
+		$target_area = $this->get_target_area($ctl);
+		$reload_db_id = (int) ($post["reload_db_id"] ?? 0);
 
-		$items = $ctl->db("additionals")->getall("id",SORT_DESC);
+		if ($tb_name !== "") {
+			$items = $ctl->db("additionals")->select("tb_name", $tb_name, true, "AND", "sort", SORT_ASC);
+		} else {
+			$items = $ctl->db("additionals")->getall("id",SORT_DESC);
+		}
 		
 		foreach($items as $key=>$item){
 			if(($item["class_name"] ?? "") == "admin"){
@@ -27,8 +54,27 @@ class db_additionals {
 		}
 
 		$ctl->assign("items", $items);
+		$ctl->assign("tb_name", $tb_name);
+		$ctl->assign("target_area", $target_area);
+		$ctl->assign("reload_db_id", $reload_db_id);
+		$place_counts = [];
+		$grouped_items = [0 => [], 1 => [], 2 => [], 3 => []];
+		foreach ($items as $item) {
+			$place = (string) ($item["place"] ?? "");
+			if ($place === "") {
+				continue;
+			}
+			$place_counts[$place] = (int) ($place_counts[$place] ?? 0) + 1;
+			$place_int = (int) $place;
+			if (!isset($grouped_items[$place_int])) {
+				$grouped_items[$place_int] = [];
+			}
+			$grouped_items[$place_int][] = $item;
+		}
+		$ctl->assign("place_counts", $place_counts);
+		$ctl->assign("grouped_items", $grouped_items);
 
-		$ctl->reload_area("#tabs-buttons", "list.tpl");
+		$ctl->reload_area($target_area, "list.tpl");
 	}
 
 	function add(Controller $ctl) {
@@ -44,6 +90,8 @@ class db_additionals {
 			$post["tb_name"] = (string) ($db["tb_name"] ?? "");
 			$ctl->assign("reflesh_db",$db_id);
 		}
+		$post["target_area"] = $post["target_area"] ?? $this->get_target_area($ctl);
+		$post["reload_db_id"] = (int) ($post["reload_db_id"] ?? 0);
 		
 		$database_list = $ctl->db("db", "db")->getall("sort",SORT_ASC);
 		$database_names = [];
@@ -114,7 +162,12 @@ class db_additionals {
 			$ctl->db("additionals")->update($save);
 
 			$ctl->close_multi_dialog($this->window . "edit");
-			$ctl->invoke("list");
+			$this->reload_list_area(
+				$ctl,
+				trim((string) ($post["tb_name"] ?? "")),
+				trim((string) ($post["target_area"] ?? "#tabs-buttons")),
+				(int) ($post["reload_db_id"] ?? 0)
+			);
 		} else {
 			//$ctl->show_notification_text("There are errors. Please correct them and try again.", 2, "#950000", "#FFF");
 		}
@@ -125,6 +178,7 @@ class db_additionals {
 		$id = (int) ($post["id"] ?? 0);
 		
 		$ctl->assign("reload_db_id", (int) ($post["reload_db_id"] ?? 0));
+		$ctl->assign("target_area", $post["target_area"] ?? $this->get_target_area($ctl));
 
 		$row = $ctl->db("additionals")->get($id);
 		if (!is_array($row)) {
@@ -193,7 +247,12 @@ class db_additionals {
 			}
 			
 			$ctl->close_multi_dialog($this->window . "edit");
-			$ctl->ajax("db_additionals","page");
+			$this->reload_list_area(
+				$ctl,
+				trim((string) ($save["tb_name"] ?? "")),
+				trim((string) ($post["target_area"] ?? "#tabs-buttons")),
+				(int) ($post["reload_db_id"] ?? 0)
+			);
 		} else {
 			$ctl->show_notification_text($ctl->t("db_additionals.validation.fix_errors"), 2, "#950000", "#FFF");
 		}
@@ -204,6 +263,7 @@ class db_additionals {
 		$id = (int) ($post["id"] ?? 0);
 		
 		$ctl->assign("reload_db_id", (int) ($post["reload_db_id"] ?? 0));
+		$ctl->assign("target_area", $post["target_area"] ?? $this->get_target_area($ctl));
 		
 		$data = $ctl->db("additionals")->get($id);
 		if (!is_array($data)) {
@@ -225,17 +285,6 @@ class db_additionals {
 			$data = [];
 		}
 		$ctl->db("additionals")->delete($id);
-
-		$setting = $ctl->get_setting();
-		$source_code_dir = trim((string)($setting["source_code_dir"] ?? ""));
-		$class_name = trim((string)($data["class_name"] ?? ""));
-		if ($source_code_dir !== "" && $class_name !== "") {
-			$target_dir = rtrim($source_code_dir, "/") . "/classes/app/" . $class_name;
-			if (is_dir($target_dir)) {
-				$this->delete_dir_contents($target_dir);
-				rmdir($target_dir);
-			}
-		}
 		
 		$ctl->close_multi_dialog($this->window . "delete");
 		$ctl->close_multi_dialog($this->window . "edit");
@@ -246,9 +295,13 @@ class db_additionals {
 			}else{
 				$ctl->reload_work_area();			
 			}
-		}else{
-			$ctl->invoke("list");				
 		}
+		$this->reload_list_area(
+			$ctl,
+			trim((string) ($data["tb_name"] ?? ($post["tb_name"] ?? ""))),
+			trim((string) ($post["target_area"] ?? "#tabs-buttons")),
+			(int) ($post["reload_db_id"] ?? 0)
+		);
 	}
 
 	private function delete_dir_contents(string $dir): bool {
@@ -285,15 +338,55 @@ class db_additionals {
 		$post = $ctl->POST();
 		$tb_name = $post["tb_name"] ?? "";
 		$place = $post["place"] ?? "";
+		$target_area = $this->get_target_area($ctl);
+		$reload_db_id = (int) ($post["reload_db_id"] ?? 0);
 		
 		$list = $ctl->db("additionals")->select(["tb_name","place"],[$tb_name,$place],true,"AND","sort",SORT_ASC);
 		$ctl->assign("additionals",$list);
 		$ctl->assign("place",$place);
+		$ctl->assign("tb_name",$tb_name);
+		$ctl->assign("target_area",$target_area);
+		$ctl->assign("reload_db_id",$reload_db_id);
 		$ctl->show_multi_dialog("button_sort", "sort.tpl", $ctl->t("db_additionals.dialog.sort"));
 	}
 	
 	function button_sort_exe(Controller $ctl){
 		$post = $ctl->POST();
+		$groups_json = (string) ($post["groups_json"] ?? "");
+		if ($groups_json !== "") {
+			$groups = json_decode($groups_json, true);
+			if (is_array($groups)) {
+				foreach ($groups as $place => $ids) {
+					if (!is_array($ids)) {
+						continue;
+					}
+					$sort = 0;
+					foreach ($ids as $id) {
+						$id = (int) $id;
+						if ($id <= 0) {
+							continue;
+						}
+						$a = $ctl->db("additionals")->get($id);
+						if (!is_array($a) || count($a) === 0) {
+							continue;
+						}
+						$a["place"] = (int) $place;
+						$a["sort"] = $sort;
+						$ctl->db("additionals")->update($a);
+						$sort++;
+					}
+				}
+			}
+			$ctl->reload_work_area();
+			$ctl->reload_side_panel();
+			$this->reload_list_area(
+				$ctl,
+				trim((string) ($post["tb_name"] ?? "")),
+				trim((string) ($post["target_area"] ?? "#tabs-buttons")),
+				(int) ($post["reload_db_id"] ?? 0)
+			);
+			return;
+		}
 		
 		$log = $post["log"] ?? "";
 		$ex = explode(",",$log);
@@ -310,5 +403,11 @@ class db_additionals {
 		}else{
 			$ctl->reload_side_panel();
 		}
+		$this->reload_list_area(
+			$ctl,
+			trim((string) ($post["tb_name"] ?? "")),
+			trim((string) ($post["target_area"] ?? "#tabs-buttons")),
+			(int) ($post["reload_db_id"] ?? 0)
+		);
 	}
 }

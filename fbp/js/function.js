@@ -4484,6 +4484,16 @@ function set_parameters_to_button() {
 
 		// (2) closest要素のdata-classnameの値を取得
 		var dataClassName = closestElement.data('classname');
+		if (dataClassName === undefined || dataClassName === null || dataClassName === "") {
+			var closestClassNameElement = $(this).closest('[data-classname]');
+			dataClassName = closestClassNameElement.data('classname');
+		}
+		if (dataClassName === undefined || dataClassName === null || dataClassName === "") {
+			dataClassName = $("body").attr("data-classname");
+		}
+		if ((dataClassName === undefined || dataClassName === null || dataClassName === "") && $("#page_classname").length > 0) {
+			dataClassName = $("#page_classname").attr("data-class");
+		}
 
 		// "invoke-function"属性が設定されている場合のみ処理を実行
 		if ($(this).attr('invoke-function') !== undefined) {

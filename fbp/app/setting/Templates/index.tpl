@@ -102,11 +102,6 @@
 							<td>{t key="setting.show_homepage_link"}</td>
 							<td>{html_options name="show_menu_homepage" options=$arr_show_menu selected=$setting.show_menu_homepage}</td>
 						</tr>
-						<tr>
-							<th>{t key="setting.source_code_directory"}</th>
-							<td>{t key="setting.source_code_directory_help"}</td>
-							<td><input type="text" name="source_code_dir" value="{$setting.source_code_dir}"></td>
-						</tr>
 					</table>
 				</div>
 			</div>
@@ -320,7 +315,7 @@
 						</tr>
 						<tr>
 							<td>{t key="setting.access_token"}</td>
-							<td><input type="password" name="square_access_token" value="" placeholder="{$masked_setting.square_access_token}"></td>
+							<td><input type="text" name="square_access_token" value="{$setting.square_access_token}"></td>
 						</tr>
 						<tr>
 							<td>{t key="setting.location_id"}</td>

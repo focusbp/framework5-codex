@@ -77,6 +77,7 @@ class CatalogCustomAttributeDefinitionSelectionConfigCustomAttributeSelection im
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

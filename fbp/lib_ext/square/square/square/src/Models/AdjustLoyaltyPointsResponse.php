@@ -77,6 +77,7 @@ class AdjustLoyaltyPointsResponse implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

@@ -40,7 +40,7 @@ class mysquare {
 		}
 	}
 	
-	function regist_customer($name,$mail){
+	function regist_customer($name,$email){
 		
 		$customers_api = $this->client->getCustomersApi();
 		
@@ -48,7 +48,7 @@ class mysquare {
 		$customer->setIdempotencyKey(uniqid());
 		$customer->setGivenName($name);
 		$customer->setFamilyName("");
-//		$customer->setEmailAddress($mail);
+//		$customer->setEmailAddress($email);
 //		$address_c = new Address();
 //		$address_c->setAddressLine1($address);
 //		$address_c->setLocality($locality);

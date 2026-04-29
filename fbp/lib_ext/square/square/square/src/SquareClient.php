@@ -48,7 +48,7 @@ class SquareClient implements ConfigurationInterface
     private $additionalHeaders = ConfigurationDefaults::ADDITIONAL_HEADERS;
     private $environment = ConfigurationDefaults::ENVIRONMENT;
 
-    public function __construct(array $configOptions = null)
+    public function __construct(?array $configOptions = null)
     {
         if (isset($configOptions['timeout'])) {
             $this->timeout = $configOptions['timeout'];

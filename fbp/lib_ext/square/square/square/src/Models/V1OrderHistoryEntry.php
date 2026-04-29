@@ -64,6 +64,7 @@ class V1OrderHistoryEntry implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

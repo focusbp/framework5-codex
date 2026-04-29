@@ -5,7 +5,7 @@ interface ctl_square {
 	
 	function square_show_dialog($amount,$callback_function,$error_message="");
 
-	function square_regist_customer($name, $mail, $address, $locality = "Japan", $country = "JP"):?string;
+	function square_regist_customer($name, $email, $address, $locality = "Japan", $country = "JP"):?string;
 	
 	function square_regist_card($square_customer_id):?string;
 	

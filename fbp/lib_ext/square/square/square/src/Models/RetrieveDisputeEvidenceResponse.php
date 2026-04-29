@@ -68,6 +68,7 @@ class RetrieveDisputeEvidenceResponse implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

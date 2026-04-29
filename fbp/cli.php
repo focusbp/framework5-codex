@@ -466,6 +466,46 @@ function cli_extract_email_placeholders($text) {
 	return array_values($list);
 }
 
+function cli_normalize_db_field_payload(array $data): array {
+	$type = (string) ($data["type"] ?? "");
+	$default_lengths = [
+		"text" => 255,
+		"number" => 24,
+		"float" => 24,
+		"textarea" => 1000,
+		"textarea_links" => 1000,
+		"markdown" => 1000,
+		"dropdown" => 24,
+		"checkbox" => 255,
+		"radio" => 3,
+		"date" => 15,
+		"datetime" => 15,
+		"year_month" => 15,
+		"color" => 15,
+		"file" => 24,
+		"image" => 24,
+		"vimeo" => 255,
+	];
+
+	if ($type !== "" && isset($default_lengths[$type])) {
+		$length = (int) ($data["length"] ?? 0);
+		if ($length <= 0) {
+			$data["length"] = $default_lengths[$type];
+		}
+	}
+
+	if ($type === "image") {
+		if (!isset($data["image_width"]) || $data["image_width"] === "" || $data["image_width"] === null) {
+			$data["image_width"] = 300;
+		}
+		if (!isset($data["image_width_thumbnail"]) || $data["image_width_thumbnail"] === "" || $data["image_width_thumbnail"] === null) {
+			$data["image_width_thumbnail"] = 120;
+		}
+	}
+
+	return $data;
+}
+
 function cli_normalize_session_id($session_id, $fallback = "CLIAPPCALL") {
 	$session_id = preg_replace('/[^A-Za-z0-9,-]/', '', (string) $session_id);
 	if ($session_id === null) {
@@ -1503,10 +1543,26 @@ if ($command === "constant_array_list") {
 	exit(0);
 }
 
+function cli_validate_constant_array_name($name) {
+	$name = trim((string) $name);
+	if ($name === "") {
+		return [false, "Missing array_name in --json"];
+	}
+	if (!preg_match('/_opt$/', $name)) {
+		return [false, "array_name must end with _opt"];
+	}
+	return [true, ""];
+}
+
 if ($command === "constant_array_add") {
 	[$ok, $err, $data] = cli_get_json_arg($argv);
 	if (!$ok) {
 		fwrite(STDERR, $err . "\n");
+		exit(1);
+	}
+	[$name_ok, $name_err] = cli_validate_constant_array_name($data["array_name"] ?? "");
+	if (!$name_ok) {
+		fwrite(STDERR, $name_err . "\n");
 		exit(1);
 	}
 	$id = $ffm_constant_array->insert($data);
@@ -1526,6 +1582,11 @@ if ($command === "constant_array_edit") {
 	}
 	if (!isset($data["id"])) {
 		fwrite(STDERR, "Missing id in --json\n");
+		exit(1);
+	}
+	[$name_ok, $name_err] = cli_validate_constant_array_name($data["array_name"] ?? "");
+	if (!$name_ok) {
+		fwrite(STDERR, $name_err . "\n");
 		exit(1);
 	}
 	$ffm_constant_array->update($data);
@@ -1790,15 +1851,7 @@ if ($command === "db_fields_add") {
 			$update[$k] = $v;
 		}
 		$update["id"] = (int) $existing["id"];
-		// Default image sizes if type is image and sizes are not provided
-		if (($update["type"] ?? "") === "image") {
-			if (!isset($update["image_width"]) || $update["image_width"] === "" || $update["image_width"] === null) {
-				$update["image_width"] = 300;
-			}
-			if (!isset($update["image_width_thumbnail"]) || $update["image_width_thumbnail"] === "" || $update["image_width_thumbnail"] === null) {
-				$update["image_width_thumbnail"] = 120;
-			}
-		}
+		$update = cli_normalize_db_field_payload($update);
 		$ffm_db_fields_admin->update($update);
 		cli_make_table_format($dir, $ffm_db_admin, $ffm_db_fields_admin);
 		$out = [
@@ -1810,15 +1863,7 @@ if ($command === "db_fields_add") {
 		exit(0);
 	}
 
-	// Default image sizes if type is image and sizes are not provided
-	if (($data["type"] ?? "") === "image") {
-		if (!isset($data["image_width"]) || $data["image_width"] === "" || $data["image_width"] === null) {
-			$data["image_width"] = 300;
-		}
-		if (!isset($data["image_width_thumbnail"]) || $data["image_width_thumbnail"] === "" || $data["image_width_thumbnail"] === null) {
-			$data["image_width_thumbnail"] = 120;
-		}
-	}
+	$data = cli_normalize_db_field_payload($data);
 	$id = $ffm_db_fields_admin->insert($data);
 	cli_make_table_format($dir, $ffm_db_admin, $ffm_db_fields_admin);
 	$out = [
@@ -1839,15 +1884,7 @@ if ($command === "db_fields_edit") {
 		fwrite(STDERR, "Missing id in --json\n");
 		exit(1);
 	}
-	// Default image sizes if type is image and sizes are not provided
-	if (($data["type"] ?? "") === "image") {
-		if (!isset($data["image_width"]) || $data["image_width"] === "" || $data["image_width"] === null) {
-			$data["image_width"] = 300;
-		}
-		if (!isset($data["image_width_thumbnail"]) || $data["image_width_thumbnail"] === "" || $data["image_width_thumbnail"] === null) {
-			$data["image_width_thumbnail"] = 120;
-		}
-	}
+	$data = cli_normalize_db_field_payload($data);
 	$ffm_db_fields_admin->update($data);
 	cli_make_table_format($dir, $ffm_db_admin, $ffm_db_fields_admin);
 	$out = [
@@ -2293,6 +2330,6 @@ if ($command === "db_schema") {
 	exit(0);
 }
 
-fwrite(STDERR, "Usage: php cli.php db_schema | setting_get | setting_edit --json='{}' | app_call --json='{}' | app_check --json='{}' | db_additionals_list | db_additionals_add --json='{}' | db_additionals_edit --json='{}' | db_additionals_delete --json='{}' | db_additionals_generate --json='{\"id\":1}' | db_tables_list | db_tables_add --json='{}' | db_tables_edit --json='{}' | db_tables_delete --json='{}' | db_fields_list [--json='{\"db_id\":1}'] | db_fields_add --json='{}' | db_fields_edit --json='{}' | db_fields_delete --json='{}' | screen_fields_list --json='{\"tb_name\":\"xxx\",\"screen_name\":\"list\"}' | screen_fields_add --json='{}' | screen_fields_edit --json='{}' | screen_fields_delete --json='{}' | cron_list [--json='{\"id\":1}'] | cron_add --json='{}' | cron_edit --json='{}' | cron_delete --json='{}' | webhook_rule_list [--json='{\"id\":1}'] | webhook_rule_add --json='{}' | webhook_rule_edit --json='{}' | webhook_rule_delete --json='{\"id\":1}' | embed_app_list [--json='{\"id\":1}'] | embed_app_add --json='{}' | embed_app_edit --json='{}' | embed_app_delete --json='{\"id\":1}'\n");
+fwrite(STDERR, "Usage: php cli.php db_schema | setting_get | setting_edit --json='{}' | app_call --json='{}' | app_check --json='{}' | db_additionals_list | db_additionals_add --json='{}' | db_additionals_edit --json='{}' | db_additionals_delete --json='{}' | db_additionals_generate --json='{\"id\":1}' | db_tables_list | db_tables_add --json='{}' | db_tables_edit --json='{}' | db_tables_delete --json='{}' | db_fields_list [--json='{\"db_id\":1}'] | db_fields_add --json='{}' | db_fields_edit --json='{}' | db_fields_delete --json='{}' | screen_fields_list --json='{\"tb_name\":\"xxx\",\"screen_name\":\"list\"}' | screen_fields_add --json='{}' | screen_fields_edit --json='{}' | screen_fields_delete --json='{}' | cron_list [--json='{\"id\":1}'] | cron_add --json='{}' | cron_edit --json='{}' | cron_delete --json='{}' | webhook_rule_list [--json='{\"id\":1}'] | webhook_rule_add --json='{}' | webhook_rule_edit --json='{}' | webhook_rule_delete --json='{\"id\":1}' | embed_app_list [--json='{\"id\":1}'] | embed_app_add --json='{}' | embed_app_edit --json='{}' | embed_app_delete --json='{\"id\":1}' | email_format_list [--json='{\"id\":1}'] | email_format_get --json='{\"id\":1}' | email_format_add --json='{}' | email_format_edit --json='{}' | email_format_delete --json='{\"id\":1}' | email_format_validate --json='{\"id\":1}'\n");
 fwrite(STDERR, "app_call/app_check: windowcodeを固定する場合、session_id未指定時はwindowcode由来の有効なsession_idを自動使用します。session_idに使える文字は英数字・'-'・','です。\n");
 exit(1);

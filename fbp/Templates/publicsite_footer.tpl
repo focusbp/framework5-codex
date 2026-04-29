@@ -38,8 +38,7 @@
 {include file="{$base_template_dir}/scripts.tpl"}
 
 <script>
-	// bodyタグに、class="getting_dialog_id" と data-class を付与する
-	$("body").addClass("getting_dialog_id");
+	// bodyタグに data-class を付与する
 	$("body").attr("data-classname","{$class}");
 </script>
 

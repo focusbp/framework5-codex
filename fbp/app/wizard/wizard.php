@@ -5044,7 +5044,7 @@ class wizard {
 "【目的】\n" .
 $row["purpose"] . "\n\n" .
 "【対象プロジェクト】\n" .
-$row["project_name"] . "（現在稼働ディレクトリを自動採用）\n\n" .
+$row["project_name"] . "\n\n" .
 "【親ノート】\n" .
 (((string) ($row["create_mode"] ?? "") === "child")
 	? ((string) ($row["parent_tb_name"] ?? "") . " (" . (string) ($row["parent_menu_name"] ?? "") . ")")
@@ -5865,6 +5865,7 @@ $this->build_prompt_policy_block() . "\n\n" .
 "【要件】\n" .
 "- 会員DBテーブルを新規作成する\n" .
 "- constant_array に member_type_opt を追加し、会員=0 / 管理者=1 を定義する\n" .
+"- member_type_opt の背景色も登録し、会員(0)=緑(#28a745) / 管理者(1)=紫(#6f42c1) にする\n" .
 "- webhook_line 標準の getting_member 解決処理を前提にする\n" .
 "- getting_member の webhook_rule / action_class は作成しない\n" .
 "- fbp/ 以下は変更しない\n" .

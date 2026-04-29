@@ -119,6 +119,8 @@
     "db.list_type": "列表类型",
     "db.side_panel_list_type": "侧边面板列表类型",
     "db.show_id_on_list": "在列表中显示 ID",
+    "db.show_id_on_search": "在搜索中显示 ID",
+    "db.edit_tab.button_sort": "按钮顺序",
     "db.duplicate_icon": "复制图标",
     "db.show_icon_on_parent_list": "在父列表显示图标",
     "db.post_action_hook_class": "Post-Action Hook 类（CodegenActionInterface）",

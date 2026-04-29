@@ -63,7 +63,6 @@ api_secret,255,T
 release_api_key,255,T
 release_api_secret,255,T
 show_developer_panel,1,N
-source_code_dir,255,T
 website_url,255,T
 line_bot_greeting_message,1000,T
 line_forward_unknown_to_manager,1,N

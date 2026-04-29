@@ -82,6 +82,7 @@ class CatalogCustomAttributeDefinitionSelectionConfig implements \JsonSerializab
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

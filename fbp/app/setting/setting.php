@@ -286,11 +286,11 @@ class setting {
 
 		// Get customer informations before input credit card.
 		$name = "Test";
-		$mail = "info@soshiki-kaikaku.com";
+		$email = "info@soshiki-kaikaku.com";
 		$address = "テスト住所";
 		$amount = 100; // 100 Yen
 
-		$callback_parameter_array = ["name" => $name, "mail" => $mail, "address" => $address, "amount" => $amount];
+		$callback_parameter_array = ["name" => $name, "email" => $email, "address" => $address, "amount" => $amount];
 
 		// Show credit card dialog.
 		$ctl->show_square_dialog("setting", "pay", $callback_parameter_array);
@@ -305,10 +305,16 @@ class setting {
 
 		try {
 			// Regist Customer SQUARE and get customer id
-			$square_customer_id = $ctl->square_regist_customer($param["name"], $param["mail"], $param["address"]);
+			$square_customer_id = $ctl->square_regist_customer($param["name"], $param["email"], $param["address"]);
+			if ((string) $square_customer_id === "") {
+				throw new Exception((string) ($ctl->square_get_error() ?: "Square customer registration failed."));
+			}
 
 			// Regist the Card
 			$card_id = $ctl->square_regist_card($square_customer_id);
+			if ((string) $card_id === "") {
+				throw new Exception((string) ($ctl->square_get_error() ?: "Square card registration failed."));
+			}
 
 			// ------------------------------------------------------------------------------
 			// If you save square_customer_id and card_id, You can execute payment any time , any amount!
@@ -321,12 +327,10 @@ class setting {
 				$ctl->assign("msg", "SUCCESS");
 				$ctl->show_multi_dialog("square_dialog", "square_result.tpl", $ctl->t("setting.square_result"));
 			} else {
-				$ctl->close_square_dialog();
-				$ctl->assign("msg", "FAIL");
-				$ctl->show_multi_dialog("square_dialog", "square_result.tpl", $ctl->t("setting.square_result"));
+				throw new Exception((string) ($ctl->square_get_error() ?: "Square payment failed."));
 			}
 		} catch (Exception $e) {
-			$ctl->show_square_dialog("square_sample", "pay", $param, $e->getMessage());
+			$ctl->show_square_dialog("setting", "pay", $param, $e->getMessage());
 		}
 	}
 

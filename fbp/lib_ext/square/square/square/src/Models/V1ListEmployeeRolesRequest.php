@@ -96,6 +96,7 @@ class V1ListEmployeeRolesRequest implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

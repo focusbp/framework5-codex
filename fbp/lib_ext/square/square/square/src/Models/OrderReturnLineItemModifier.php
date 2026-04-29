@@ -202,6 +202,7 @@ class OrderReturnLineItemModifier implements \JsonSerializable
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

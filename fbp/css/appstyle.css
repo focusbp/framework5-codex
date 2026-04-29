@@ -1555,9 +1555,17 @@ form p {
 	overflow: hidden;
 }
 
+.search_form_flex .search_form_item.field_type_datetime {
+	width:40%;
+}
+
+.search_form_flex .search_form_item.field_type_date {
+	width:40%;
+}
+
 .search_left {
 	float:left;
-	width:90%;
+	width:100%;
 }
 
 .search_right {
@@ -1751,6 +1759,10 @@ input[type="time"] {
 .class_style_db_exe a:hover .material-symbols-outlined,
 .class_style_db_exe .ajax-link.material-symbols-outlined:hover {
 	color: #4BA3FF !important;
+}
+
+.class_style_db_exe button.lang:hover .material-symbols-outlined {
+	color: #FFF !important;
 }
 
 .icon-btn {

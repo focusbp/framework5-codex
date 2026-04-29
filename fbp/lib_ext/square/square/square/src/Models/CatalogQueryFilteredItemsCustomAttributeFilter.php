@@ -153,6 +153,7 @@ class CatalogQueryFilteredItemsCustomAttributeFilter implements \JsonSerializabl
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];

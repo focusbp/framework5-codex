@@ -119,6 +119,8 @@
   "db.list_type": "一覧タイプ",
   "db.side_panel_list_type": "サイドパネル一覧タイプ",
   "db.show_id_on_list": "一覧に ID を表示",
+  "db.show_id_on_search": "検索に ID を表示",
+  "db.edit_tab.button_sort": "ボタン順序",
   "db.duplicate_icon": "複製アイコン",
   "db.show_icon_on_parent_list": "親一覧でアイコン表示",
   "db.post_action_hook_class": "Post-Action Hook Class (CodegenActionInterface)",

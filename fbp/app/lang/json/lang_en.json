@@ -119,6 +119,8 @@
   "db.list_type": "List Type",
   "db.side_panel_list_type": "Side Panel List Type",
   "db.show_id_on_list": "Show ID on the list",
+  "db.show_id_on_search": "Show ID in search",
+  "db.edit_tab.button_sort": "Button Order",
   "db.duplicate_icon": "Duplicate icon",
   "db.show_icon_on_parent_list": "Show icon on parent list",
   "db.post_action_hook_class": "Post-Action Hook Class (CodegenActionInterface)",

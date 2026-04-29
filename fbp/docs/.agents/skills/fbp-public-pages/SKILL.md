@@ -137,6 +137,8 @@ private function assign_news_list(Controller $ctl) {
 - 公開側エントリクラス名は必ず `public_pages` を使用する（別クラス名で公開導線を作らない）。
 - 公開側の通常 `form` / 通常リンクは `appcon()` を通らない。会員文脈が必要な内部導線は、原則 `ajax-link` / `invoke-function` / `appcon()` 経由を優先する。
 - 公開側の通常 `<a href>` に状態維持用パラメータを付けて引き回す運用は原則禁止。検索エンジンのクロールや重複URL増殖の原因になる。
+- 公開側で画面切替する際に、`$this->other_function($ctl)` のように別 public_pages 関数を直接呼んで遷移しない。内部状態・共通ヘッダ・Square callback 復帰・class 解決が崩れやすい。
+- 公開側の画面遷移は用途に応じて `invoke()` / `show_public_pages()` / `reload_area()` / `res_redirect()` を使う。特に callback 後や保存成功後に別ページへ進める場合は、直接関数呼び出しではなく `res_redirect()` または `invoke()` を優先する。
 
 ## recommended base shape
 - 公開ページの基本形は `publicsite_index.tpl` を骨格、`publicsite_header.tpl` / `publicsite_footer.tpl` を共通head・共通footer、`classes/app/public_pages/style.css` を公開側共通CSSとして分離する。

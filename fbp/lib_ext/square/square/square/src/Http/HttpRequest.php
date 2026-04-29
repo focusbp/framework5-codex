@@ -47,9 +47,9 @@ class HttpRequest
      */
     public function __construct(
         string $httpMethod,
-        array $headers = null,
+        ?array $headers = null,
         ?string $queryUrl = null,
-        array $parameters = null
+        ?array $parameters = null
     ) {
         $this->httpMethod = $httpMethod;
         $this->headers = $headers;

@@ -100,17 +100,131 @@ class db_exe {
 		}
 		return ($side_type === 1) ? 1 : 2;
 	}
-	
+
+	private function is_show_search_id_enabled(): bool {
+		return (int) ($this->db_setting["show_search_id"] ?? 0) === 1;
+	}
+
+	private function build_search_id_field(): array {
+		return [
+			"parameter_name" => "id",
+			"parameter_title" => "ID",
+			"type" => "number",
+			"length" => 24,
+			"display_format" => 0,
+		];
+	}
+
+	private function get_search_fields(Controller $ctl): array {
+		$fields = $ctl->get_field_list($this->table_name, "search");
+		if ($this->is_show_search_id_enabled()) {
+			array_unshift($fields, $this->build_search_id_field());
+		}
+		return $fields;
+	}
+
+	private function normalize_timestamp_search_value($value) {
+		if ($value === null) {
+			return "";
+		}
+		if (is_numeric($value)) {
+			$value = (string) $value;
+			if (strlen($value) >= 13) {
+				return (string) ((int) floor(((float) $value) / 1000));
+			}
+			return (string) ((int) $value);
+		}
+		$value = trim((string) $value);
+		if ($value === "") {
+			return "";
+		}
+		if (preg_match('/^\d{13,}$/', $value)) {
+			return (string) ((int) floor(((float) $value) / 1000));
+		}
+		if (preg_match('/^\d+$/', $value)) {
+			return (string) ((int) $value);
+		}
+		return "";
+	}
+
+	private function collect_search_session_from_post(Controller $ctl, array $post): array {
+		$fields = $this->get_search_fields($ctl);
+		$search = [];
+		foreach ($fields as $field) {
+			$name = $field["parameter_name"] ?? "";
+			if ($name === "" || $name === "parent_id") {
+				continue;
+			}
+			$type = $field["type"] ?? "";
+			if ($type === "datetime" || $type === "date") {
+				$search[$name . "_from"] = $this->normalize_timestamp_search_value($post[$name . "_from"] ?? "");
+				$search[$name . "_to"] = $this->normalize_timestamp_search_value($post[$name . "_to"] ?? "");
+				continue;
+			}
+			if ($type === "year_month") {
+				$search[$name] = $this->normalize_year_month_value($post[$name] ?? "");
+				continue;
+			}
+			$search[$name] = $post[$name] ?? "";
+		}
+		return $search;
+	}
+
+	private function assign_search_group(Controller $ctl, string $group_name, bool $option_emptydata, bool $add_parent_dropdown): array {
+		$ctl->assign_field_settings($group_name, $this->table_name, "search", $option_emptydata, $add_parent_dropdown);
+		$assigned = $ctl->smarty->getTemplateVars($group_name);
+		if (!is_array($assigned)) {
+			$assigned = [];
+		}
+		if ($this->is_show_search_id_enabled()) {
+			array_unshift($assigned, $this->build_search_id_field());
+			$ctl->assign($group_name, $assigned);
+		}
+		return $assigned;
+	}
+
+	private function build_search_filter_parts(array $fields, $session): array {
+		$search_field_list = [];
+		$search_values = [];
+		$search_match_patterns = [];
+		foreach ($fields as $field) {
+			$name = $field["parameter_name"] ?? "";
+			if ($name === "") {
+				continue;
+			}
+			$type = $field["type"] ?? "";
+			if ($type === "datetime" || $type === "date") {
+				$from_value = $this->normalize_timestamp_search_value($session[$name . "_from"] ?? "");
+				if ($from_value !== "") {
+					$search_field_list[] = $name;
+					$search_values[] = $from_value;
+					$search_match_patterns[] = ">=";
+				}
+				$to_value = $this->normalize_timestamp_search_value($session[$name . "_to"] ?? "");
+				if ($to_value !== "") {
+					$search_field_list[] = $name;
+					$search_values[] = $to_value;
+					$search_match_patterns[] = "<=";
+				}
+				continue;
+			}
+			$search_field_list[] = $name;
+			$search_values[] = $session[$name] ?? "";
+			$search_match_patterns[] = "=";
+		}
+		return [$search_field_list, $search_values, $search_match_patterns];
+	}
+
 	
 	function page(Controller $ctl){
 		
 		if($this->db_setting["list_type"] == 0){
 			//List Type is "Search and Table"
 			$search = $ctl->get_session("search_" . $this->table_name);
-			if(count($ctl->get_field_list($this->table_name, "search"))>0){
+			$search_fields = $this->assign_search_group($ctl, "group1", true, true);
+			if(count($search_fields)>0){
 				$ctl->assign("show_search_box",true);
 			}
-			$ctl->assign_field_settings("group1",$this->table_name, "search",true,true);
 			$ctl->assign("row",$search);
 			$ctl->invoke("rows",["max"=>0,"db_id"=>$this->db_setting_id]);
 			
@@ -146,7 +260,7 @@ class db_exe {
 		$post = $ctl->POST();
 		
 		// Putting search fields and search values
-		$ctl->set_session("search_" . $this->table_name, $post);
+		$ctl->set_session("search_" . $this->table_name, $this->collect_search_session_from_post($ctl, $post));
 		
 		// Call the function "rows"
 		$ctl->invoke("rows",["max"=>0,"db_id"=>$this->db_setting_id]);
@@ -157,7 +271,7 @@ class db_exe {
 	}
 
 	private function get_side_search_field_names(Controller $ctl): array {
-		$fields = $ctl->get_field_list($this->table_name, "search");
+		$fields = $this->get_search_fields($ctl);
 		$names = [];
 		foreach ($fields as $field) {
 			$name = $field["parameter_name"] ?? "";
@@ -167,6 +281,20 @@ class db_exe {
 			$names[] = $name;
 		}
 		return $names;
+	}
+
+	private function get_side_search_fields(Controller $ctl): array {
+		$tmp_group_name = "__tmp_side_search_group_" . uniqid();
+		$fields = $this->assign_search_group($ctl, $tmp_group_name, true, false);
+		$list = [];
+		foreach ($fields as $field) {
+			$name = $field["parameter_name"] ?? "";
+			if ($name === "" || $name === "parent_id") {
+				continue;
+			}
+			$list[] = $field;
+		}
+		return $list;
 	}
 
 	private function normalize_year_month_value($value) {
@@ -226,12 +354,7 @@ class db_exe {
 			return;
 		}
 
-		$field_names = $this->get_side_search_field_names($ctl);
-		$search = [];
-		foreach($field_names as $name){
-			$search[$name] = $post[$name] ?? "";
-		}
-		$ctl->set_session($this->get_side_search_session_key(), $search);
+		$ctl->set_session($this->get_side_search_session_key(), $this->collect_search_session_from_post($ctl, $post));
 		$ctl->invoke("rows_child",["db_id"=>$this->db_setting_id,"parent_id"=>$parent_id]);
 	}
 	
@@ -240,7 +363,7 @@ class db_exe {
 		$post = $ctl->POST();
 		
 		// Putting search fields and search values
-		$ctl->set_session("search_" . $this->table_name, $post);
+		$ctl->set_session("search_" . $this->table_name, $this->collect_search_session_from_post($ctl, $post));
 		
 		// Call the function "rows"
 		$ctl->invoke("rows_weekly_calendar",["max"=>0,"db_id"=>$this->db_setting_id]);
@@ -251,18 +374,13 @@ class db_exe {
 		
 		// Getting search fields and search values
 		$session = $ctl->get_session("search_" . $this->table_name);
-		$fields = $ctl->get_field_list($this->table_name, "search");
-		$search_field_list = [];
-		$search_values = [];
-		foreach($fields as $f){
-			$search_field_list[] = $f["parameter_name"];
-			$search_values[] = $session[$f["parameter_name"]] ?? "";
-		}
+		$fields = $this->get_search_fields($ctl);
+		[$search_field_list, $search_values, $search_match_patterns] = $this->build_search_filter_parts($fields, $session);
 		
 		// Getting data from DB
 		$max = $ctl->increment_post_value('max', 10);
 		$this->ffm->set_flg_filter_zero(true); // ""で全検索 0のvalueを有効にする
-		$rows = $this->ffm->filter($search_field_list, $search_values, false, 'AND', $this->db_setting["sortkey"], $this->db_setting["sort_order"], $max, $is_last);
+		$rows = $this->ffm->filter($search_field_list, $search_values, false, 'AND', $this->db_setting["sortkey"], $this->db_setting["sort_order"], $max, $is_last, $search_match_patterns);
 
 		// Encrypt ID and change data
 		$ctl->assign_field_settings("group1",$this->table_name, 'list', false,true,true);
@@ -533,27 +651,26 @@ class db_exe {
 		$ctl->assign("table_title",$this->db_setting["menu_name"]);
 		
 		if($this->get_side_panel_list_type() == 1){
-			$search_field_names = $this->get_side_search_field_names($ctl);
-			$ctl->assign_field_settings("search_group",$this->table_name,$search_field_names,true,false);
+			$search_fields = $this->get_side_search_fields($ctl);
+			$ctl->assign("search_group", $search_fields);
 			$search_row = $ctl->get_session($this->get_side_search_session_key());
 			if(!is_array($search_row)){
 				$search_row = [];
 			}
 			$ctl->assign("row", $search_row);
-			if(count($search_field_names) > 0){
+			if(count($search_fields) > 0){
 				$ctl->assign("show_search_box", true);
 			}
 
-			$search_field_list = ["parent_id"];
-			$search_values = [$parent_id];
-			foreach($search_field_names as $name){
-				$search_field_list[] = $name;
-				$search_values[] = $search_row[$name] ?? "";
-			}
+			$base_fields = $this->get_search_fields($ctl);
+			[$search_field_list, $search_values, $search_match_patterns] = $this->build_search_filter_parts($base_fields, $search_row);
+			array_unshift($search_field_list, "parent_id");
+			array_unshift($search_values, $parent_id);
+			array_unshift($search_match_patterns, "=");
 
 			$max = $ctl->increment_post_value('max', 10);
 			$this->ffm->set_flg_filter_zero(true);
-			$rows = $this->ffm->filter($search_field_list, $search_values, false, 'AND', $this->db_setting["sortkey"], $this->db_setting["sort_order"], $max, $is_last);
+			$rows = $this->ffm->filter($search_field_list, $search_values, false, 'AND', $this->db_setting["sortkey"], $this->db_setting["sort_order"], $max, $is_last, $search_match_patterns);
 			$ctl->assign("max", $max);
 			$ctl->assign("is_last", $is_last);
 		}else{
@@ -793,10 +910,10 @@ class db_exe {
 		$ctl->assign_field_settings("group1",$this->table_name, 'list', false,true);
 		
 		$search = $ctl->get_session("search_" . $this->table_name);
-		if(count($ctl->get_field_list($this->table_name, "search"))>0){
+		$search_fields = $this->assign_search_group($ctl, "search_group", true, true);
+		if(count($search_fields)>0){
 			$ctl->assign("show_search_box",true);
 		}
-		$ctl->assign_field_settings("search_group",$this->table_name, "search",true,true);
 		
 		// Set date
 		$d = $ctl->get_session("YMD-time");
@@ -812,13 +929,8 @@ class db_exe {
 		
 		// filter data
 		$session = $ctl->get_session("search_" . $this->table_name);
-		$fields = $ctl->get_field_list($this->table_name, "search");
-		$search_field_list = [];
-		$search_values = [];
-		foreach($fields as $f){
-			$search_field_list[] = $f["parameter_name"];
-			$search_values[] = $session[$f["parameter_name"]] ?? "";
-		}
+		$fields = $this->get_search_fields($ctl);
+		[$search_field_list, $search_values, $search_match_patterns] = $this->build_search_filter_parts($fields, $session);
 		$ctl->assign("row",$session);
 		
 		// Getting data to show in the time cells
@@ -828,7 +940,7 @@ class db_exe {
 		$assigned_travel=[];
 		//$list = $this->ffm->select(["datetime","datetime"],[$time_from,$time_end],[">=","<="]);
 		$this->ffm->set_flg_filter_zero(true);
-		$list = $this->ffm->filter($search_field_list, $search_values, false, 'AND');
+		$list = $this->ffm->filter($search_field_list, $search_values, false, 'AND', null, SORT_DESC, null, $is_last, $search_match_patterns);
 		// Ensure stable display order inside each hour cell (e.g. 10:00 before 10:30).
 		usort($list, function ($a, $b) {
 			$adt = (int) ($a["datetime"] ?? 0);
@@ -963,17 +1075,12 @@ class db_exe {
 		
 		// filter data
 		$session = $ctl->get_session("search_" . $this->table_name);
-		$fields = $ctl->get_field_list($this->table_name, "search");
-		$search_field_list = [];
-		$search_values = [];
-		foreach($fields as $f){
-			$search_field_list[] = $f["parameter_name"];
-			$search_values[] = $session[$f["parameter_name"]];
-		}
+		$fields = $this->get_search_fields($ctl);
+		[$search_field_list, $search_values, $search_match_patterns] = $this->build_search_filter_parts($fields, $session);
 		
 		$unassigned = [];
 		$this->ffm->set_flg_filter_zero(true);
-		$list = $this->ffm->filter($search_field_list, $search_values, false, 'AND');
+		$list = $this->ffm->filter($search_field_list, $search_values, false, 'AND', null, SORT_DESC, null, $is_last, $search_match_patterns);
 		
 		// Getting unassigned data and show it on the side panel
 		//$list = $this->ffm->select("datetime","","=");

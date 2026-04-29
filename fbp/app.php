@@ -7,6 +7,13 @@ mb_internal_encoding("UTF-8");
 // ブラウザによる途中中断禁止
 ignore_user_abort(true);
 
+if (isset($_REQUEST[session_name()])) {
+	$requestedSessionId = (string) $_REQUEST[session_name()];
+	if ($requestedSessionId !== '' && preg_match('/^[A-Za-z0-9,-]+$/', $requestedSessionId)) {
+		session_id($requestedSessionId);
+	}
+}
+
 // Session Start
 session_start();
 

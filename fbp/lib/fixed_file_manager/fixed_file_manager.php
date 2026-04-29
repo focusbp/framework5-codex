@@ -439,7 +439,7 @@ class fixed_file_manager implements FFM {
 	}
 
 	//
-	function filter($itemname, $value, $exact_match = false, $and_or = "AND", $sortitem = null, $sort_order = SORT_DESC, $max = null, &$is_last = null) {
+	function filter($itemname, $value, $exact_match = false, $and_or = "AND", $sortitem = null, $sort_order = SORT_DESC, $max = null, &$is_last = null, $match_patterns = null) {
 
 
 		// 配列以外でも受け付ける
@@ -448,6 +448,12 @@ class fixed_file_manager implements FFM {
 		}
 		if (!is_array($value)) {
 			$value = [$value];
+		}
+		if (!is_array($match_patterns)) {
+			$match_patterns = [];
+			foreach ($itemname as $key => $val) {
+				$match_patterns[$key] = "=";
+			}
 		}
 
 		if ($sort_order == null) {
@@ -493,10 +499,12 @@ class fixed_file_manager implements FFM {
 			if ($this->is_empty_filter_itemname($iname)) {
 				unset($itemname[$key]);
 				unset($value[$key]);
+				unset($match_patterns[$key]);
 			}
 		}
 		$itemname = array_values($itemname);
 		$value = array_values($value);
+		$match_patterns = array_values($match_patterns);
 
 		// 空白の値を排除
 		if ($this->flg_filter_zero) {
@@ -508,6 +516,7 @@ class fixed_file_manager implements FFM {
 					if (empty($value[$key])) {
 						unset($itemname[$key]);
 						unset($value[$key]);
+						unset($match_patterns[$key]);
 					}
 				}
 			}
@@ -517,9 +526,13 @@ class fixed_file_manager implements FFM {
 				if (empty($value[$key])) {
 					unset($itemname[$key]);
 					unset($value[$key]);
+					unset($match_patterns[$key]);
 				}
 			}
 		}
+		$itemname = array_values($itemname);
+		$value = array_values($value);
+		$match_patterns = array_values($match_patterns);
 
 		// Itemtypeをセット
 		$itemtype = array();
@@ -691,10 +704,37 @@ class fixed_file_manager implements FFM {
 						}
 					} else {
 						// 数字
-						if ($and_or == "AND") {
-							$flg = $flg && $d[$iname] == $value[$key];
+						$check = false;
+						$v = $d[$iname];
+						$match_pattern = $match_patterns[$key] ?? "=";
+						if ($match_pattern == "=") {
+							if ($v == $value[$key]) {
+								$check = true;
+							}
+						} else if ($match_pattern == ">") {
+							if ($v > $value[$key]) {
+								$check = true;
+							}
+						} else if ($match_pattern == "<") {
+							if ($v < $value[$key]) {
+								$check = true;
+							}
+						} else if ($match_pattern == ">=") {
+							if ($v >= $value[$key]) {
+								$check = true;
+							}
+						} else if ($match_pattern == "<=") {
+							if ($v <= $value[$key]) {
+								$check = true;
+							}
 						} else {
-							$flg = $flg || $d[$iname] == $value[$key];
+							throw new Exception("Match Pattern is wrong: " . $match_pattern);
+						}
+
+						if ($and_or == "AND") {
+							$flg = $flg && $check;
+						} else {
+							$flg = $flg || $check;
 						}
 					}
 				}

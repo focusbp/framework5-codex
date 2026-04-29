@@ -22,6 +22,9 @@
 			var fd = new FormData();
 			fd.append("class", "db_additionals");
 			fd.append("function", "button_sort_exe");
+			fd.append("tb_name","{$tb_name|escape}");
+			fd.append("target_area","{$target_area|escape}");
+			fd.append("reload_db_id","{$reload_db_id}");
 			fd.append("place","{$place}")
 			fd.append("log", log);
 			appcon("app.php", fd);

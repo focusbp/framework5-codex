@@ -70,6 +70,7 @@ class OrderFulfillmentPickupDetailsCurbsidePickupDetails implements \JsonSeriali
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $json = [];
