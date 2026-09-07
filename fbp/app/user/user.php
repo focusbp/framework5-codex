@@ -358,11 +358,7 @@ class user {
 	function upload_csv_confirm(Controller $ctl){
 		
 		if (!$ctl->is_posted_file("users_csv")){
-			if (empty($post["users_csv"])){
-				$errors["users_csv"] = $ctl->t("validation.required");
-			}
-			$ctl->assign("errors",$errors);
-			$this->upload_csv($ctl);
+			$ctl->res_error_message("users_csv", $ctl->t("validation.required"));
 			return;
 		}
 		
